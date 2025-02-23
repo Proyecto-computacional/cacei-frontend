@@ -21,11 +21,11 @@ const Login = () => {
     return (
         <>
             <AppHeader></AppHeader>
-            <div className="flex justify-center w-full items-start bg-linear-to-t from-slate-50 from-60%  to-slate-200">
+            <div className="flex justify-center w-full items-start bg-linear-to-b from-backgroundFrom to-backgroundTo to-40%">
                 <div className=" p-10 w-5/9" id="info">
-                    <h1 class=" font-bold text-3xl">Bienvenido</h1>
-                    <p class="mt-10 mb-20">Este sistema permitirá a los usuarios cargar evidencias en forma de archivos, los cuales serán almacenados en una base de datos y organizados según las categorías y secciones del Marco de Referencia 2025</p>
-                    <img src={caceiLogo} alt="Logo no encontrado" />
+                    <h1 class=" font-bold text-4xl">Bienvenido</h1>
+                    <p class="mt-5 mb-10">Este sistema permitirá a los usuarios cargar evidencias en forma de archivos, los cuales serán almacenados en una base de datos y organizados según las categorías y secciones del Marco de Referencia 2025</p>
+                    <img src={caceiLogo} alt="Logo no encontrado" className="w-3/4 m-auto" />
                 </div>
                 <div className="flex justify-center items-center h-fit w-3/9">
                     <form className="p-2 w-full" onSubmit={manejarLogin}>
@@ -48,7 +48,7 @@ const Login = () => {
                         />
                         <button
                             type="submit"
-                            className="bg-cyan-500 text-white w-full p-2 rounded hover:bg-cyan-800"
+                            className="bg-secondary1 text-white w-full p-2 rounded hover:bg-cyan-800"
                         >
                             Ingresar
                         </button>
