@@ -23,6 +23,6 @@ export function AppHeader() {
 
 export function AppFooter() {
     return (
-        <div>Footer</div>
+        <div className="min-w-full max-w-full min-h-[15vh] bg-linear-to-t from-blue-900 from-80%  to-cyan-500 to-20%"></div>
     );
 }
