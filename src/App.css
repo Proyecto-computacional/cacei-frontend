@@ -3,3 +3,17 @@
 .clip-triangle {
     clip-path: polygon(96% 0, 100% 50%, 96% 100%, 0% 100%, 0 51%, 0 0);
 }
+
+@theme {
+    --color-primary1: #004A98;
+    --color-primary2: #002043;
+    --color-primary3: #5B7897;
+    --color-secondary1: #00B2E3;
+    --color-secondary2: #005971;
+    --color-secondary3: #9BD4E4;
+    --color-backgroundFrom: #BEC7D3;
+    --color-backgroundTo: #FFFFFF;
+    --color-alt1: #FFC600;
+    --color-alt2: #C75D00;
+    --color-alt3: #FFE486;
+}
