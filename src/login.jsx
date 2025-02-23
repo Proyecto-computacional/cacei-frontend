@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import caceiLogo from './assets/caceiLogo.png'
 import './app.css'
+import { AppHeader } from "./common";
+import { AppFooter } from "./common";
 
 const Login = () => {
     const [usuario, setUsuario] = useState("");
@@ -18,14 +20,15 @@ const Login = () => {
 
     return (
         <>
-            <div className="flex justify-center w-full items-start">
+            <AppHeader></AppHeader>
+            <div className="flex justify-center w-full items-start bg-linear-to-t from-slate-50 from-60%  to-slate-200">
                 <div className=" p-10 w-5/9" id="info">
                     <h1 class=" font-bold text-3xl">Bienvenido</h1>
                     <p class="mt-10 mb-20">Este sistema permitirá a los usuarios cargar evidencias en forma de archivos, los cuales serán almacenados en una base de datos y organizados según las categorías y secciones del Marco de Referencia 2025</p>
                     <img src={caceiLogo} alt="Logo no encontrado" />
                 </div>
                 <div className="flex justify-center items-center h-fit w-3/9">
-                    <form className="p-2 bg-white w-full" onSubmit={manejarLogin}>
+                    <form className="p-2 w-full" onSubmit={manejarLogin}>
                         <h2 className="text-2xl mb-4 text-center">Ingresar al sistema</h2>
                         <input
                             type="text"
@@ -52,7 +55,7 @@ const Login = () => {
                     </form>
                 </div>
             </div>
-
+            <AppFooter></AppFooter>
         </>
 
     );
