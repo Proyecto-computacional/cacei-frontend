@@ -1,3 +1,5 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import MenuPrincipal from "./pages/MainMenu";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -15,9 +17,19 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-500 text-white text-3xl">
-      {mensaje || "Cargando..."}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<MenuPrincipal />} />
+        <Route 
+          path="/mensaje" 
+          element={
+            <div className="min-h-screen flex items-center justify-center bg-blue-500 text-white text-3xl">
+              {mensaje || "Cargando..."}
+            </div>
+          } 
+        />
+      </Routes>
+    </Router>
   );
 }
 
