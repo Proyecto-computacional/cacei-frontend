@@ -1,13 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MenuPrincipal from "./pages/MainMenu";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import Login from "./login"
-import caceiLogo from './assets/caceiLogo.png'
+import Login from "./pages/login";
 
 function App() {
   return (
-    <Login />
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/mainmenu" element={<MenuPrincipal />} />
+      </Routes>
+    </Router>
   );
 }
 

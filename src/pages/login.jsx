@@ -1,18 +1,20 @@
-// src/pages/Login.jsx
 import React, { useState } from "react";
-import caceiLogo from './assets/caceiLogo.png'
-import './app.css'
-import { AppHeader } from "./common";
-import { AppFooter } from "./common";
+import { useNavigate } from "react-router-dom";
+import caceiLogo from '../assets/caceiLogo.png'
+import '../app.css'
+import { AppHeader } from "../common";
+import { AppFooter } from "../common";
 
 const Login = () => {
     const [usuario, setUsuario] = useState("");
     const [contrasena, setContrasena] = useState("");
-
+    const navigate = useNavigate();
+    
     const manejarLogin = (e) => {
         e.preventDefault();
         // Ejemplo simple de autenticación
         if (usuario === "admin" && contrasena === "1234") {
+            navigate("/mainmenu");
         } else {
             alert("Usuario o contraseña incorrectos");
         }
