@@ -2,6 +2,8 @@ import React from "react"
 import './app.css'
 import headerLogo from './assets/headerLogo.png'
 import headerImg from './assets/headerImage.png'
+import { useNavigate } from "react-router-dom";
+import { Mail, Bell, User } from "lucide-react";
 export function AppHeader() {
     return (
         <header className="flex h-[25vh] bg-neutral-100 flex-wrap mb-2 select-none">
@@ -29,3 +31,29 @@ export function AppFooter() {
         <div className="min-w-full max-w-full min-h-[15vh] bg-linear-to-t from-primary1 from-80%  to-secondary1 to-20%"></div>
     );
 }
+
+export function SubHeading() {
+    const navigate = useNavigate();
+    return (
+      <div className="w-full bg-transparent">
+        <div className="flex justify-start items-center p-3 pl-18 space-x-4 border-b-3 bg-[#e1e5eb]">
+            <a href="https://www.google.com" className="text-[#00B2E3] italic underline">Breadcrumbs</a>/
+            <a href="https://www.google.com" className="text-[#00B2E3] italic underline">Breadcrumbs</a>
+            <div className="flex justify-between items-center w-75 ml-215">
+                <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
+                    <Mail className="w-5 h-5 text-black cursor-pointer" />
+                </a>
+                <button onClick={() => navigate("/notifications")}>
+                    <Bell className="w-5 h-5 text-black cursor-pointer" />
+                </button>
+                <button onClick={() => navigate("/personalInfo")} className="flex items-center justify-center bg-yellow-500 text-white shadow w-55 h-7 cursor-pointer">
+                    <User className="w-5 h-5 mr-2 pl-1" />
+                    User
+                </button>
+
+            </div>
+        </div>
+      </div>
+    );
+}
+  
