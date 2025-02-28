@@ -4,6 +4,7 @@ import caceiLogo from '../assets/caceiLogo.png'
 import '../app.css'
 import { AppHeader } from "../common";
 import { AppFooter } from "../common";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
     const [usuario, setUsuario] = useState("");
