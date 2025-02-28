@@ -4,20 +4,30 @@ import caceiLogo from '../assets/caceiLogo.png'
 import '../app.css'
 import { AppHeader } from "../common";
 import { AppFooter } from "../common";
+import { login } from "../services/api"
+
 
 const Login = () => {
-    const [usuario, setUsuario] = useState("");
-    const [contrasena, setContrasena] = useState("");
+    const [RPE, setRPE] = useState("");
+    const [password, setPassword] = useState("");
     const navigate = useNavigate();
-    
-    const manejarLogin = (e) => {
+
+    const manejarLogin = async (e) => {
         e.preventDefault();
-        // Ejemplo simple de autenticación
-        if (usuario === "admin" && contrasena === "1234") {
+        /* // Ejemplo simple de autenticación
+         if (usuario === "admin" && contrasena === "1234") {
+             navigate("/mainmenu");
+         } else {
+             alert("Usuario o contraseña incorrectos");
+         }*/
+
+        try {
+            const user = await login(RPE, password);
             navigate("/mainmenu");
-        } else {
-            alert("Usuario o contraseña incorrectos");
+        } catch (err) {
+            console.log(err);
         }
+
     };
 
     return (
@@ -25,8 +35,8 @@ const Login = () => {
             <AppHeader></AppHeader>
             <div className="flex justify-center w-full items-start bg-linear-to-b from-backgroundFrom to-backgroundTo to-40%">
                 <div className=" p-10 w-5/9" id="info">
-                    <h1 class=" font-bold text-4xl">Bienvenido</h1>
-                    <p class="mt-5 mb-10">Este sistema permitirá a los usuarios cargar evidencias en forma de archivos, los cuales serán almacenados en una base de datos y organizados según las categorías y secciones del Marco de Referencia 2025</p>
+                    <h1 className=" font-bold text-4xl">Bienvenido</h1>
+                    <p className="mt-5 mb-10">Este sistema permitirá a los usuarios cargar evidencias en forma de archivos, los cuales serán almacenados en una base de datos y organizados según las categorías y secciones del Marco de Referencia 2025</p>
                     <img src={caceiLogo} alt="Logo no encontrado" className="w-3/4 m-auto" />
                 </div>
                 <div className="flex justify-center items-center h-fit w-3/9">
@@ -36,16 +46,16 @@ const Login = () => {
                             type="text"
                             placeholder="RPE"
                             className="w-full mb-4 p-2 border bg-neutral-200"
-                            value={usuario}
-                            onChange={(e) => setUsuario(e.target.value)}
+                            value={RPE}
+                            onChange={(e) => setRPE(e.target.value)}
                             required
                         />
                         <input
                             type="password"
                             placeholder="Contraseña"
                             className="w-full mb-4 p-2 border bg-neutral-200"
-                            value={contrasena}
-                            onChange={(e) => setContrasena(e.target.value)}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             required
                         />
                         <button
