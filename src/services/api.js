@@ -5,15 +5,26 @@ const api = axios.create({
 });
 
 export const login = async (rpe, password) => {
-    const response = await api.post('/login', { rpe, password });
-    const token = response.data.token;
-    localStorage.setItem('token', token);
-    localStorage.setItem('role', response.data.user.role);
-    localStorage.setItem('rpe', response.data.user.rpe);
-    localStorage.setItem('email', response.data.user.email);
-    localStorage.setItem('name', response.data.user.name);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    return response.data;
+    try {
+        //Peticion post a localhost/api/login
+        const response = await api.post('/login', { rpe, password });
+        //Correct = login exitoso
+        if (response.data.correct) {
+            //Variables globales de usuario (no definitivas)
+            localStorage.setItem('role', response.role);
+            localStorage.setItem('rpe', rpe);
+            //Aun no se puede recibir el token
+            //const token = response.data.token;
+            //localStorage.setItem('token', token);
+            //api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
+        //Retornar si el login fue exitoso para controlar navegacion.
+        return response.data.correct;
+    } catch (error) {
+        console.error('Error en login:', error.response?.data || error.message);
+        throw error; // Lanza el error para que el componente lo maneje (pendiente de revisar)
+    }
+
 };
 
 export const getAdminData = async () => {

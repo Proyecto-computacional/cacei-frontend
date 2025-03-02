@@ -8,22 +8,22 @@ import { login } from "../services/api"
 
 
 const Login = () => {
-    const [RPE, setRPE] = useState("");
+    const [rpe, setRpe] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
     const manejarLogin = async (e) => {
         e.preventDefault();
-        /* // Ejemplo simple de autenticación
-         if (usuario === "admin" && contrasena === "1234") {
-             navigate("/mainmenu");
-         } else {
-             alert("Usuario o contraseña incorrectos");
-         }*/
 
         try {
-            const user = await login(RPE, password);
-            navigate("/mainmenu");
+            //Esperar respuesta del metodo login en api.js
+            const login_successful = await login(rpe, password);
+            console.log(login_successful);
+            if (login_successful) {
+                navigate("/mainmenu");
+            } else {
+                alert('RPE o contraseña incorrecto');
+            }
         } catch (err) {
             console.log(err);
         }
@@ -46,8 +46,8 @@ const Login = () => {
                             type="text"
                             placeholder="RPE"
                             className="w-full mb-4 p-2 border bg-neutral-200"
-                            value={RPE}
-                            onChange={(e) => setRPE(e.target.value)}
+                            value={rpe}
+                            onChange={(e) => setRpe(e.target.value)}
                             required
                         />
                         <input
