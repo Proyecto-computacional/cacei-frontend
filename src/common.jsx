@@ -40,57 +40,61 @@ export function SubHeading() {
 
     return (
         <div className="w-full bg-transparent">
-            <div className="flex justify-start items-center p-3 pl-18 space-x-4 border-b-3 bg-[#e1e5eb]">
-                
-            <div className="relative">
-                <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black">
-                    <Menu />
-                </button>
+            <div className="flex justify-between items-center p-3  space-x-4 border-b-3 bg-[#e1e5eb]">
+                <div className="flex">
+                    <div className="relative">
+                        <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black">
+                            <Menu />
+                        </button>
 
-                {open && (
-                    <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                        <ul className="py-2">
-                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => { navigate("/mainMenu"); setOpen(false); }}>
-                                Inicio
-                            </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => { navigate("/personalInfo"); setOpen(false); }}>
-                                Configuración personal
-                            </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => { navigate("/mainMenu"); setOpen(false); }} >
-                                Carga de evidencias
-                            </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
-                                Administración de usuarios
-                            </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => { navigate("/mainMenu"); setOpen(false); }} >
-                                Revisión de evidencias
-                            </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => { navigate("/mainMenu"); setOpen(false); }}>
-                                Gestión de formato
-                            </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => { navigate("/mainMenu"); setOpen(false); }} >
-                                Gestión de evidencias
-                            </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => { navigate("/notifications"); setOpen(false); }} >
-                                Notificaciones
-                            </li>
-                        </ul>
+                        {open && (
+                            <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                                <ul className="py-2">
+                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }}>
+                                        Inicio
+                                    </li>
+                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        onClick={() => { navigate("/personalInfo"); setOpen(false); }}>
+                                        Configuración personal
+                                    </li>
+                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }} >
+                                        Carga de evidencias
+                                    </li>
+                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
+                                        Administración de usuarios
+                                    </li>
+                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }} >
+                                        Revisión de evidencias
+                                    </li>
+                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }}>
+                                        Gestión de formato
+                                    </li>
+                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }} >
+                                        Gestión de evidencias
+                                    </li>
+                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        onClick={() => { navigate("/notifications"); setOpen(false); }} >
+                                        Notificaciones
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
 
-                <a href="https://www.google.com" className="text-[#00B2E3] italic underline">Breadcrumbs</a> /
-                <a href="https://www.google.com" className="text-[#00B2E3] italic underline">Breadcrumbs</a>
+                    <div className="ml-12">
+                        <a href="https://www.google.com" className="text-[#00B2E3] italic underline">Breadcrumbs</a> /
+                        <a href="https://www.google.com" className="text-[#00B2E3] italic underline">Breadcrumbs</a>
+                    </div>
+                </div>
 
-                <div className="flex justify-between items-center w-75 ml-215">
+
+                <div className="flex justify-between items-center w-75">
                     <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
                         <Mail className="w-5 h-5 text-black cursor-pointer" />
                     </a>
