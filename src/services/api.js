@@ -30,6 +30,6 @@ export const login = async (rpe, password) => {
 export const logout = async () => {
     await api.post('/logout');
     localStorage.removeItem('token');
-    localStorage.removeItem('userRole');
+    localStorage.removeItem('role');
     delete api.defaults.headers.common['Authorization'];
 };

@@ -9,7 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/mainmenu" element={
-          <ProtectedRoute allowedRoles={['TUTOR ACADEMICO']}>
+          <ProtectedRoute>
             <MenuPrincipal />
           </ProtectedRoute>
         } />

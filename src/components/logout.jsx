@@ -1,16 +1,17 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/api';
+import '../app.css'
 
 const Logout = () => {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         await logout();
-        navigate('/login');
+        navigate('/');
     };
 
-    return <button onClick={handleLogout}>Cerrar Sesión</button>;
+    return <button className="flex items-center justify-center bg-yellow-500 text-white shadow w-55 h-7 cursor-pointer" onClick={handleLogout}>Cerrar Sesión</button>;
 };
 
 export default Logout;

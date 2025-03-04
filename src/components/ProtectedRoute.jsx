@@ -1,18 +1,19 @@
-import React from "react";
-import { BrowserRouter as Navigate } from "react-router-dom";
+import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('role');
-    console.log(token, userRole);
+
 
     if (!token) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/" />;
     }
 
+    // Si hay roles específicos y el usuario no los tiene, redirigir
     if (allowedRoles && Array.isArray(allowedRoles) && !allowedRoles.includes(userRole)) {
-        return <Navigate to="/mainmenu" />; //Pagina por defecto
+        return <Navigate to="/mainmenu" />;
     }
+
     // Si no hay roles específicos, permitir acceso con token válido
     return children;
 };
