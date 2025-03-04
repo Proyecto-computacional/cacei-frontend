@@ -3,6 +3,7 @@ import MenuPrincipal from "./pages/MainMenu";
 import PersonalInfo from "./pages/PersonalConfig";
 import Notifications from "./pages/Notifications";
 import Login from "./pages/login";
+import UsersAdmin from "./pages/UsersAdmin";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/mainmenu" element={<MenuPrincipal />} />
         <Route path="/personalInfo" element={<PersonalInfo />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/usersAdmin" element={<UsersAdmin />} />
       </Routes>
     </Router>
   );
