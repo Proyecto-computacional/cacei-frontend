@@ -5,7 +5,7 @@ import '../app.css'
 import { AppHeader } from "../common";
 import { AppFooter } from "../common";
 import { login } from "../services/api"
-
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
     const [rpe, setRpe] = useState("");
