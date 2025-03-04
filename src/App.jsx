@@ -1,19 +1,20 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MenuPrincipal from "./pages/MainMenu";
-import PersonalInfo from "./pages/PersonalConfig";
-import Notifications from "./pages/Notifications";
 import Login from "./pages/login";
-import UsersAdmin from "./pages/UsersAdmin";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/mainmenu" element={<MenuPrincipal />} />
-        <Route path="/personalInfo" element={<PersonalInfo />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/usersAdmin" element={<UsersAdmin />} />
+        <Route path="/mainmenu" element={
+          <ProtectedRoute>
+            <MenuPrincipal />
+          </ProtectedRoute>
+        } />
       </Routes>
     </Router>
   );
