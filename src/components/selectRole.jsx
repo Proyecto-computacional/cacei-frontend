@@ -3,7 +3,6 @@ import axios from "axios";
 
 const SelectRol = ({ userId, initialRole, AllRoles }) => {
     const [role, setRole] = useState(initialRole);
-    console.log(initialRole);
     const handleChange = async (event) => {
         const newRole = event.target.value;
         setRole(newRole);
@@ -20,6 +19,7 @@ const SelectRol = ({ userId, initialRole, AllRoles }) => {
     return (
         <select value={role} onChange={handleChange}>
             {AllRoles.map((rol) => {
+                console.log(rol.name, initialRole);
                 if (rol.name == initialRole) {
                     return (<option value={rol.name} selected>{rol.name}</option>)
                 } else {
