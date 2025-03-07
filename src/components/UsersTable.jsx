@@ -24,8 +24,9 @@ export default function UsersTable() {
 
     const [roles] = useState([
         { name: 'Administador', description: 'Administración y visualización de todos los procesos de todos los procesos de acreditación' },
-        { name: 'Jefe de area', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su area' },
-        { name: 'Coordinador', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su carrera' },
+        { name: 'Directivo', description: 'visualización de todos los procesos de todos los procesos de acreditación' },
+        { name: 'Jefe de área', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su area' },
+        { name: 'Coordinador de carrera', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su carrera' },
         { name: 'Profesor', description: 'Subir y visualizar las evidencias que se le asignen' },
         { name: 'Profesor responsable', description: 'Subir y visualizar sus evidencias y revisar las evidencias que se le asignen' },
         { name: 'Departamento universitario', description: 'Subir y visualizar sus evidencias (Evidencias transversales)' },
@@ -35,24 +36,24 @@ export default function UsersTable() {
     const [users, setUsers] = useState([]);
     const [nextPage, setNextPage] = useState(null);
     const [loading, setLoading] = useState(false);
-  
+
     const loadMore = () => {
-      if (!nextPage) return;
-      setLoading(true);
-  
-      axios.get(nextPage).then(({ data }) => {
-        console.log(data);
-        setUsers((prev) => [...prev, ...data.usuarios.data]);
-        setNextPage(data.usuarios.next_page_url);
-        setLoading(false);
-      });
+        if (!nextPage) return;
+        setLoading(true);
+
+        axios.get(nextPage).then(({ data }) => {
+            console.log(data);
+            setUsers((prev) => [...prev, ...data.usuarios.data]);
+            setNextPage(data.usuarios.next_page_url);
+            setLoading(false);
+        });
     };
-  
+
     useEffect(() => {
-      axios.get("http://127.0.0.1:8000/api/usersadmin").then(({ data }) => {
-        setUsers(data.usuarios.data);
-        setNextPage(data.usuarios.next_page_url);
-      });
+        axios.get("http://127.0.0.1:8000/api/usersadmin").then(({ data }) => {
+            setUsers(data.usuarios.data);
+            setNextPage(data.usuarios.next_page_url);
+        });
     }, []);
 
     return (
@@ -64,8 +65,8 @@ export default function UsersTable() {
             </form>
 
             <div className="overflow-x-auto overflow-y-scroll max-h-100" onScroll={(e) => {
-             const bottom = e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight+1;
-             if (bottom && !loading) loadMore();
+                const bottom = e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1;
+                if (bottom && !loading) loadMore();
             }}>
                 <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
                     <thead className="sticky top-0 z-0">
@@ -82,7 +83,7 @@ export default function UsersTable() {
                                 <td className="py-3 px-4">{item.user_rpe}</td>
                                 <td className="py-3 px-4">{item.user_mail}</td>
                                 <td className="py-3 px-4">
-                                <SelectRol userId={item.user_rpe} initialRole={item.user_role} AllRoles={roles}></SelectRol>
+                                    <SelectRol userId={item.user_rpe} initialRole={item.user_role} AllRoles={roles}></SelectRol>
                                 </td>
                                 <td className="py-3 px-4 flex gap-4">
                                     <button><img src={eyeIcon} className="max-h-6 w-auto" /></button>
