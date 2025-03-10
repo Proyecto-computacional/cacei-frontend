@@ -28,8 +28,25 @@ export const login = async (rpe, password) => {
 };
 
 export const logout = async () => {
-    await api.post('/logout');
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    delete api.defaults.headers.common['Authorization'];
+    const token = localStorage.getItem('token'); // se obtiene el token antes de hacer la petición
+    if (!token) {
+        console.error("No hay token disponible");
+        return;
+    }
+
+    try {
+        await api.post('/logout', {}, {
+            headers: {
+                Authorization: `Bearer ${token}`, // se envía el token en el header
+                Accept: 'application/json',
+            },
+        });
+
+        // si el logout fue exitoso, se elimina el token del almacenamiento local
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        delete api.defaults.headers.common['Authorization'];
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+    }
 };

@@ -18,7 +18,6 @@ const Login = () => {
         try {
             //Esperar respuesta del metodo login en api.js
             const login_successful = await login(rpe, password);
-            console.log(login_successful);
             if (login_successful) {
                 navigate("/mainmenu");
             } else {
