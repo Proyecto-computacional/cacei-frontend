@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MenuPrincipal from "./pages/MainMenu";
 import Login from "./pages/login";
+import PersonalConfig from "./pages/PersonalConfig";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -15,6 +16,7 @@ function App() {
             <MenuPrincipal />
           </ProtectedRoute>
         } />
+        <Route path="/PersonalConfig" element={<PersonalConfig />}/>
       </Routes>
     </Router>
   );
