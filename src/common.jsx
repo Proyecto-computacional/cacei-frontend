@@ -5,6 +5,7 @@ import headerImg from './assets/headerImage.png';
 import { useNavigate } from "react-router-dom";
 import Logout from "./components/logout";
 import { Mail, Bell, User, Menu } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 export function AppHeader() {
     return (
@@ -46,12 +47,12 @@ export function SubHeading() {
                         <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black">
                             <Menu />
                         </button>
-
+                        {/* obtener el id del usuario activo (local storage?) y pasarlo al main menu como prop*/}
                         {open && (
                             <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                                 <ul className="py-2">
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }}>
+                                        onClick={() => { navigate("/mainmenu"); }}>
                                         Inicio
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
