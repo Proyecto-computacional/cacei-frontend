@@ -17,9 +17,12 @@ export const login = async (rpe, password) => {
             const token = response.data.token;
             localStorage.setItem('token', token);
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+            return response.data;
         }
-        //Retornar si el login fue exitoso para controlar navegacion.
-        return response.data.correct;
+
+        //retorna si el login no fue exitoso
+        return { correct: false };
     } catch (error) {
         console.error('Error en login:', error.response?.data || error.message);
         throw error; // Lanza el error para que el componente lo maneje (pendiente de revisar)
@@ -50,3 +53,5 @@ export const logout = async () => {
         console.error("Error al cerrar sesión:", error);
     }
 };
+
+export default api;
