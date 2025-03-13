@@ -14,21 +14,22 @@ const Login = () => {
 
     const manejarLogin = async (e) => {
         e.preventDefault();
-
+    
         try {
-            //Esperar respuesta del metodo login en api.js
-            const login_successful = await login(rpe, password);
-            console.log(login_successful);
-            if (login_successful) {
-                navigate("/mainmenu");
+            const userData = await login(rpe, password);
+            if (userData) {
+                // se obtiene el rpe directamente desde userData
+                const userRpe = userData.rpe;
+                // navegar a la página /mainmenu pasando el userRpe
+                navigate("/mainmenu", { state: { rpe: userRpe } });
             } else {
                 alert('RPE o contraseña incorrecto');
             }
         } catch (err) {
             console.log(err);
         }
-
     };
+    
 
     return (
         <>

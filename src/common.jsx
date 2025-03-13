@@ -4,7 +4,9 @@ import headerLogo from './assets/headerLogo.png';
 import headerImg from './assets/headerImage.png';
 import { useNavigate } from "react-router-dom";
 import Logout from "./components/logout";
+import NotificationsTable from "./components/NotificationTable";
 import { Mail, Bell, User, Menu } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 export function AppHeader() {
     return (
@@ -37,6 +39,7 @@ export function AppFooter() {
 export function SubHeading() {
     const navigate = useNavigate();
     const [open, setOpen] = useState(false); // Estado para controlar el menú
+    const [viewNotifications, setViewNotifications] = useState(false)
 
     return (
         <div className="w-full bg-transparent">
@@ -46,12 +49,12 @@ export function SubHeading() {
                         <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black">
                             <Menu />
                         </button>
-
+                        {/* obtener el id del usuario activo (local storage?) y pasarlo al main menu como prop*/}
                         {open && (
                             <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                                 <ul className="py-2">
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }}>
+                                        onClick={() => { navigate("/mainmenu"); }}>
                                         Inicio
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -79,7 +82,7 @@ export function SubHeading() {
                                         Gestión de evidencias
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/notifications"); setOpen(false); }} >
+                                        onClick={() => { navigate("/notifications"); setOpen(); }} >
                                         Notificaciones
                                     </li>
                                 </ul>
@@ -98,9 +101,19 @@ export function SubHeading() {
                     <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
                         <Mail className="w-5 h-5 text-black cursor-pointer" />
                     </a>
-                    <button onClick={() => navigate("/notifications")}>
-                        <Bell className="w-5 h-5 text-black cursor-pointer" />
-                    </button>
+                    <div className="relative inline-block">
+                        <button onClick={() => navigate("/notifications")} onMouseEnter={() => setViewNotifications(true)}>
+                            <Bell className="w-5 h-5 text-black cursor-pointer" ></Bell>
+                        </button>
+                        {viewNotifications && (
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-fit bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                                onMouseEnter={() => setViewNotifications(true)}
+                                onMouseLeave={() => setViewNotifications(false)}>
+                                <NotificationsTable />
+                            </div>
+                        )}
+                    </div>
+
                     <button onClick={() => navigate("/personalInfo")} className="flex items-center justify-center bg-yellow-500 text-white shadow w-55 h-7 cursor-pointer">
                         <User className="w-5 h-5 mr-2 pl-1" />
                         User
