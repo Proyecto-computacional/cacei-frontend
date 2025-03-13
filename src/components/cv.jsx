@@ -49,7 +49,8 @@ const CV = () => {
     ];
     
 
-    const registros = [
+    const registros = {
+      1: [ // Formación Académica
         {
           id: 1,
           grado: "Maestria",
@@ -68,7 +69,75 @@ const CV = () => {
           año: "2022",
           cedula: "87654321",
         },
-      ];
+      ],
+      2: [ // Capacitación Docente
+        {
+          id: 1,
+          tipo: "Curso en Didáctica Universitaria",
+          institucion: "Universidad Autónoma de Barcelona, España",
+          año: 2020,
+          horas: 40,
+        },
+        {
+          id: 2,
+          tipo: "Taller de Innovación Educativa",
+          institucion: "Tecnológico de Monterrey, México",
+          año: 2021,
+          horas: 30,
+        },
+      ],
+      3: [ // Experiencia Profesional No Académica
+        {
+          id: 1,
+          actividad: "Desarrollador de Software",
+          organizacion: "Google LLC",
+          inicio: "2017-06",
+          fin: "2020-08",
+        },
+        {
+          id: 2,
+          actividad: "Consultor en Ciberseguridad",
+          organizacion: "Kaspersky Lab",
+          inicio: "2021-01",
+          fin: "2023-02",
+        },
+      ],
+      4: [ // Participación en Organismos Profesionales
+        {
+          id: 1,
+          organismo: "IEEE (Institute of Electrical and Electronics Engineers)",
+          periodo: 5,
+          nivel: "Miembro Senior",
+        },
+        {
+          id: 2,
+          organismo: "ACM (Association for Computing Machinery)",
+          periodo: 3,
+          nivel: "Miembro Asociado",
+        },
+      ],
+      5: [ // Premios y Reconocimientos
+        {
+          id: 1,
+          descripcion: "Premio Nacional de Innovación en Tecnología 2020",
+        },
+        {
+          id: 2,
+          descripcion: "Reconocimiento a la Excelencia en Docencia 2021",
+        },
+      ],
+      6: [ // Aportaciones a la Mejora del PE
+        {
+          id: 1,
+          descripcion: "Desarrollo de un nuevo modelo de enseñanza híbrida para la carrera de Ingeniería en Sistemas Computacionales.",
+        },
+        {
+          id: 2,
+          descripcion: "Implementación de un sistema de evaluación basado en proyectos para mejorar la retención de conocimientos en estudiantes.",
+        },
+      ],
+    };
+    
       const addRow = (sectionId) => {
         setData((prev) => ({
           ...prev,
@@ -87,29 +156,30 @@ const CV = () => {
     
       const sendData = (sectionId) => {
         console.log("Enviando", sectionId ? data[sectionId] : data);
-        // Aquí se enviarán los datos al backend cuando se implemente
       };
     
       return (
-        <div className="p-4 space-y-6 border flex flex-wrap">
-          {secciones.map((section) => (
-            <div key={section.id} className=" p-4 rounded-lg w-fit">
-              <h2 className="text-2x1 font-bold text-alt1">{section.sectionName}</h2>
-              <table className="w-full mt-4 text-primary1">
-                <thead>
-                  <tr>
-                    {section.campos.map((campo) => (
-                      <th key={campo.name} className="px-4 py-2">{campo.label}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {registros.map((previous) => (
-              <tr className="">
-                {section.campos.map((field) => (
-                    <td className="p-2 text-center">{previous[field.name]}</td>
-                  ))}
-              </tr>
+<div className="p-4 space-y-6 border">
+  {secciones.map((section) => (
+    <div key={section.id} className="p-4 rounded-lg w-fit">
+      <h2 className="text-2x1 font-bold text-alt1">{section.sectionName}</h2>
+      <table className="w-full mt-4 text-primary1">
+        <thead>
+          <tr>
+            {section.campos.map((campo) => (
+              <th key={campo.name} className="px-4 py-2 ">{campo.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {registros[section.id]?.map((previous, index) => ( 
+            <tr key={index}>
+              {section.campos.map((field) => (
+                <td key={field.name} className="p-2 text-center">
+                  {previous[field.name] || "-"} {}
+                </td>
+              ))}
+            </tr>
               ))}
                   {(data[section.id] || []).map((row) => (
                     <tr key={row.id}>
@@ -164,7 +234,7 @@ const CV = () => {
             </div>
           ))}
           <button
-            className="bg-alt1 text-white px-4 py-2 rounded"
+            className="bg-alt1 text-white px-4 py-2 rounded w-max"
             onClick={() => sendData(null)}
           >
             Enviar Todo
