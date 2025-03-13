@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Trash2, Pin, PinOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import '../app.css';
 
 const deleteNoti = (id) => {
@@ -20,6 +21,7 @@ const listNotifications = [
 
 const NotificationsTable = () => {
     const [notifications] = useState([...listNotifications].sort((a, b) => b.pin - a.pin));
+    const navigate = useNavigate();
 
 
     const [nextPage, setNextPage] = useState(null);
@@ -65,7 +67,8 @@ const NotificationsTable = () => {
                     ))}
                 </tbody>
             </table>
-            <button className=" w-full bg-primary1 text-white border-white px-4 text-2xl sticky bottom-0" >Ver todo</button>
+            <button className=" w-full bg-primary1 text-white border-white px-4 text-2xl sticky bottom-0" 
+            onClick={() => { navigate("/notifications"); setOpen(); }}>Ver todo</button>
         </div>
     );
 }
