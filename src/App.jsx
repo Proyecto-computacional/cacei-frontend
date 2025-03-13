@@ -3,6 +3,8 @@ import MenuPrincipal from "./pages/MainMenu";
 import Login from "./pages/login";
 import Dashboard from "./pages/Dashboard";
 import Notification from "./pages/Notifications";
+import UsersAdmin from "./pages/UsersAdmin";
+import PersonalConfig from "./pages/PersonalConfig";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -19,6 +21,8 @@ function App() {
         } />
         <Route path="/dash/:processId" element={<Dashboard />} />
         <Route path="/notifications" element={<Notification />} />
+        <Route path="/UsersAdmin" element={<UsersAdmin />} />
+        <Route path="/personalInfo" element={<PersonalConfig />} />
       </Routes>
     </Router>
   );

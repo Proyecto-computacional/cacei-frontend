@@ -42,7 +42,6 @@ export default function UsersTable() {
         setLoading(true);
 
         axios.get(nextPage).then(({ data }) => {
-            console.log(data);
             setUsers((prev) => [...prev, ...data.usuarios.data]);
             setNextPage(data.usuarios.next_page_url);
             setLoading(false);
