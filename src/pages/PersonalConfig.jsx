@@ -11,7 +11,10 @@ const PersonalConfig = () => {
           <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-6 mb-5">
             Información Personal
           </h1>
-        <CV />
+          <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-6 mb-5">
+            Curriculum Vitae
+          </h1>
+          <CV />
         </div>
         <AppFooter></AppFooter>
       </>

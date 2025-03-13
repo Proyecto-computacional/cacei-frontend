@@ -2,15 +2,29 @@ import { useState } from "react";
 import "../app.css"
 
 const Section = ({ id, sectionName ,fields, previousData ,data, setData }) => {
-  const [formData, setFormData] = useState(data || {});
+  const [records, setRecords] = useState([]);
+  const [newRecord, setNewRecord] = useState(
+    fields.reduce((acc, field) => ({ ...acc, [field]: '' }), {})
+  );
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleInputChange = (e, field) => {
+    setNewRecord({ ...newRecord, [field]: e.target.value });
+  };
+
+  const addRecord = () => {
+    if (Object.values(newRecord).some((value) => value.trim() !== '')) {
+      setRecords([...records, { ...newRecord, id: Date.now() }]);
+      setNewRecord(fields.reduce((acc, field) => ({ ...acc, [field]: '' }), {}));
+    }
+  };
+
+  const deleteRecord = (id) => {
+    setRecords(records.filter((record) => record.id !== id));
   };
 
   const handleSave = () => {
-    setData((prev) => ({ ...prev, [id]: formData }));
-  };
+    console.log(JSON.stringify({ section: title, data: records }));
+  }
 
   return (
     <div className="border p-4 mb-4 text-primary1">
@@ -38,8 +52,8 @@ const Section = ({ id, sectionName ,fields, previousData ,data, setData }) => {
               <input
                 type="text"
                 name={field.name}
-                value={formData[field.name] || ""}
-                onChange={handleChange}
+                value={newRecord[field]}
+                onChange={(e) => handleInputChange(e, field)}
                 className="border p-2 w-full"
                 placeholder={field.placeholder}
               />
@@ -47,8 +61,8 @@ const Section = ({ id, sectionName ,fields, previousData ,data, setData }) => {
             {field.type === "select" && (
               <select
                 name={field.name}
-                value={formData[field.name] || ""}
-                onChange={handleChange}
+                value={newRecord[field]}
+                onChange={(e) => handleInputChange(e, field)}
                 className="border p-2 w-full"
               >
                 {field.options.map((option) => (
@@ -63,6 +77,10 @@ const Section = ({ id, sectionName ,fields, previousData ,data, setData }) => {
         </tr>
         </tbody>
       </table>
+      <button
+        onClick={addRecord}
+        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors mb-4"
+      ></button>
       <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 mt-2">
         Guardar Sección {id}
       </button>
