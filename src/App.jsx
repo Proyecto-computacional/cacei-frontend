@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MenuPrincipal from "./pages/MainMenu";
 import Login from "./pages/login";
 import Dashboard from "./pages/Dashboard";
+import Notification from "./pages/Notifications";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -17,6 +18,7 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/dash/:processId" element={<Dashboard />} />
+        <Route path="/notifications" element={<Notification />} />
       </Routes>
     </Router>
   );
