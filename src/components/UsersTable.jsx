@@ -73,9 +73,11 @@ export default function UsersTable() {
                                 </td>
                             </tr>
                         )):
-                        <td colspan="3">
-                            <p className="text-2xl text-neutral-500 text-center width-max">No se encontaron usuarios</p>
-                        </td>
+                        <tr>
+                            <td colSpan="3">
+                                <p className="text-2xl text-neutral-500 text-center width-max my-2">No se encontaron usuarios</p>
+                            </td>
+                        </tr>
                     }
                     </tbody>
                 </table>
