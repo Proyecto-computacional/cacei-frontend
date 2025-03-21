@@ -1,6 +1,6 @@
 import React from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
-import EvidenceTable from "../components/EvidenceTable";
+import EvidenceTable from "../components/ReviewEvidence/EvidenceTable";
 import '../app.css'
 
 const ReviewEvidence = () => {
