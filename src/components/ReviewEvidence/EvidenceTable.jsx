@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import "../../app.css"
 import { MessageCircle, Check, X } from "lucide-react";
@@ -12,9 +12,26 @@ export default function EvidenceTable() {
     const [nextPage, setNextPage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [openFeedback, setOpenFeedback] = useState(false);
+    const [idEvidenceFeedback, setIdEvidenceFeedback] = useState(null);
+    const [statusFeedback, setStatusFeedback] = useState(null)
+    const [feedback, setFeedback] = useState(null)
+
+    useEffect(() => {
+        console.log("Evidencia :", idEvidenceFeedback,
+            "\nStatus: ", statusFeedback,
+            "\nFeedback: ", feedback);
+    }, [feedback]
+    );
+
+    const handleFeedback = (id, status) => {
+        setOpenFeedback(true);
+        setIdEvidenceFeedback(id);
+        setStatusFeedback(status);
+    }
 
     const evidences = [
         {
+            id: 1,
             name: "Juan Pérez",
             user_rpe: 123456,
             responsable: "María López",
@@ -26,6 +43,7 @@ export default function EvidenceTable() {
             ],
         },
         {
+            id: 2,
             name: "Ana Gómez",
             user_rpe: 789012,
             responsable: "Carlos Ramírez",
@@ -34,6 +52,7 @@ export default function EvidenceTable() {
             archivo: [],
         },
         {
+            id: 3,
             name: "Luis Fernández",
             user_rpe: 345678,
             responsable: "Sofía Torres",
@@ -45,6 +64,7 @@ export default function EvidenceTable() {
             ],
         },
         {
+            id: 4,
             name: "Marta Rodríguez",
             user_rpe: 901234,
             responsable: "José Martínez",
@@ -53,6 +73,7 @@ export default function EvidenceTable() {
             archivo: [],
         },
         {
+            id: 5,
             name: "Pedro Sánchez",
             user_rpe: 567890,
             responsable: "Elena Vargas",
@@ -105,7 +126,6 @@ export default function EvidenceTable() {
                             <tr className="bg-primary1 text-white">
                                 <th className="w-3/10 py-3 px-4 text-left">Nombre evidencia</th>
                                 <th className="w-4/10 py-3 px-4 text-left">Usuario</th>
-                                <th className="w-3/10 py-3 px-4 text-left">Responsable</th>
                                 <th className="w-3/10 py-3 px-4 text-left">Proceso de acreditación</th>
                                 <th className="w-3/10 py-3 px-4 text-left">Criterio</th>
                                 <th className="w-3/10 py-3 px-4 text-left">Archivo</th>
@@ -117,7 +137,6 @@ export default function EvidenceTable() {
                                 <tr key={item.user_rpe} className="border-b hover:bg-gray-100">
                                     <td className="py-3 px-4">{item.name}</td>
                                     <td className="py-3 px-4">{item.user_rpe}</td>
-                                    <td className="py-3 px-4">{item.responsable}</td>
                                     <td className="py-3 px-4">{item.process}</td>
                                     <td className="py-3 px-4">{item.criterio}</td>
                                     <td className="py-3 px-4">
@@ -139,10 +158,10 @@ export default function EvidenceTable() {
                                     </td>
                                     <td className="py-3 px-4">
                                         <div className="flex gap-2">
-                                            <button onClick={() => setOpenFeedback(true)}>
+                                            <button onClick={() => handleFeedback(item.id, 'approved')}>
                                                 <Check color="green" size={40} strokeWidth={2} />
                                             </button>
-                                            <button onClick={() => setOpenFeedback(true)}>
+                                            <button onClick={() => handleFeedback(item.id, 'not approved')}>
                                                 <X color="red" size={40} strokeWidth={2} />
                                             </button>
                                         </div>
@@ -160,7 +179,8 @@ export default function EvidenceTable() {
                 </div>
             </div>
             {openFeedback && (
-                <Feedback cerrar={() => setOpenFeedback(false)} />
+                <Feedback cerrar={() => setOpenFeedback(false)}
+                    enviar={setFeedback} />
             )}
         </>
     );
