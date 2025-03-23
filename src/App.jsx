@@ -5,7 +5,6 @@ import PersonalConfig from "./pages/PersonalConfig";
 import Dashboard from "./pages/Dashboard";
 import Notification from "./pages/Notifications";
 import UsersAdmin from "./pages/UsersAdmin";
-import PersonalConfig from "./pages/PersonalConfig";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
