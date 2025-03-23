@@ -1,16 +1,47 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom"; 
+import api from "../services/api";
 import { AppHeader, AppFooter, SubHeading } from "../common";
-import NotificationCard from "../components/NotificationCard";
-
-const initialNotifications = [
-  { id: 1, title: "Sección 2.3.4 pendiente", description: "Están pendientes las evidencias de la sección 2.3.4.", pinned: false },
-  { id: 2, title: "Sección 6.4.8 aprobada", description: "Se aprobaron las evidencias subidas a la sección 6.4.8.", pinned: false },
-  { id: 3, title: "Sección 1.5.7 denegada", description: "Se negaron las evidencias subidas a la sección 1.5.7. Favor de checar la sección de retroalimentación para generar las correcciones pedidas.", pinned: false },
-  { id: 4, title: "Sección 5.1.1 Cambios en los criterios de la sección", description: "Se realizaron cambios a los criterios de la sección 5.1.1. Puede observarlos en la guía de ayuda.", pinned: false },
-];
+import NotificationCard from "../components/NotificationCard"; 
 
 const Notification = () => {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState([]);
+  const location = useLocation();  // Obtener la ubicación para extraer parámetros
+  const userRpe = location.state?.rpe;  // Obtener el RPE del usuario desde el estado
+  const navigate = useNavigate(); // Usado para navegar a otras rutas
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        if (!userRpe) {
+          console.error("userRpe no está disponible");
+          return;  // Si no está disponible, no hacemos la solicitud
+        }
+
+        // Hacemos la solicitud a la API pasando el `userRpe` y el token en los headers
+        const response = await api.post("/Notificaciones", 
+          { user_rpe: userRpe },
+          {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("token")}` // Obtención del token del localStorage
+            },
+          }
+        );
+
+        if (response.status !== 200) {
+          throw new Error("Error al obtener las notificaciones");
+        }
+
+        // Aquí se almacenan las notificaciones en el estado
+        const data = response.data;
+        setNotifications(data);  
+      } catch (error) {
+        console.error("Error al obtener las notificaciones:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, [userRpe]); // Solo se ejecuta cuando `userRpe` cambie
 
   const handlePin = (id) => {
     setNotifications((prev) => {
@@ -18,9 +49,13 @@ const Notification = () => {
         notif.id === id ? { ...notif, pinned: !notif.pinned } : notif
       );
 
-      // Mueve las notificadas fijadas al inicio
+      // Mueve las notificaciones fijadas al inicio
       return [...updated.filter(n => n.pinned), ...updated.filter(n => !n.pinned)];
     });
+  };
+
+  const handleNotificationClick = (id) => {
+    navigate(`/notification/${id}`, { state: { notificationId: id } });
   };
 
   return (
@@ -35,15 +70,20 @@ const Notification = () => {
           Mis Notificaciones
         </h1>
         <div className="space-y-4">
-          {notifications.map((notif) => (
-            <NotificationCard
-              key={notif.id}
-              title={notif.title}
-              description={notif.description}
-              pinned={notif.pinned}
-              onPinClick={() => handlePin(notif.id)}
-            />
-          ))}
+          {notifications.length > 0 ? (
+            notifications.map((notif) => (
+              <NotificationCard
+                key={notif.id}
+                title={notif.title}
+                description={notif.description}
+                pinned={notif.pinned}
+                onPinClick={() => handlePin(notif.id)}
+                onClick={() => handleNotificationClick(notif.id)} // Navegar a la página de la notificación
+              />
+            ))
+          ) : (
+            <p>No se encontraron notificaciones</p>
+          )}
         </div>
       </div>
       <AppFooter />
