@@ -22,7 +22,11 @@ function App() {
         <Route path="/PersonalConfig" element={<PersonalConfig />}/>
         <Route path="/dash/:processId" element={<Dashboard />} />
         <Route path="/notifications" element={<Notification />} />
-        <Route path="/UsersAdmin" element={<UsersAdmin />} />
+        <Route path="/UsersAdmin" element={
+          <ProtectedRoute allowedRoles={["PROFESOR"]}>
+            <UsersAdmin />
+          </ProtectedRoute>
+          } />
         <Route path="/personalInfo" element={<PersonalConfig />} />
       </Routes>
     </Router>
