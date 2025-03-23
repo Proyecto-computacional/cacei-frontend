@@ -5,6 +5,7 @@ import PersonalConfig from "./pages/PersonalConfig";
 import Dashboard from "./pages/Dashboard";
 import Notification from "./pages/Notifications";
 import UsersAdmin from "./pages/UsersAdmin";
+import UploadEvidence from "./pages/uploadEvidence";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -28,6 +29,7 @@ function App() {
           </ProtectedRoute>
           } />
         <Route path="/personalInfo" element={<PersonalConfig />} />
+        <Route path="/uploadEvidence" element={<UploadEvidence />} />
       </Routes>
     </Router>
   );
