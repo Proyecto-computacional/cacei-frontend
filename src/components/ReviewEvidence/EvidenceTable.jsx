@@ -3,7 +3,8 @@ import axios from "axios";
 import "../../app.css"
 import { MessageCircle, Check, X } from "lucide-react";
 import { use } from "react";
-import Feedback from "./FeedBack";
+import Feedback from "./Feedback";
+import HeaderSort from "./headerSort";
 
 export default function EvidenceTable() {
 
@@ -15,6 +16,14 @@ export default function EvidenceTable() {
     const [idEvidenceFeedback, setIdEvidenceFeedback] = useState(null);
     const [statusFeedback, setStatusFeedback] = useState(null)
     const [feedback, setFeedback] = useState(null)
+    const [sortBy, setSortBy] = useState("name");
+    const [order, setOrder] = useState("asc");
+
+    const handleSort = (column) => {
+        const newOrder = sortBy === column && order === "asc" ? "desc" : "asc";
+        setSortBy(column);
+        setOrder(newOrder);
+    };
 
     useEffect(() => {
         console.log("Evidencia :", idEvidenceFeedback,
@@ -86,11 +95,22 @@ export default function EvidenceTable() {
         },
     ];
 
-
+    useEffect(() => {
+        console.log(`http://127.0.0.1:8000/api/evidences?sort_by=${sortBy}&order=${order}`)
+        /*axios
+            .get(`http://127.0.0.1:8000/api/evidences?sort_by=${sortBy}&order=${order}`)
+            .then((response) => {
+                setUsers(response.data.data);
+                setPagination({
+                    currentPage: response.data.current_page,
+                    totalPages: response.data.last_page,
+                });
+            });*/
+    }, [sortBy, order]);
     /*useEffect(() => {
         const url = searchTerm
-            ? `http://127.0.0.1:8000/api/usersadmin?search=${searchTerm}`
-            : `http://127.0.0.1:8000/api/usersadmin`;
+            ? `http://127.0.0.1:8000/api/evidences?search=${searchTerm}`
+            : `http://127.0.0.1:8000/api/evidences`;
 
         axios.get(url).then(({ data }) => {
             setEvidences(data.usuarios.data);
@@ -124,7 +144,7 @@ export default function EvidenceTable() {
                     <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed">
                         <thead className="sticky top-0 z-0">
                             <tr className="bg-primary1 text-white">
-                                <th className="w-3/10 py-3 px-4 text-left">Nombre evidencia</th>
+                                <HeaderSort column="Nombre evidencia" handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <th className="w-4/10 py-3 px-4 text-left">Usuario</th>
                                 <th className="w-3/10 py-3 px-4 text-left">Proceso de acreditación</th>
                                 <th className="w-3/10 py-3 px-4 text-left">Criterio</th>
