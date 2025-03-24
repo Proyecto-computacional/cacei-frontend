@@ -18,6 +18,7 @@ export default function EvidenceTable() {
     const [feedback, setFeedback] = useState(null)
     const [sortBy, setSortBy] = useState("name");
     const [order, setOrder] = useState("asc");
+    const [searchTerm, setSearchTerm] = useState("");
 
     const handleSort = (column) => {
         const newOrder = sortBy === column && order === "asc" ? "desc" : "asc";
@@ -29,6 +30,14 @@ export default function EvidenceTable() {
         console.log("Evidencia :", idEvidenceFeedback,
             "\nStatus: ", statusFeedback,
             "\nFeedback: ", feedback);
+
+        //Generar notificación
+        /*axios.post(url).then(({ data }) => {
+            setEvidences((prev) => [...prev, ...data.evidences.data]);
+            setNextPage(data.usuarios.next_page_url);
+            setLoading(false);
+            });
+        });*/
     }, [feedback]
     );
 
@@ -96,8 +105,25 @@ export default function EvidenceTable() {
     ];
 
     useEffect(() => {
-        console.log(`http://127.0.0.1:8000/api/evidences?sort_by=${sortBy}&order=${order}`)
-        /*axios
+        let url = `http://127.0.0.1:8000/api/evidences?sort_by=${sortBy}&order=${order}`;
+    
+        if (searchTerm) {
+            url += `&search=${searchTerm}`;
+        }
+
+        console.log("consulta url", url);
+    
+        /*axios.get(url).then(({ data }) => {
+            setEvidences((prev) => [...prev, ...data.evidences.data]);
+            setNextPage(data.usuarios.next_page_url);
+            setLoading(false);
+            });
+        });*/
+    }, [searchTerm, sortBy, order]);
+
+    /*useEffect(() => {
+        //console.log(`http://127.0.0.1:8000/api/evidences?sort_by=${sortBy}&order=${order}`);
+        axios
             .get(`http://127.0.0.1:8000/api/evidences?sort_by=${sortBy}&order=${order}`)
             .then((response) => {
                 setUsers(response.data.data);
@@ -105,8 +131,9 @@ export default function EvidenceTable() {
                     currentPage: response.data.current_page,
                     totalPages: response.data.last_page,
                 });
-            });*/
-    }, [sortBy, order]);
+            })
+    }, [sortBy, order]);*/
+
     /*useEffect(() => {
         const url = searchTerm
             ? `http://127.0.0.1:8000/api/evidences?search=${searchTerm}`
@@ -116,8 +143,7 @@ export default function EvidenceTable() {
             setEvidences(data.usuarios.data);
             setNextPage(data.usuarios.next_page_url);
         });
-    }, [searchTerm]);
-*/
+    }, [searchTerm]);*/
 
     const loadMore = () => {
         if (!nextPage) return;
@@ -134,21 +160,21 @@ export default function EvidenceTable() {
     return (
         <>
             <div className="container mx-auto p-5 ">
-                <input type="" placeholder="RPE o Correo" className="bg-backgroundFrom text-2xl w-1/2 mb-3 p-1.5"
+                <input type="" placeholder="RPE, proceso, Criterio o nombre de evidencia" className="bg-backgroundFrom text-2xl w-1/2 mb-3 p-1.5"
                     onChange={(e) => setSearchTerm(e.target.value)} />
 
-                <div className="overflow-x-auto overflow-y-scroll max-h-100" onScroll={(e) => {
+                <div className="overflow-x-auto overflow-y-scroll max-h-300" onScroll={(e) => {
                     const bottom = e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1;
                     if (bottom && !loading) loadMore();
                 }}>
-                    <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed text-2xl">
                         <thead className="sticky top-0 z-0">
                             <tr className="bg-primary1 text-white">
-                                <HeaderSort column="Nombre evidencia" handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <th className="w-4/10 py-3 px-4 text-left">Usuario</th>
-                                <th className="w-3/10 py-3 px-4 text-left">Proceso de acreditación</th>
-                                <th className="w-3/10 py-3 px-4 text-left">Criterio</th>
-                                <th className="w-3/10 py-3 px-4 text-left">Archivo</th>
+                                <HeaderSort column="evidence_name" text={"Nombre de evidencia"} handleSort={handleSort} sortBy={sortBy} order={order} />
+                                <HeaderSort column="user_rpe" text={"RPE usuario"} handleSort={handleSort} sortBy={sortBy} order={order} />
+                                <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} />
+                                <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} />
+                                <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <th className="w-3/10 py-3 px-4 text-left">Revisión</th>
                             </tr>
                         </thead>
