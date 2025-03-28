@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Notification from "./pages/Notifications";
 import UsersAdmin from "./pages/UsersAdmin";
 import UploadEvidence from "./pages/uploadEvidence";
+import EvidenceManagement from "./pages/evidenceManagement";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -30,6 +31,7 @@ function App() {
           } />
         <Route path="/personalInfo" element={<PersonalConfig />} />
         <Route path="/uploadEvidence" element={<UploadEvidence />} />
+        <Route path="/evidenceManagement" element={<EvidenceManagement />} />
       </Routes>
     </Router>
   );
