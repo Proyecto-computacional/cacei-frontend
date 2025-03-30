@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import "../../app.css"
 import { MessageCircle, Check, X } from "lucide-react";
 import { use } from "react";
 import Feedback from "./Feedback";
 import HeaderSort from "./headerSort";
+import cacei from "../../services/api";
 
 export default function EvidenceTable() {
 
 
-    //const [evidences, setEvidences] = useState([]);
+    const [evidences, setEvidences] = useState([]);
     const [nextPage, setNextPage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [openFeedback, setOpenFeedback] = useState(false);
@@ -19,6 +19,7 @@ export default function EvidenceTable() {
     const [sortBy, setSortBy] = useState("name");
     const [order, setOrder] = useState("asc");
     const [searchTerm, setSearchTerm] = useState("");
+
 
     const handleSort = (column) => {
         const newOrder = sortBy === column && order === "asc" ? "desc" : "asc";
@@ -34,7 +35,7 @@ export default function EvidenceTable() {
         //Generar notificación
         /*axios.post(url).then(({ data }) => {
             setEvidences((prev) => [...prev, ...data.evidences.data]);
-            setNextPage(data.usuarios.next_page_url);
+            setNextPage(data.evidence.next_page_url);
             setLoading(false);
             });
         });*/
@@ -47,78 +48,20 @@ export default function EvidenceTable() {
         setStatusFeedback(status);
     }
 
-    const evidences = [
-        {
-            id: 1,
-            name: "Juan Pérez",
-            user_rpe: 123456,
-            responsable: "María López",
-            process: "Ingeniería en Computación",
-            criterio: "Criterio 2.1",
-            archivo: [
-                { file_name: "evidencia_luis.xlsx", file_path: "../evidences/evidencia_luis.xlsx" },
-                { file_name: "evidencia_luis.xlsx", file_path: "../evidences/evidencia_luis.xlsx" }
-            ],
-        },
-        {
-            id: 2,
-            name: "Ana Gómez",
-            user_rpe: 789012,
-            responsable: "Carlos Ramírez",
-            process: "Ingeniería Civil",
-            criterio: "Criterio 3.2",
-            archivo: [],
-        },
-        {
-            id: 3,
-            name: "Luis Fernández",
-            user_rpe: 345678,
-            responsable: "Sofía Torres",
-            process: "Ingeniería en Sistemas",
-            criterio: "Criterio 1.4",
-            archivo: [
-                { file_name: "evidencia_luis.xlsx", file_path: "../evidences/evidencia_luis.xlsx" },
-                { file_name: "evidencia_luis.xlsx", file_path: "../evidences/evidencia_luis.xlsx" }
-            ],
-        },
-        {
-            id: 4,
-            name: "Marta Rodríguez",
-            user_rpe: 901234,
-            responsable: "José Martínez",
-            process: "Ingeniería Química",
-            criterio: "Criterio 5.3",
-            archivo: [],
-        },
-        {
-            id: 5,
-            name: "Pedro Sánchez",
-            user_rpe: 567890,
-            responsable: "Elena Vargas",
-            process: "Ingeniería Mecánica",
-            criterio: "Criterio 4.1",
-            archivo: [
-                { file_name: "evidencia_luis.xlsx", file_path: "../evidences/evidencia_luis.xlsx" },
-                { file_name: "evidencia_luis.xlsx", file_path: "../evidences/evidencia_luis.xlsx" }
-            ],
-        },
-    ];
-
     useEffect(() => {
-        let url = `http://127.0.0.1:8000/api/evidences?sort_by=${sortBy}&order=${order}`;
-    
+        let url = `api/ReviewEvidence`;
+
         if (searchTerm) {
             url += `&search=${searchTerm}`;
         }
 
         console.log("consulta url", url);
-    
-        /*axios.get(url).then(({ data }) => {
-            setEvidences((prev) => [...prev, ...data.evidences.data]);
-            setNextPage(data.usuarios.next_page_url);
+
+        cacei.get(url).then(({ data }) => {
+            setEvidences(() => [...data.evidencias.data]);
+            setNextPage(data.evidencias.next_page_url);
             setLoading(false);
-            });
-        });*/
+        });
     }, [searchTerm, sortBy, order]);
 
     /*useEffect(() => {
@@ -138,7 +81,7 @@ export default function EvidenceTable() {
         const url = searchTerm
             ? `http://127.0.0.1:8000/api/evidences?search=${searchTerm}`
             : `http://127.0.0.1:8000/api/evidences`;
-
+    
         axios.get(url).then(({ data }) => {
             setEvidences(data.usuarios.data);
             setNextPage(data.usuarios.next_page_url);
@@ -150,8 +93,8 @@ export default function EvidenceTable() {
         setLoading(true);
 
         axios.get(nextPage).then(({ data }) => {
-            setUsers((prev) => [...prev, ...data.usuarios.data]);
-            setNextPage(data.usuarios.next_page_url);
+            setUsers((prev) => [...prev, ...data.evidence.data]);
+            setNextPage(data.evidence.next_page_url);
             setLoading(false);
         });
     };
@@ -170,8 +113,7 @@ export default function EvidenceTable() {
                     <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed text-2xl">
                         <thead className="sticky top-0 z-0">
                             <tr className="bg-primary1 text-white">
-                                <HeaderSort column="evidence_name" text={"Nombre de evidencia"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="user_rpe" text={"RPE usuario"} handleSort={handleSort} sortBy={sortBy} order={order} />
+                                <HeaderSort column="user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} />
@@ -179,15 +121,14 @@ export default function EvidenceTable() {
                             </tr>
                         </thead>
                         <tbody>
-                            {evidences.length > 0 ? evidences.map((item) => (
+                            {evidences !== null && evidences.length > 0 ? evidences.map((item) => (
                                 <tr key={item.user_rpe} className="border-b hover:bg-gray-100">
-                                    <td className="py-3 px-4">{item.name}</td>
-                                    <td className="py-3 px-4">{item.user_rpe}</td>
-                                    <td className="py-3 px-4">{item.process}</td>
-                                    <td className="py-3 px-4">{item.criterio}</td>
+                                    <td className="py-3 px-4">{item.user_name}</td>
+                                    <td className="py-3 px-4">{item.process_name}</td>
+                                    <td className="py-3 px-4">{item.standard_name}</td>
                                     <td className="py-3 px-4">
-                                        {item.archivo.length > 0 ? (
-                                            item.archivo.map((file) => (
+                                        {item.file_url !== null && item.file_url.length > 0 ? (
+                                            item.file_url.map((file) => (
                                                 <><a
                                                     href={file.file_path}
                                                     target="_blank"
@@ -216,7 +157,7 @@ export default function EvidenceTable() {
                             )) :
                                 <tr>
                                     <td colSpan="4">
-                                        <p className="text-2xl text-neutral-500 text-center width-max my-2">No se encontaron usuarios</p>
+                                        <p className="text-2xl text-neutral-500 text-center width-max my-2">No se encontaron evidencias</p>
                                     </td>
                                 </tr>
                             }
