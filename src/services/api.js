@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api', // Ajusta la URL
+    baseURL: 'http://proyectocacei.test/api', // Ajusta la URL
 });
 
 export const login = async (rpe, password) => {

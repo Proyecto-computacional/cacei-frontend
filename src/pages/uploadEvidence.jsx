@@ -3,6 +3,7 @@ import { AppHeader, AppFooter, SubHeading } from "../common";
 import FeedbackModal from "../components/Feedback";
 import CriteriaGuide from "../components/CriteriaGuide";
 import '../app.css';
+import axios from "axios";
 
 const UploadEvidence = () => {
   const [file, setFile] = useState(null);
@@ -10,6 +11,32 @@ const UploadEvidence = () => {
   const handleFileChange = (event) => {
     setFile(URL.createObjectURL(event.target.files[0]));
   };
+
+  const handleUpload = async () => {
+    if (!file) {
+      alert("Por favor, selecciona un archivo.");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("file", document.querySelector('input[type="file"]').files[0]);
+    formData.append("evidence_id", 1); // Reemplaza con el ID correcto
+    formData.append("justification", "Justificación opcional");
+  
+    try {
+      const response = await axios.post("http://proyectocacei.test/api/file", formData, { //Ajusta la URL
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      console.log("Archivo subido con éxito:", response.data);
+      alert("Archivo subido con éxito");
+    } catch (error) {
+      console.error("Error al subir archivo", error);
+      alert("Error al subir archivo");
+    }
+  };  
 
   const [showFeedback, setShowFeedback] = useState(false);
   const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
@@ -41,7 +68,7 @@ const UploadEvidence = () => {
             </div>
             <div className="flex space-x-4 mt-8 pl-14">
               <button className="bg-[#00B2E3] text-white px-20 py-2 rounded-full">Cancelar</button>
-              <button className="bg-[#004A98] text-white px-20 py-2 ml-10 rounded-full">Guardar</button>
+              <button className="bg-[#004A98] text-white px-20 py-2 ml-10 rounded-full" onClick={handleUpload}>Guardar</button>
             </div>
             <button
               onClick={() => setShowFeedback(true)}
