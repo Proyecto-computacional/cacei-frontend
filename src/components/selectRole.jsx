@@ -23,7 +23,7 @@ const SelectRol = ({ userId, initialRole, AllRoles }) => {
     return (
         <select value={normalizeRol(role)} onChange={handleChange}>
             {AllRoles.map((rol) => {
-                return (<option value={normalizeRol(rol.name)}>{rol.name}</option>)
+                return (<option value={normalizeRol(rol.name)} key={normalizeRol(rol.name)}>{rol.name}</option>)
             })}
         </select>
     );
