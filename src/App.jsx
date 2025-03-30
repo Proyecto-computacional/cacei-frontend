@@ -6,7 +6,6 @@ import Dashboard from "./pages/Dashboard";
 import Notification from "./pages/Notifications";
 import UsersAdmin from "./pages/UsersAdmin";
 import UploadEvidence from "./pages/uploadEvidence";
-
 import ProtectedRoute from "./components/ProtectedRoute";
 
 
