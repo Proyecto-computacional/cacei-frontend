@@ -1,94 +1,102 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; 
-import api from "../services/api";
+import React, { useEffect, useState } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
-import NotificationCard from "../components/NotificationCard"; 
+import AssignTask from "../components/AssignTask";
+import { Pencil, Trash } from "lucide-react";
+import '../app.css';
+import axios from "axios";
 
-const Notification = () => {
-  const [notifications, setNotifications] = useState([]);
-  const location = useLocation();  // Obtener la ubicación para extraer parámetros
-  const userRpe = location.state?.rpe;  // Obtener el RPE del usuario desde el estado
-  const navigate = useNavigate(); // Usado para navegar a otras rutas
+const EvidenceManagement = () => {
+  const [tasks, setTasks] = useState([
+    { id: 1, task: "Revisar informes", responsible: "Marco Hernández", evaluated: "Juan Bravo", status: "Rechazada", date: "17/02/25" },
+    { id: 2, task: "Subir documentos", responsible: "Cesar Torres", evaluated: "Luis Martínez", status: "En revisión", date: "25/06/25" },
+    { id: 3, task: "Subir actas", responsible: "Luis Martínez", evaluated: "Cesar Torres", status: "En revisión", date: "02/07/25" },
+    { id: 4, task: "Subir actas", responsible: "Juan Bravo", evaluated: "Marco Hernández", status: "Aprobada", date: "31/12/25" }
+  ]);
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        if (!userRpe) {
-          console.error("userRpe no está disponible");
-          return;  // Si no está disponible, no hacemos la solicitud
-        }
-
-        // Hacemos la solicitud a la API pasando el `userRpe` y el token en los headers
-        const response = await api.post("/Notificaciones", 
-          { user_rpe: userRpe },
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}` // Obtención del token del localStorage
-            },
-          }
-        );
-
-        if (response.status !== 200) {
-          throw new Error("Error al obtener las notificaciones");
-        }
-
-        // Aquí se almacenan las notificaciones en el estado
-        const data = response.data;
-        setNotifications(data);  
-      } catch (error) {
-        console.error("Error al obtener las notificaciones:", error);
-      }
-    };
-
-    fetchNotifications();
-  }, [userRpe]); // Solo se ejecuta cuando `userRpe` cambie
-
-  const handlePin = (id) => {
-    setNotifications((prev) => {
-      const updated = prev.map((notif) =>
-        notif.id === id ? { ...notif, pinned: !notif.pinned } : notif
-      );
-
-      // Mueve las notificaciones fijadas al inicio
-      return [...updated.filter(n => n.pinned), ...updated.filter(n => !n.pinned)];
-    });
-  };
-
-  const handleNotificationClick = (id) => {
-    navigate(`/notification/${id}`, { state: { notificationId: id } });
-  };
+  const [showAssignTask, setShowAssignTask] = useState(false);
 
   return (
     <>
       <AppHeader />
       <SubHeading />
-      <div
-        className="min-h-screen p-10 pl-18"
-        style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}
-      >
-        <h1 className="text-[34px] font-semibold text-black mt-6 mb-5">
+      <div className="min-h-screen p-10 pl-18 bg-gradient-to-b from-gray-200 to-white">
+        <h1 className="text-3xl font-semibold text-black mt-6 mb-5">
           Gestión de Evidencias y Tareas
         </h1>
-        <div className="space-y-4">
-          {notifications.length > 0 ? (
-            notifications.map((notif) => (
-              <NotificationCard
-                key={notif.id}
-                title={notif.title}
-                description={notif.description}
-                pinned={notif.pinned}
-                onPinClick={() => handlePin(notif.id)}
-                onClick={() => handleNotificationClick(notif.id)} // Navegar a la página de la notificación
-              />
-            ))
-          ) : (
-            <p>No se encontraron notificaciones</p>
-          )}
+        <div className="flex gap-4 mb-4 items-center">
+          <select className="w-40 p-2 border rounded">
+            <option>Categoría</option>
+            <option value="categoria1">Categoría 1</option>
+            <option value="categoria2">Categoría 2</option>
+          </select>
+          <select className="w-40 p-2 border rounded">
+            <option>Sección</option>
+            <option value="seccion1">Sección 1</option>
+            <option value="seccion2">Sección 2</option>
+          </select>
+          <select className="w-40 p-2 border rounded">
+            <option>Criterio</option>
+            <option value="criterio1">Criterio 1</option>
+            <option value="criterio2">Criterio 2</option>
+          </select>
+          <div className="ml-auto flex gap-2">
+            <select className="w-40 border flex items-center px-4 py-2 bg-blue-700 text-white rounded">
+                <option>Estado</option>
+                <option value="criterio1">Rechazada</option>
+                <option value="criterio2">En revisión</option>
+                <option value="criterio2">Aprobada</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Usuario"
+              className="px-4 py-2 border rounded w-40"
+            />
+          </div>
         </div>
+        <table className="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-blue-500 text-white">
+              <th className="p-2 border">Subpunto/Tarea</th>
+              <th className="p-2 border">Responsable</th>
+              <th className="p-2 border">Evaluado</th>
+              <th className="p-2 border">Estado</th>
+              <th className="p-2 border">Acciones</th>
+              <th className="p-2 border">Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tasks.map(task => (
+              <tr key={task.id} className="border border-gray-300">
+                <td className="p-2 border">{task.task}</td>
+                <td className="p-2 border">{task.responsible}</td>
+                <td className="p-2 border">{task.evaluated}</td>
+                <td className="p-2 border">
+                  <span className={`px-2 py-1 rounded text-white ${task.status === "Rechazada" ? "bg-red-500" : task.status === "En revisión" ? "bg-yellow-500" : "bg-green-500"}`}>{task.status}</span>
+                </td>
+                <td className="p-2 border h-10 flex gap-2 justify-center">
+                  <button className="text-blue-500 hover:text-blue-700">
+                    <Pencil size={18} />
+                  </button>
+                  <button className="text-red-500 hover:text-red-700">
+                    <Trash size={18} />
+                  </button>
+                </td>
+                <td className="p-2 border">{task.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button
+            onClick={() => setShowAssignTask(true)}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+        >
+            + Asignar tarea
+        </button>
       </div>
       <AppFooter />
+      {showAssignTask && <AssignTask onClose={() => setShowAssignTask(false)} />}
     </>
   );
 };
 
-export default Notification;
+export default EvidenceManagement;
