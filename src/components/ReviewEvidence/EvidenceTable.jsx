@@ -49,10 +49,16 @@ export default function EvidenceTable() {
     }
 
     useEffect(() => {
-        let url = `api/ReviewEvidence`;
+        let url = `api/ReviewEvidence?`;
 
         if (searchTerm) {
-            url += `&search=${searchTerm}`;
+            url += `search=${searchTerm}`;
+        }
+        if (sortBy) {
+            url += `&sort_by=${sortBy}`;
+        }
+        if (order) {
+            url += `&order=${order}`;
         }
 
         console.log("consulta url", url);
@@ -61,7 +67,9 @@ export default function EvidenceTable() {
             setEvidences(() => [...data.evidencias.data]);
             setNextPage(data.evidencias.next_page_url);
             setLoading(false);
+            console.log(data.evidencias.data);
         });
+
     }, [searchTerm, sortBy, order]);
 
     /*useEffect(() => {
@@ -103,7 +111,7 @@ export default function EvidenceTable() {
     return (
         <>
             <div className="container mx-auto p-5 ">
-                <input type="" placeholder="RPE, proceso, Criterio o nombre de evidencia" className="bg-backgroundFrom text-2xl w-1/2 mb-3 p-1.5"
+                <input type="" placeholder="Usuario , proceso de acreditación, o criterio" className="bg-backgroundFrom text-2xl w-1/2 mb-3 p-1.5"
                     onChange={(e) => setSearchTerm(e.target.value)} />
 
                 <div className="overflow-x-auto overflow-y-scroll max-h-300" onScroll={(e) => {
@@ -113,7 +121,7 @@ export default function EvidenceTable() {
                     <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed text-2xl">
                         <thead className="sticky top-0 z-0">
                             <tr className="bg-primary1 text-white">
-                                <HeaderSort column="user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} />
+                                <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} />
@@ -123,14 +131,14 @@ export default function EvidenceTable() {
                         <tbody>
                             {evidences !== null && evidences.length > 0 ? evidences.map((item) => (
                                 <tr key={item.user_rpe} className="border-b hover:bg-gray-100">
-                                    <td className="py-3 px-4">{item.user_name}</td>
+                                    <td className="py-3 px-4">{item.evidence_owner_name}</td>
                                     <td className="py-3 px-4">{item.process_name}</td>
                                     <td className="py-3 px-4">{item.standard_name}</td>
                                     <td className="py-3 px-4">
-                                        {item.file_url !== null && item.file_url.length > 0 ? (
-                                            item.file_url.map((file) => (
+                                        {item.files.length > 0 ? (
+                                            item.files.map((file) => (
                                                 <><a
-                                                    href={file.file_path}
+                                                    href={file.file_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-blue-500 hover:underline"
