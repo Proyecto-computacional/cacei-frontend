@@ -16,7 +16,6 @@ const MainMenu = () => {
           console.error("userId no está disponible");
           return;  // Si no está disponible, no realizamos la solicitud
         }
-
         // llamada a la API pasando el `userRpe` como parámetro
         const response = await api.get("/ProcesosUsuario", {
           params: {
