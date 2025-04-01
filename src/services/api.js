@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: 'http://proyectocacei.test/', // Ajusta la URL
+    baseURL: import.meta.env.VITE_API_URL, // Ajusta la URL
 });
 
 api.interceptors.request.use(
