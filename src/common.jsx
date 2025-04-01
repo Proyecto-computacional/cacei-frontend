@@ -70,7 +70,7 @@ export function SubHeading() {
                                         Administración de usuarios
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }} >
+                                        onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
                                         Revisión de evidencias
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
