@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useDebugValue } from "react";
 import "../../app.css"
 import { MessageCircle, Check, X } from "lucide-react";
 import { use } from "react";
 import Feedback from "./Feedback";
 import HeaderSort from "./headerSort";
 import cacei from "../../services/api";
+import { resolvePath } from "react-router-dom";
 
 export default function EvidenceTable() {
 
@@ -15,7 +16,7 @@ export default function EvidenceTable() {
     const [openFeedback, setOpenFeedback] = useState(false);
     const [idEvidenceFeedback, setIdEvidenceFeedback] = useState(null);
     const [statusFeedback, setStatusFeedback] = useState(null)
-    const [feedback, setFeedback] = useState(null)
+    const [statusUserRPE, setstatusUserRPE] = useState(null)
     const [sortBy, setSortBy] = useState("name");
     const [order, setOrder] = useState("asc");
     const [searchTerm, setSearchTerm] = useState("");
@@ -27,24 +28,34 @@ export default function EvidenceTable() {
         setOrder(newOrder);
     };
 
-    useEffect(() => {
-        console.log("Evidencia :", idEvidenceFeedback,
-            "\nStatus: ", statusFeedback,
-            "\nFeedback: ", feedback);
+    const sendFeedback = (feedback) => {
+        let url = 'api/RevisionEvidencias/'
+        if (statusFeedback) {
+            url += 'aprobar';
+        } else {
+            url += 'desaprobar';
+        }
 
-        //Generar notificación
-        /*axios.post(url).then(({ data }) => {
-            setEvidences((prev) => [...prev, ...data.evidences.data]);
-            setNextPage(data.evidence.next_page_url);
-            setLoading(false);
+        console.log(idEvidenceFeedback, statusUserRPE, feedback);
+
+        try {
+            const respuesta = cacei.post(url, {
+                evidence_id: parseInt(idEvidenceFeedback),
+                user_rpe: statusUserRPE,
+                feedback: feedback
             });
-        });*/
-    }, [feedback]
-    );
+            if (respuesta.status == 200) {
+                alert(respuesta.message);
+            }
+        } catch (e) {
+            alert('Error en el servidor');
+        }
+    };
 
-    const handleFeedback = (id, status) => {
+    const handleFeedback = (id, userRpe, status) => {
         setOpenFeedback(true);
         setIdEvidenceFeedback(id);
+        setstatusUserRPE(userRpe);
         setStatusFeedback(status);
     }
 
@@ -61,40 +72,15 @@ export default function EvidenceTable() {
             url += `&order=${order}`;
         }
 
-        console.log("consulta url", url);
 
         cacei.get(url).then(({ data }) => {
             setEvidences(() => [...data.evidencias.data]);
             setNextPage(data.evidencias.next_page_url);
             setLoading(false);
-            console.log(data.evidencias.data);
         });
 
     }, [searchTerm, sortBy, order]);
 
-    /*useEffect(() => {
-        //console.log(`http://127.0.0.1:8000/api/evidences?sort_by=${sortBy}&order=${order}`);
-        axios
-            .get(`http://127.0.0.1:8000/api/evidences?sort_by=${sortBy}&order=${order}`)
-            .then((response) => {
-                setUsers(response.data.data);
-                setPagination({
-                    currentPage: response.data.current_page,
-                    totalPages: response.data.last_page,
-                });
-            })
-    }, [sortBy, order]);*/
-
-    /*useEffect(() => {
-        const url = searchTerm
-            ? `http://127.0.0.1:8000/api/evidences?search=${searchTerm}`
-            : `http://127.0.0.1:8000/api/evidences`;
-    
-        axios.get(url).then(({ data }) => {
-            setEvidences(data.usuarios.data);
-            setNextPage(data.usuarios.next_page_url);
-        });
-    }, [searchTerm]);*/
 
     const loadMore = () => {
         if (!nextPage) return;
@@ -153,10 +139,10 @@ export default function EvidenceTable() {
                                     </td>
                                     <td className="py-3 px-4">
                                         <div className="flex gap-2">
-                                            <button onClick={() => handleFeedback(item.id, 'approved')}>
+                                            <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, 'Aprobado', item)}>
                                                 <Check color="green" size={40} strokeWidth={2} />
                                             </button>
-                                            <button onClick={() => handleFeedback(item.id, 'not approved')}>
+                                            <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, 'No aprobado')}>
                                                 <X color="red" size={40} strokeWidth={2} />
                                             </button>
                                         </div>
@@ -175,7 +161,7 @@ export default function EvidenceTable() {
             </div>
             {openFeedback && (
                 <Feedback cerrar={() => setOpenFeedback(false)}
-                    enviar={setFeedback} />
+                    enviar={sendFeedback} />
             )}
         </>
     );
