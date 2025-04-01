@@ -4,19 +4,33 @@ const api = axios.create({
     baseURL: 'http://localhost:8000/api/', // Ajusta la URL
 });
 
+cacei.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 export const login = async (rpe, password) => {
     try {
         //Peticion post a localhost/api/login
-        const response = await api.post('/login', { rpe, password });
+        const response = await cacei.post('api/login', { rpe, password });
         //Correct = login exitoso
         if (response.data.correct) {
+
             //Variables globales de usuario (no definitivas)
             localStorage.setItem('role', response.data.role);
             localStorage.setItem('name', response.data.name);
             localStorage.setItem('rpe', rpe);
             const token = response.data.token.plainTextToken;
             localStorage.setItem('token', token);
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            cacei.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
             return response.data;
         }
@@ -37,7 +51,7 @@ export const logout = async () => {
     }
 
     try {
-        await api.post('/logout', {}, {
+        await cacei.post('/logout', {}, {
             headers: {
                 Authorization: `Bearer ${token}`, // se envía el token en el header
                 Accept: 'application/json',
@@ -47,10 +61,10 @@ export const logout = async () => {
         // si el logout fue exitoso, se elimina el token del almacenamiento local
         localStorage.removeItem('token');
         localStorage.removeItem('role');
-        delete api.defaults.headers.common['Authorization'];
+        delete cacei.defaults.headers.common['Authorization'];
     } catch (error) {
         console.error("Error al cerrar sesión:", error);
     }
 };
 
-export default api;
+export default cacei;
