@@ -6,7 +6,7 @@ import Card from "../components/Card";
 const MainMenu = () => {
   const [cards, setCards] = useState([]);
   const location = useLocation();  // se usa useLocation para acceder al estado pasado
-  const userRpe = location.state?.rpe;  // se obtiene el userRpe del estado
+  const userRpe = localStorage.getItem('rpe');  // se obtiene el userRpe del estado
   const navigate = useNavigate(); // para navegar
 
   useEffect(() => {
