@@ -3,7 +3,7 @@ import { AppHeader, AppFooter, SubHeading } from "../common";
 import FeedbackModal from "../components/Feedback";
 import CriteriaGuide from "../components/CriteriaGuide";
 import '../app.css';
-import axios from "axios";
+import api from "../services/api"
 
 const UploadEvidence = () => {
   const [file, setFile] = useState(null);
@@ -24,7 +24,7 @@ const UploadEvidence = () => {
     formData.append("justification", "Justificación opcional");
   
     try {
-      const response = await axios.post("http://proyectocacei/api/file", formData, { //Ajusta la URL
+      const response = await api.post("api/file", { //Ajusta la URL
         headers: {
           "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
           "Content-Type": "multipart/form-data",

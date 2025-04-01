@@ -23,8 +23,8 @@ export default function UsersTable() {
 
     useEffect(() => {
         const url = searchTerm
-        ? `http://127.0.0.1:8000/api/usersadmin?search=${searchTerm}`
-        : `http://127.0.0.1:8000/api/usersadmin`;
+        ? `http://proyectocacei.test/api/usersadmin?search=${searchTerm}`
+        : `http://proyectocacei.test/api/usersadmin`;
 
         axios.get(url).then(({ data }) => {
             setUsers(data.usuarios.data);
