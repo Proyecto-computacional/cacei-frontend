@@ -19,7 +19,7 @@ const Notification = () => {
         }
 
         // Hacemos la solicitud a la API pasando el `userRpe` y el token en los headers
-        const response = await api.post("/Notificaciones", 
+        const response = await api.post("/api/Notificaciones", 
           { user_rpe: userRpe },
           {
             headers: {
