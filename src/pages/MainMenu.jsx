@@ -16,7 +16,6 @@ const MainMenu = () => {
           console.error("userId no está disponible");
           return;  // Si no está disponible, no realizamos la solicitud
         }
-        console.log(localStorage.getItem('token'));
         // llamada a la API pasando el `userRpe` como parámetro
         const response = await api.get("/ProcesosUsuario", {
           params: {
@@ -26,8 +25,6 @@ const MainMenu = () => {
             "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
           },
         });
-
-        console.error('Main menu: ', response);
 
         if (response.status !== 200) { 
           throw new Error("Error al obtener los datos");

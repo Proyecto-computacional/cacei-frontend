@@ -14,7 +14,7 @@ export const login = async (rpe, password) => {
             localStorage.setItem('role', response.data.role);
             localStorage.setItem('name', response.data.name);
             localStorage.setItem('rpe', rpe);
-            const token = response.data.token;
+            const token = response.data.token.plainTextToken;
             localStorage.setItem('token', token);
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
