@@ -24,7 +24,7 @@ const UploadEvidence = () => {
     formData.append("justification", "Justificación opcional");
   
     try {
-      const response = await axios.post("http://localhost:8000/api/file", formData, { //Ajusta la URL
+      const response = await axios.post("http://proyectocacei/api/file", formData, { //Ajusta la URL
         headers: {
           "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
           "Content-Type": "multipart/form-data",

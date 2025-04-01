@@ -17,7 +17,7 @@ const MainMenu = () => {
           return;  // Si no está disponible, no realizamos la solicitud
         }
         // llamada a la API pasando el `userRpe` como parámetro
-        const response = await api.get("/ProcesosUsuario", {
+        const response = await api.get("api/ProcesosUsuario", {
           params: {
             userRpe: userRpe, // se pasa el parámetro `userRpe`
           },

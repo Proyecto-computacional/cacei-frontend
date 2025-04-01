@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api/', // Ajusta la URL
+    baseURL: 'http://proyectocacei.test/', // Ajusta la URL
 });
 
-cacei.interceptors.request.use(
+api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -20,7 +20,7 @@ cacei.interceptors.request.use(
 export const login = async (rpe, password) => {
     try {
         //Peticion post a localhost/api/login
-        const response = await cacei.post('api/login', { rpe, password });
+        const response = await api.post('api/login', { rpe, password });
         //Correct = login exitoso
         if (response.data.correct) {
 
@@ -30,7 +30,7 @@ export const login = async (rpe, password) => {
             localStorage.setItem('rpe', rpe);
             const token = response.data.token.plainTextToken;
             localStorage.setItem('token', token);
-            cacei.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
             return response.data;
         }
@@ -51,7 +51,7 @@ export const logout = async () => {
     }
 
     try {
-        await cacei.post('/logout', {}, {
+        await api.post('/logout', {}, {
             headers: {
                 Authorization: `Bearer ${token}`, // se envía el token en el header
                 Accept: 'application/json',
@@ -67,4 +67,4 @@ export const logout = async () => {
     }
 };
 
-export default cacei;
+export default api;
