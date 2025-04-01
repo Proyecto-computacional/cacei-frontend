@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const cacei = axios.create({
-    baseURL: 'http://localhost:8000/', // Ajusta la URL
+const api = axios.create({
+    baseURL: 'http://localhost:8000/api/', // Ajusta la URL
 });
 
 cacei.interceptors.request.use(
@@ -34,7 +34,6 @@ export const login = async (rpe, password) => {
 
             return response.data;
         }
-
         //retorna si el login no fue exitoso
         return { correct: false };
     } catch (error) {
