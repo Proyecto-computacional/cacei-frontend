@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-    baseURL: 'http://proyectocacei.test/', // Ajusta la URL
+    baseURL: 'http://localhost:8000/api/', // Ajusta la URL
 });
 
 api.interceptors.request.use(
@@ -32,23 +32,22 @@ export const login = async (rpe, password) => {
             localStorage.setItem('token', token);
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-            return response.data;
-        }
-        //retorna si el login no fue exitoso
-        return { correct: false };
-    } catch (error) {
-        console.error('Error en login:', error.response?.data || error.message);
-        throw error; // Lanza el error para que el componente lo maneje (pendiente de revisar)
+      return response.data;
     }
-
+    //retorna si el login no fue exitoso
+    return { correct: false };
+  } catch (error) {
+    console.error("Error en login:", error.response?.data || error.message);
+    throw error; // Lanza el error para que el componente lo maneje (pendiente de revisar)
+  }
 };
 
 export const logout = async () => {
-    const token = localStorage.getItem('token'); // se obtiene el token antes de hacer la petición
-    if (!token) {
-        console.error("No hay token disponible");
-        return;
-    }
+  const token = localStorage.getItem("token"); // se obtiene el token antes de hacer la petición
+  if (!token) {
+    console.error("No hay token disponible");
+    return;
+  }
 
     try {
         await api.post('/logout', {}, {
@@ -61,7 +60,7 @@ export const logout = async () => {
         // si el logout fue exitoso, se elimina el token del almacenamiento local
         localStorage.removeItem('token');
         localStorage.removeItem('role');
-        delete cacei.defaults.headers.common['Authorization'];
+        delete api.defaults.headers.common['Authorization'];
     } catch (error) {
         console.error("Error al cerrar sesión:", error);
     }

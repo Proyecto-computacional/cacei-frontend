@@ -18,7 +18,7 @@ const NotificationsTable = () => {
                     return;
                 }
 
-                const response = await api.post("api/Notificaciones", 
+                const response = await api.post("/api/Notificaciones", 
                     { user_rpe: userRpe },
                     {
                         headers: {
