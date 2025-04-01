@@ -1,9 +1,60 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Section from "./Section";
+
 
 const CV = () => {
     const [data, setData] = useState({});
     const [activeSection, setActiveSection] = useState(1);
+    const rpe = localStorage.getItem("rpe");
+    console.log("rpe: " + rpe);
+
+    useEffect(() => {
+        if (rpe) {
+            fetchCV(rpe);
+        }
+    }, [rpe]);
+
+    const fetchCV = async (rpe) => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/cvs/${rpe}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) throw new Error("Error al obtener el CV");
+            
+            const data = await response.json();
+            setData(data); // Guardar en el estado
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
+
+    const sendData = async (sectionId) => {
+        console.log("Sending2: llegóoo:)");
+        const sectionData = data[sectionId];
+        if (!sectionData) return;
+
+        try {
+            const response = await fetch(`http://localhost:8000/api/cvs/${rpe}/seccion/${sectionId}`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(sectionData)
+            });
+
+            if (!response.ok) throw new Error("Error al enviar datos");
+
+            console.log("Datos enviados correctamente");
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
 
     const secciones = [
         {
@@ -76,11 +127,7 @@ const CV = () => {
             ),
         }));
     };
-
-    const sendData = (sectionId) => {
-        console.log("Enviando", sectionId ? data[sectionId] : data);
-    };
-
+    
     return (
         <div className="flex h-screen">
             <aside className="w-1/4 bg-gray-200 p-4">
