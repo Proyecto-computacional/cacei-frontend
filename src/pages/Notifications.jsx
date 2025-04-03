@@ -43,16 +43,17 @@ const Notification = () => {
     fetchNotifications();
   }, [userRpe]); // Solo se ejecuta cuando `userRpe` cambie
 
-  const handlePin = async (id) => {
+  const handlePin = async (id) => { //pinned
     try {  
       // Encuentra la notificación actual para obtener su estado actual
-      const currentNotif = notifications.find((notif) => notif.id === id);
+      const currentNotif = notifications.find((notif) => notif.notification_id === id);
       if (!currentNotif) return;
   
       const newPinnedState = !currentNotif.pinned;
 
+      
       const response = await api.put(
-        "/Notificaciones/pinned", // Ruta de la API
+        "/api/Notificaciones/pinned", // Ruta de la API
         { notification_id: currentNotif.notification_id },  // Cuerpo de la solicitud con el `notification_id`
         {
           headers: {
@@ -69,7 +70,7 @@ const Notification = () => {
       // Si la solicitud es exitosa, actualizar el estado en el frontend
       setNotifications((prev) =>
         prev.map((notif) =>
-          notif.id === id ? { ...notif, pinned: newPinnedState } : notif
+          notif.notification_id === id ? { ...notif, pinned: newPinnedState } : notif
         )
       );
   
@@ -81,13 +82,11 @@ const Notification = () => {
   const handleStarred = async (id) => {
     try {  
       // Encuentra la notificación actual para obtener su estado actual
-      const currentNotif = notifications.find((notif) => notif.id === id);
+      const currentNotif = notifications.find((notif) => notif.notification_id === id);
       if (!currentNotif) return;
-  
-      const newStarredState = !currentNotif.starred;
-
+      
       const response = await api.put(
-        "/Notificaciones/favorite", // Ruta de la API
+        "/api/Notificaciones/favorite", // Ruta de la API
         { notification_id: currentNotif.notification_id },  // Cuerpo de la solicitud con el `notification_id`
         {
           headers: {
@@ -104,7 +103,7 @@ const Notification = () => {
       // Si la solicitud es exitosa, actualizar el estado en el frontend
       setNotifications((prev) =>
         prev.map((notif) =>
-          notif.id === id ? { ...notif, starred: !notif.starred } : notif
+          notif.notification_id === id ? { ...notif, starred: !notif.starred } : notif
         )
       );
   
@@ -116,13 +115,11 @@ const Notification = () => {
   const handleDelete = async (id) => {
     try {  
       // Encuentra la notificación actual para obtener su estado actual
-      const currentNotif = notifications.find((notif) => notif.id === id);
+      const currentNotif = notifications.find((notif) => notif.notification_id === id);
       if (!currentNotif) return;
-  
-      const handleDeletedState = !currentNotif.seen;
-
+      
       const response = await api.put(
-        "/Notificaciones/deleted", // Ruta de la API
+        "/api/Notificaciones/deleted", // Ruta de la API
         { notification_id: currentNotif.notification_id },  // Cuerpo de la solicitud con el `notification_id`
         {
           headers: {
@@ -137,11 +134,7 @@ const Notification = () => {
       }
   
       // Si la solicitud es exitosa, actualizar el estado en el frontend
-      setNotifications((prev) =>
-        prev.map((notif) =>
-          notif.id === id ? { ...notif, deleted: !notif.deleted } : notif
-        )
-      );
+      setNotifications((prev) => prev.filter((notif) => notif.notification_id !== id));
   
     } catch (error) {
       console.error("Error en handleDeleted:", error);
@@ -171,16 +164,16 @@ const Notification = () => {
               .filter((notif) => notif.seen === false)  // Solo notificaciones no vistas
               .map((notif) => (
                 <NotificationCard
-                  key={notif.id}
+                  key={notif.notification_id}
                   title={notif.title}
                   description={notif.description}
                   pinned={notif.pinned}
                   starred={notif.starred}
                   deleted={notif.seen}
-                  onDeletedClick={() => handleDelete(notif.id)}
-                  onStarClick={() => handleStarred(notif.id)}
-                  onPinClick={() => handlePin(notif.id)}
-                  onClick={() => handleNotificationClick(notif.id)} // Navegar a la página de la notificación
+                  onDeletedClick={() => handleDelete(notif.notification_id)}
+                  onStarClick={() => handleStarred(notif.notification_id)}
+                  onPinClick={() => handlePin(notif.notification_id)}
+                  onClick={() => handleNotificationClick(notif.notification_id)} // Navegar a la página de la notificación
                 />
               ))
           ) : (
