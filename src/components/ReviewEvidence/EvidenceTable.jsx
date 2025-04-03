@@ -4,7 +4,7 @@ import { MessageCircle, Check, X } from "lucide-react";
 import { use } from "react";
 import Feedback from "./Feedback";
 import HeaderSort from "./headerSort";
-import cacei from "../../services/api";
+import api from "../../services/api";
 import { resolvePath } from "react-router-dom";
 
 export default function EvidenceTable() {
@@ -39,7 +39,7 @@ export default function EvidenceTable() {
         console.log(idEvidenceFeedback, statusUserRPE, feedback);
 
         try {
-            const respuesta = cacei.post(url, {
+            const respuesta = api.post(url, {
                 evidence_id: parseInt(idEvidenceFeedback),
                 user_rpe: statusUserRPE,
                 feedback: feedback
@@ -60,8 +60,8 @@ export default function EvidenceTable() {
     }
 
     useEffect(() => {
-        let url = `api/ReviewEvidence?`;
-
+        let url = `api/ReviewEvidence`;
+        /*
         if (searchTerm) {
             url += `search=${searchTerm}`;
         }
@@ -71,9 +71,9 @@ export default function EvidenceTable() {
         if (order) {
             url += `&order=${order}`;
         }
-
-
-        cacei.get(url).then(({ data }) => {
+        */
+        console.log(url);
+        api.get(url).then(({ data }) => {
             setEvidences(() => [...data.evidencias.data]);
             setNextPage(data.evidencias.next_page_url);
             setLoading(false);
