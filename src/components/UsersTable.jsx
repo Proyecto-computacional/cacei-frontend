@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import SelectRol from "./selectRole";
 import axios from "axios";
 import "../app.css"
+import api from "../services/api";
 
 export default function UsersTable() {
 
     const [roles] = useState([
-        { name: 'Administador', description: 'Administración y visualización de todos los procesos de todos los procesos de acreditación' },
+        { name: 'Administrador', description: 'Administración y visualización de todos los procesos de todos los procesos de acreditación' },
         { name: 'Directivo', description: 'visualización de todos los procesos de todos los procesos de acreditación' },
         { name: 'Jefe de área', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su area' },
         { name: 'Coordinador de carrera', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su carrera' },
@@ -22,15 +23,41 @@ export default function UsersTable() {
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
-        const url = searchTerm
-        ? `http://127.0.0.1:8000/api/usersadmin?search=${searchTerm}`
-        : `http://127.0.0.1:8000/api/usersadmin`;
-
-        axios.get(url).then(({ data }) => {
-            setUsers(data.usuarios.data);
-            setNextPage(data.usuarios.next_page_url);
-        });
-    }, [searchTerm]);
+        const fetchUsers = async () => {
+            const url = searchTerm
+                ? `http://127.0.0.1:8000/api/usersadmin?search=${searchTerm}`
+                : `http://127.0.0.1:8000/api/usersadmin`;
+    
+            try {
+                const response = await api.get(url, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem('token')}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+    
+                setUsers(response.data.usuarios.data);
+                setNextPage(response.data.usuarios.next_page_url);
+            } catch (error) {
+                if (error.response) {
+                    if (error.response.status === 403) {
+                        alert("No tienes permisos para acceder a esta sección.");
+                        window.location.href = "/PersonalConfig"; // Redirige al dashboard (*pending)
+                    } else if (error.response.status === 401) {
+                        alert("Sesión expirada. Inicia sesión de nuevo.");
+                        window.location.href = "/login"; // Redirige a la página de login
+                    } else {
+                        alert("Error desconocido al obtener los usuarios.");
+                    }
+                } else {
+                    alert("Error de conexión con el servidor.");
+                }
+                console.error("Error al obtener los usuarios:", error);
+            }
+        };
+    
+        fetchUsers(); 
+    }, [searchTerm]);    
 
 
     const loadMore = () => {
