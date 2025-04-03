@@ -3,6 +3,7 @@ import SelectRol from "./selectRole";
 import axios from "axios";
 import "../app.css"
 import api from "../services/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UsersTable() {
 
@@ -25,8 +26,8 @@ export default function UsersTable() {
     useEffect(() => {
         const fetchUsers = async () => {
             const url = searchTerm
-                ? `http://127.0.0.1:8000/api/usersadmin?search=${searchTerm}`
-                : `http://127.0.0.1:8000/api/usersadmin`;
+            ? `${API_URL}/api/usersadmin?search=${searchTerm}`
+            : `${API_URL}/api/usersadmin`;
     
             try {
                 const response = await api.get(url, {
