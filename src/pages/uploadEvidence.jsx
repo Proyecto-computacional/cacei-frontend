@@ -9,7 +9,13 @@ const UploadEvidence = () => {
   const [file, setFile] = useState(null);
 
   const handleFileChange = (event) => {
-    setFile(URL.createObjectURL(event.target.files[0]));
+    const selectedFile = event.target.files[0];
+    if (!selectedFile) return;
+  
+    setFile({
+      name: selectedFile.name.toLowerCase(), // Guardamos el nombre en minúsculas
+      preview: URL.createObjectURL(selectedFile), // URL para previsualizar archivos compatibles
+    });
   };
 
   const handleUpload = async () => {
@@ -40,6 +46,11 @@ const UploadEvidence = () => {
     }
   };  
 
+  const handleRemoveFile = () => {
+    setFile(null);
+    document.querySelector('input[type="file"]').value = "";
+  };
+
   const [showFeedback, setShowFeedback] = useState(false);
   const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
 
@@ -69,7 +80,7 @@ const UploadEvidence = () => {
                 </label>
             </div>
             <div className="flex space-x-4 mt-8 pl-14">
-              <button className="bg-[#00B2E3] text-white px-20 py-2 rounded-full">Cancelar</button>
+              <button className="bg-[#00B2E3] text-white px-20 py-2 rounded-full" onClick={handleRemoveFile}>Cancelar</button>
               <button className="bg-[#004A98] text-white px-20 py-2 ml-10 rounded-full" onClick={handleUpload}>Guardar</button>
             </div>
             <button
@@ -79,24 +90,32 @@ const UploadEvidence = () => {
               Retroalimentación
             </button>
           </div>
-          <div className="flex-1 flex justify-center items-center border rounded bg-gray-100">
-          {file ? (
-              file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.gif') ? (
-                <img src={file} alt="Preview" className="w-full h-full object-cover" />
+          <div className="flex-1 flex justify-center items-center border rounded bg-gray-100 p-4">
+            {file ? (
+              file.name.endsWith(".png") ||
+              file.name.endsWith(".jpg") ||
+              file.name.endsWith(".jpeg") ||
+              file.name.endsWith(".gif") ? (
+                <img src={file.preview} alt="Preview" className="w-full h-full object-cover" />
+              ) : file.name.endsWith(".pdf") ? (
+                <iframe src={file.preview} title="Vista previa PDF" className="w-full h-full" />
+              ) : file.name.endsWith(".docx") || file.name.endsWith(".doc") ? (
+                <p className="text-blue-600 text-center">
+                  Archivo de Word cargado correctamente, pero no se puede previsualizar.
+                </p>
+              ) : file.name.endsWith(".xlsx") ? (
+                <p className="text-gray-600 text-center">
+                  Archivo .xlsx aceptado, pero no se puede previsualizar.
+                </p>
               ) : (
-                <iframe src={file} title="Preview" className="w-full h-full" />
+                <p className="text-red-600 text-center">
+                  Formato de archivo no permitido.
+                </p>
               )
             ) : (
-              <p className="text-gray-600">Preview</p>
+              <p className="text-gray-600">Preview</p> // Solo muestra esto si no hay archivo
             )}
           </div>
-          <button
-            onClick={() => setShowCriteriaGuide(true)}
-            className="absolute bottom-4 right-4 bg-white border border-gray-400 w-10 h-10 flex items-center justify-center rounded-full shadow-lg"
-          >
-            ?
-          </button>
-
         </div>
       </div>
       <AppFooter />
