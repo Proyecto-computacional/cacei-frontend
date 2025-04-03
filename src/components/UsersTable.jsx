@@ -59,7 +59,6 @@ export default function UsersTable() {
         fetchUsers(); 
     }, [searchTerm]);    
 
-
     const loadMore = () => {
         if (!nextPage) return;
         setLoading(true);
