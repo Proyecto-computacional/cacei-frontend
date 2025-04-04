@@ -50,7 +50,7 @@ export const logout = async () => {
   }
 
     try {
-        await api.post('api/logout', {}, {
+        await api.post('/api/logout', {}, {
             headers: {
                 Authorization: `Bearer ${token}`, // se envía el token en el header
                 Accept: 'application/json',
