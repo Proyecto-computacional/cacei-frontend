@@ -89,7 +89,7 @@ const AssignTask = ({ onClose }) => {
         </div>
   
         <div className="mb-4">
-          <label className="block mb-1 font-medium">Subpunto (evidencia):</label>
+          <label className="block mb-1 font-medium">Criterio:</label>
           <select className="w-full p-2 border rounded" value={selectedEvidence} onChange={(e) => setSelectedEvidence(e.target.value)}>
             <option value="">Selecciona una evidencia</option>
             {evidences.map(evi => (
