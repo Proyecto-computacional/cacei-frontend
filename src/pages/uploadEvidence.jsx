@@ -24,7 +24,7 @@ const UploadEvidence = () => {
     formData.append("justification", "Justificación opcional");
   
     try {
-      const response = await api.post("api/file", { //Ajusta la URL
+      const response = await api.post("api/file", formData, { //Ajusta la URL
         headers: {
           "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
           "Content-Type": "multipart/form-data",
