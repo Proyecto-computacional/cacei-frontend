@@ -74,7 +74,7 @@ export function SubHeading() {
                                         Revisión de evidencias
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }}>
+                                        onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
                                         Gestión de formato
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
