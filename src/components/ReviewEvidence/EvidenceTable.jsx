@@ -15,8 +15,8 @@ export default function EvidenceTable() {
     const [idEvidenceFeedback, setIdEvidenceFeedback] = useState(null);
     const [statusFeedback, setStatusFeedback] = useState(null)
     const [statusUserRPE, setstatusUserRPE] = useState(null)
-    const [sortBy, setSortBy] = useState("name");
-    const [order, setOrder] = useState("asc");
+    const [sortBy, setSortBy] = useState(null);
+    const [order, setOrder] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
 
 
@@ -58,8 +58,8 @@ export default function EvidenceTable() {
     }
 
     useEffect(() => {
-        let url = `api/ReviewEvidence`;
-        /*
+        let url = `api/ReviewEvidence?`;
+
         if (searchTerm) {
             url += `search=${searchTerm}`;
         }
@@ -69,13 +69,15 @@ export default function EvidenceTable() {
         if (order) {
             url += `&order=${order}`;
         }
-        */
+
         console.log(url);
         api.get(url).then(({ data }) => {
             setEvidences(() => [...data.evidencias.data]);
             setNextPage(data.evidencias.next_page_url);
             setLoading(false);
         });
+
+        console.log(evidences);
 
     }, [searchTerm, sortBy, order]);
 
@@ -84,7 +86,7 @@ export default function EvidenceTable() {
         if (!nextPage) return;
         setLoading(true);
 
-        axios.get(nextPage).then(({ data }) => {
+        api.get(nextPage).then(({ data }) => {
             setUsers((prev) => [...prev, ...data.evidence.data]);
             setNextPage(data.evidence.next_page_url);
             setLoading(false);
