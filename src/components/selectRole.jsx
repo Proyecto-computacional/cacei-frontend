@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 
 const normalizeRol = (str) => {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
@@ -12,7 +12,16 @@ const SelectRol = ({ userId, initialRole, AllRoles }) => {
         setRole(newRole);
 
         try {
-            await axios.post(`http://localhost:8000/api/usersadmin/actualizar-rol`, { user_id: userId, rol: normalizeRol(newRole) });
+            await api.post("/api/usersadmin/actualizar-rol", 
+                { user_id: userId, rol: normalizeRol(newRole) }, 
+                {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem('token')}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
             alert("Rol actualizado correctamente");
         } catch (error) {
             console.error("Error al actualizar el rol", error);

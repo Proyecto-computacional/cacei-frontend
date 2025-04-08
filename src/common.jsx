@@ -62,7 +62,7 @@ export function SubHeading() {
                                         Configuración personal
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }} >
+                                        onClick={() => { navigate("/uploadEvidence"); setOpen(false); }} >
                                         Carga de evidencias
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -78,7 +78,7 @@ export function SubHeading() {
                                         Gestión de formato
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/mainMenu"); setOpen(false); }} >
+                                        onClick={() => { navigate("/evidenceManagement"); setOpen(false); }} >
                                         Gestión de evidencias
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
