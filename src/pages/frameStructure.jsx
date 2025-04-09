@@ -36,6 +36,42 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     );
   }
 
+  function ModificarCategoriaForm({ category, onCancel, onSaved }) {
+    const [nombre, setNombre] = useState(category.category_name);
+  
+    const handleSave = async () => {
+      try {
+        await api.put("/api/category-update", {
+          category_id: category.category_id,
+          category_name: nombre
+        });
+        onSaved();
+      } catch (err) {
+        alert("Error al actualizar: " + err.response?.data?.message);
+      }
+    };
+  
+    return (
+      <div className="border p-4 mb-4 rounded shadow bg-white">
+        <h2 className="text-xl font-semibold mb-2">Modificar Categoria</h2>
+        <input
+          type="text"
+          className="border p-2 w-full mb-2"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleSave}>
+            Guardar
+          </button>
+          <button className="bg-gray-300 text-black px-4 py-2 rounded" onClick={onCancel}>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   function CrearSeccionForm({ onCancel, onSaved, category_id }) {
     const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
@@ -51,7 +87,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   
     return (
       <div className="border p-4 mb-4 rounded shadow bg-white">
-        <h2 className="text-xl font-semibold mb-2">Crear Categoria</h2>
+        <h2 className="text-xl font-semibold mb-2">Crear Seccion</h2>
         <input
           type="text"
           className="border p-2 w-full mb-2"
@@ -63,6 +99,50 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
             type="text"
             className="border p-2 w-full mb-2"
             placeholder="Descripcion de la seccion"
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleSave}>
+            Guardar
+          </button>
+          <button className="bg-gray-300 text-black px-4 py-2 rounded" onClick={onCancel}>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  function ModificarSeccionForm({ seccion, onCancel, onSaved }) {
+    const [nombre, setNombre] = useState(seccion.section_name);
+    const [descripcion, setDescripcion] = useState(seccion.section_description);
+  
+    const handleSave = async () => {
+      try {
+        await api.put("/api/section-update", {
+          section_id: seccion.section_id,
+          section_name: nombre,
+          section_description: descripcion
+        });
+        onSaved();
+      } catch (err) {
+        alert("Error al actualizar: " + err.response?.data?.message);
+      }
+    };
+  
+    return (
+      <div className="border p-4 mb-4 rounded shadow bg-white">
+        <h2 className="text-xl font-semibold mb-2">Modificar Categoria</h2>
+        <input
+          type="text"
+          className="border p-2 w-full mb-2"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+        />
+        <input
+            type="text"
+            className="border p-2 w-full mb-2"
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
         />
@@ -95,7 +175,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   
     return (
       <div className="border p-4 mb-4 rounded shadow bg-white">
-        <h2 className="text-xl font-semibold mb-2">Crear Categoria</h2>
+        <h2 className="text-xl font-semibold mb-2">Crear Criterio</h2>
         <input
           type="text"
           className="border p-2 w-full mb-2"
@@ -131,6 +211,63 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       </div>
     );
   }
+  
+  function ModificarCriterioForm({ criterio, onCancel, onSaved }) {
+    const [nombre, setNombre] = useState(criterio.standard_name);
+    const [descripcion, setDescripcion] = useState(criterio.standard_description);
+    const [is_transversal, setTrasnversal] = useState(criterio.is_transversal);
+    const [help, setHelp] = useState(criterio.help);
+  
+    const handleSave = async () => {
+      try {
+        await api.put("/api/standard-update", {
+          standard_id: criterio.standard_id,
+          standard_name: nombre,
+          standard_description: descripcion,
+          is_transversal: is_transversal,
+          help: help
+        });
+        onSaved();
+      } catch (err) {
+        alert("Error al actualizar: " + err.response?.data?.message);
+      }
+    };
+  
+    return (
+      <div className="border p-4 mb-4 rounded shadow bg-white">
+        <h2 className="text-xl font-semibold mb-2">Modificar Categoria</h2>
+        <input
+          type="text"
+          className="border p-2 w-full mb-2"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+        />
+        <input
+            type="text"
+            className="border p-2 w-full mb-2"
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+        />
+        <label className="flex items-center">
+            <input type="checkbox" className="mr-2" checked={is_transversal} onChange={(e) => setTrasnversal(e.target.checked)}/> Transversal
+        </label>
+        <input
+            type="text"
+            className="border p-2 w-full mb-2"
+            value={help}
+            onChange={(e) => setHelp(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleSave}>
+            Guardar
+          </button>
+          <button className="bg-gray-300 text-black px-4 py-2 rounded" onClick={onCancel}>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
 export default function EstructuraMarco() {
     const { id } = useParams();
@@ -144,8 +281,13 @@ export default function EstructuraMarco() {
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
     const [seccionSeleccionada, setSeccionSeleccionada] = useState(null);
 
-    const [showCreateForm, setShowCreateForm] = useState(false);
-    const [showEditForm, setShowEditForm] = useState(false);
+    const [showCreateCategoria, setShowCreateCategoria] = useState(false);
+    const [showCreateSeccion, setShowCreateSeccion] = useState(false);
+    const [showCreateCriterio, setShowCreateCriterio] = useState(false);
+
+    const [editingCategoryId, setEditingCategoryId] = useState(null);
+    const [editingSectionId, setEditingSectionId] = useState(null);
+    const [editingCriterioId, setEditingCriterioId] = useState(null);
   
     useEffect(() => {
       fetchCategorias();
@@ -184,15 +326,53 @@ export default function EstructuraMarco() {
       }
     };
 
-    const handleOpenCreate = () => {
-        setShowCreateForm(true);
-        setShowEditForm(false);
+    const handleOpenCreateCategoria = () => {
+        setShowCreateCategoria(true);
+        setShowCreateSeccion(false);
+        setShowCreateCriterio(false);
+    };
+
+    const handleOpenCreateSeccion = () => {
+        setShowCreateCategoria(false);
+        setShowCreateSeccion(true);
+        setShowCreateCriterio(false);
+    };
+
+    const handleOpenCreateCriterio = () => {
+        setShowCreateCategoria(false);
+        setShowCreateSeccion(false);
+        setShowCreateCriterio(true);
     };
 
     const handleCancel = () => {
-        setShowCreateForm(false);
-        setShowEditForm(false);
-      };
+      setEditingCategoryId(null);
+      setEditingSectionId(null);
+      setEditingCriterioId(null);
+      setShowCreateCategoria(false);
+      setShowCreateSeccion(false);
+      setShowCreateCriterio(false);
+    };
+
+    const handleOpenEditCategoria = (categoryId) => {
+      setEditingCategoryId(categoryId);
+      setShowCreateCategoria(false);
+      setShowCreateSeccion(false);
+      setShowCreateCriterio(false);
+    };
+
+    const handleOpenEditSeccion = (seccionId) => {
+      setEditingSectionId(seccionId);
+      setShowCreateCategoria(false);
+      setShowCreateSeccion(false);
+      setShowCreateCriterio(false);
+    };
+
+    const handleOpenEditCriterio = (criterioId) => {
+      setEditingSectionId(criterioId);
+      setShowCreateCategoria(false);
+      setShowCreateSeccion(false);
+      setShowCreateCriterio(false);
+    };
   
     return (
         <>
@@ -203,25 +383,43 @@ export default function EstructuraMarco() {
   
         <div className="border p-4 rounded shadow">
           <h2 className="text-xl font-semibold mb-2">Categorías</h2>
-          <button className="bg-green-600 text-white px-3 py-1 rounded mb-2" onClick={handleOpenCreate}>Crear Categoría</button>
-          {showCreateForm && (
+          <button className="bg-green-600 text-white px-3 py-1 rounded mb-2" onClick={handleOpenCreateCategoria}>Crear Categoría</button>
+          {showCreateCategoria && (
           <CrearCategoriaForm onCancel={handleCancel} onSaved={() => { handleCancel(); fetchCategorias(); }} frame_id={marco.frame_id} />
         )}
           <ul className="space-y-1">
             {categorias.map((cat) => (
               <li
-                key={cat.id}
-                onClick={() => {
-                  setCategoriaSeleccionada(cat);
-                  fetchSecciones(cat.category_id);
+              key={cat.category_id}
+              onClick={() => {
+                setCategoriaSeleccionada(cat);
+                fetchSecciones(cat.category_id);
+              }}
+              className={`cursor-pointer px-2 py-1 rounded ${
+                categoriaSeleccionada?.category_id === cat.category_id ? "bg-blue-100" : "hover:bg-gray-100"
+              }`}
+            >
+              {cat.category_name}
+              <button 
+                className="ml-2 text-sm text-blue-600"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenEditCategoria(cat.category_id);
                 }}
-                className={`cursor-pointer px-2 py-1 rounded ${
-                  categoriaSeleccionada?.id === cat.category_id ? "bg-blue-100" : "hover:bg-gray-100"
-                }`}
               >
-                {cat.category_name}
-                <button className="ml-2 text-sm text-blue-600">Modificar</button>
-              </li>
+                Modificar
+              </button>
+              {editingCategoryId === cat.category_id && (
+                <ModificarCategoriaForm 
+                  category={cat}
+                  onCancel={handleCancel}
+                  onSaved={() => {
+                    handleCancel();
+                    fetchCategorias();
+                  }}
+                />
+              )}
+            </li>
             ))}
           </ul>
         </div>
@@ -229,13 +427,13 @@ export default function EstructuraMarco() {
         {categoriaSeleccionada && (
           <div className="border p-4 rounded shadow">
             <h2 className="text-xl font-semibold mb-2">Secciones de "{categoriaSeleccionada.category_name}"</h2>
-            <button className="bg-green-600 text-white px-3 py-1 rounded mb-2" onClick={handleOpenCreate}>Crear Sección</button>
-            {showCreateForm && (
+            <button className="bg-green-600 text-white px-3 py-1 rounded mb-2" onClick={handleOpenCreateSeccion}>Crear Sección</button>
+            {showCreateSeccion && (
           <CrearSeccionForm onCancel={handleCancel} onSaved={() => { handleCancel(); fetchSecciones(); }} category_id={categoriaSeleccionada.category_id} />)}
             <ul className="space-y-1">
               {secciones.map((sec) => (
                 <li
-                  key={sec.category_id}
+                  key={sec.section_id}
                   onClick={() => {
                     setSeccionSeleccionada(sec);
                     fetchCriterios(sec.section_id);
@@ -245,7 +443,25 @@ export default function EstructuraMarco() {
                   }`}
                 >
                   {sec.section_name}
-                  <button className="ml-2 text-sm text-blue-600">Modificar</button>
+                  <button 
+                    className="ml-2 text-sm text-blue-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenEditSeccion(sec.section_id);
+                    }}
+                  >
+                    Modificar
+                  </button>
+                {editingSectionId === sec.section_id && (
+                  <ModificarSeccionForm 
+                    seccion={sec}
+                    onCancel={handleCancel}
+                    onSaved={() => {
+                      handleCancel();
+                      fetchSecciones();
+                    }}
+                  />
+                )}
                 </li>
               ))}
             </ul>
@@ -255,15 +471,33 @@ export default function EstructuraMarco() {
         {seccionSeleccionada && (
           <div className="border p-4 rounded shadow">
             <h2 className="text-xl font-semibold mb-2">Criterios de "{seccionSeleccionada.section_name}"</h2>
-            <button className="bg-green-600 text-white px-3 py-1 rounded mb-2" onClick={handleOpenCreate}>Crear Criterio</button>
-            {showCreateForm && (
+            <button className="bg-green-600 text-white px-3 py-1 rounded mb-2" onClick={handleOpenCreateCriterio}>Crear Criterio</button>
+            {showCreateCriterio && (
           <CrearCriterioForm onCancel={handleCancel} onSaved={() => { handleCancel(); fetchCriterios(); }} section_id={seccionSeleccionada.section_id} />
         )}
             <ul className="space-y-1">
               {criterios.map((cri) => (
                 <li key={cri.id} className="px-2 py-1 rounded hover:bg-gray-100">
                   {cri.standard_name}
-                  <button className="ml-2 text-sm text-blue-600">Modificar</button>
+                  <button 
+                    className="ml-2 text-sm text-blue-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenEditCriterio(cri.standard_id);
+                    }}
+                  >
+                    Modificar
+                  </button>
+                {editingSectionId === cri.standard_id && (
+                  <ModificarCriterioForm 
+                    criterio={cri}
+                    onCancel={handleCancel}
+                    onSaved={() => {
+                      handleCancel();
+                      fetchSecciones();
+                    }}
+                  />
+                )}
                 </li>
               ))}
             </ul>
