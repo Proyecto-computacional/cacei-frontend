@@ -9,7 +9,8 @@ import ReviewEvidence from "./pages/reviewEvidence";
 import UploadEvidence from "./pages/uploadEvidence";
 import EvidenceManagement from "./pages/evidenceManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import FrameOfReferenceView from "./pages/framesAdmin";
+import EstructuraMarco from "./pages/frameStructure";
 
 function App() {
   return (
@@ -37,6 +38,8 @@ function App() {
         <Route path="/personalInfo" element={<PersonalConfig />} />
         <Route path="/uploadEvidence" element={<UploadEvidence />} />
         <Route path="/evidenceManagement" element={<EvidenceManagement />} />
+        <Route path="/framesAdmin" element={<FrameOfReferenceView/>}/>
+        <Route path="/framesStructure/:frameID" element={<EstructuraMarco/>}/>
       </Routes>
     </Router>
   );
