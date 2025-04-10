@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; 
+import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
-import Card from "../components/Card"; 
+import Card from "../components/Card";
 const MainMenu = () => {
   const [cards, setCards] = useState([]);
   const location = useLocation();  // se usa useLocation para acceder al estado pasado
@@ -26,7 +26,7 @@ const MainMenu = () => {
           },
         });
 
-        if (response.status !== 200) { 
+        if (response.status !== 200) {
           throw new Error("Error al obtener los datos");
         }
 
