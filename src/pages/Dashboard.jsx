@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import { useLocation } from "react-router-dom";
+import DashboardWidgets from "../components/DashboardWidgets";
 
 const ProgressBar = ({ approved, rejected, pending, notUploaded }) => {
   return (
@@ -55,7 +56,7 @@ const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evi
   );
 };
 
-const PersonalConfig = () => {
+const Dashboard = () => {
   const location = useLocation();
   const processId = location.state?.processId;
 
@@ -66,6 +67,19 @@ const PersonalConfig = () => {
     { name: "Evidencia 0242..", responsible: "Marco Alcaraz", info: "Sección 1.1.3", file: "NomArchivo.Pdf", verified: "(X)", evaluated: "Ernesto Lopez" }
   ];
 
+  // Definir el estado del modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Función para abrir el modal
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  // Función para cerrar el modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       <AppHeader />
@@ -74,19 +88,65 @@ const PersonalConfig = () => {
         <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-6 mb-5">
           Dashboard proceso: {processId}
         </h1>
-        <div className="mt-4">
-          <ProgressBar approved={40} rejected={10} pending={10} notUploaded={40} />
-          <p className="text-right mt-2 text-lg font-semibold">40%</p>
-        </div>
+        <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mb-7">
+          Resumen General
+        </h1>
+        <DashboardWidgets />
+
         <div className="mt-6">
           <CategoryProgress title="Categoría 1" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
           <CategoryProgress title="Categoría 2" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
           <CategoryProgress title="Categoría 3" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
         </div>
+
+
+        <div className="mt-10 mb-10">
+          <h1 className="text-[24px] font-semibold text-black font-['Open_Sans'] mt-15 mb-3">
+            Compilación de evidencias
+          </h1>
+          <div className="text-sm text-gray-700 mb-3">
+            <p>Al dar clic en "Compilar Evidencias", se tomarán todas las evidencias aprobadas para la compilación. Además, podrás finalizar el proceso de acreditación, lo que impedirá que los usuarios suban más evidencias.*</p>
+          </div>
+          <button 
+            onClick={openModal} 
+            className="bg-blue-700 text-white py-2 px-6 rounded-xl text-lg font-semibold"
+          >
+            Compilar Evidencias
+          </button>
+        </div>
       </div>
+
+      {/* Modal de confirmación */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-2xl font-semibold text-center mb-4">Confirmar Finalización</h2>
+            <p className="text-center mb-6">¿Estás seguro de que deseas finalizar el proceso de acreditación? Esto impedirá que los usuarios suban más evidencias.</p>
+            <div className="flex justify-around">
+              <button 
+                onClick={closeModal}
+                className="bg-gray-300 text-black py-2 px-4 rounded-lg"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={() => {
+                  // Aquí puedes manejar el cierre del proceso
+                  alert("Proceso finalizado");
+                  closeModal();
+                }}
+                className="bg-red-600 text-white py-2 px-4 rounded-lg"
+              >
+                Finalizar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <AppFooter />
     </>
   );
 };
 
-export default PersonalConfig;
+export default Dashboard;
