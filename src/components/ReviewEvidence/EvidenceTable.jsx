@@ -72,6 +72,7 @@ export default function EvidenceTable() {
 
         console.log(url);
         api.get(url).then(({ data }) => {
+            console.log(data);
             setEvidences(() => [...data.evidencias.data]);
             setNextPage(data.evidencias.next_page_url);
             setLoading(false);

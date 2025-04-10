@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import { useLocation } from "react-router-dom";
 import DashboardWidgets from "../components/DashboardWidgets";
+import api from "../services/api";
+import { Link } from "lucide-react";
 
 const ProgressBar = ({ approved, rejected, pending, notUploaded }) => {
   return (
@@ -69,6 +71,7 @@ const Dashboard = () => {
 
   // Definir el estado del modal
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [Link, setLink] = useState("");
 
   // Función para abrir el modal
   const openModal = () => {
@@ -108,7 +111,18 @@ const Dashboard = () => {
             <p>Al dar clic en "Compilar Evidencias", se tomarán todas las evidencias aprobadas para la compilación. Además, podrás finalizar el proceso de acreditación, lo que impedirá que los usuarios suban más evidencias.*</p>
           </div>
           <button 
-            onClick={openModal} 
+            onClick={ () => {openModal(); api.get('/api/procesos/1/descargar-evidencias', {
+              responseType: 'blob', // Esto es muy importante
+            })
+            .then((response) => {
+              // Crear una URL para el blob
+              const url = window.URL.createObjectURL(new Blob([response.data]));
+             
+              setLink(url);
+            })
+            .catch((error) => {
+              console.error('Error al descargar el archivo:', error);
+            }); }} 
             className="bg-blue-700 text-white py-2 px-6 rounded-xl text-lg font-semibold"
           >
             Compilar Evidencias
@@ -133,6 +147,8 @@ const Dashboard = () => {
                 onClick={() => {
                   // Aquí puedes manejar el cierre del proceso
                   alert("Proceso finalizado");
+                  //api.get("/api/procesos/{1}/descargar-evidencias");
+                  window.location.href = "http://proyectocacei.test/api/procesos/1/descargar-evidencias";
                   closeModal();
                 }}
                 className="bg-red-600 text-white py-2 px-4 rounded-lg"
