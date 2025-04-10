@@ -88,21 +88,19 @@ const Dashboard = () => {
         <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-6 mb-5">
           Dashboard proceso: {processId}
         </h1>
-        <div className="mt-4">
-          <ProgressBar approved={40} rejected={10} pending={10} notUploaded={40} />
-          <p className="text-right mt-2 text-lg font-semibold">40%</p>
-        </div>
+        <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mb-7">
+          Resumen General
+        </h1>
+        <DashboardWidgets />
+
         <div className="mt-6">
           <CategoryProgress title="Categoría 1" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
           <CategoryProgress title="Categoría 2" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
           <CategoryProgress title="Categoría 3" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
         </div>
-        <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-15 mb-7">
-          Resumen General
-        </h1>
-        <DashboardWidgets />
 
-        <div className="mt-10">
+
+        <div className="mt-10 mb-10">
           <h1 className="text-[24px] font-semibold text-black font-['Open_Sans'] mt-15 mb-3">
             Compilación de evidencias
           </h1>
