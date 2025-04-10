@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import { useLocation } from "react-router-dom";
+import DashboardWidgets from "../components/DashboardWidgets";
 
 const ProgressBar = ({ approved, rejected, pending, notUploaded }) => {
   return (
@@ -55,7 +56,7 @@ const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evi
   );
 };
 
-const PersonalConfig = () => {
+const Dashboard = () => {
   const location = useLocation();
   const processId = location.state?.processId;
 
@@ -83,10 +84,14 @@ const PersonalConfig = () => {
           <CategoryProgress title="Categoría 2" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
           <CategoryProgress title="Categoría 3" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
         </div>
+        <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-15 mb-7">
+        Resumen General
+      </h1>
+      <DashboardWidgets />
       </div>
       <AppFooter />
     </>
   );
 };
 
-export default PersonalConfig;
+export default Dashboard;
