@@ -12,34 +12,38 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import FrameOfReferenceView from "./pages/framesAdmin";
 import EstructuraMarco from "./pages/frameStructure";
 
+import { ModalProvider } from "./contexts/ModalContext";
+
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/mainmenu" element={
-          <ProtectedRoute>
-            <MenuPrincipal />
-          </ProtectedRoute>
-        } />
-        <Route path="/ReviewEvidence" element={
-          <ProtectedRoute>
-            <ReviewEvidence />
-          </ProtectedRoute>
-        } />
-        <Route path="/PersonalConfig" element={<PersonalConfig />} />
-        <Route path="/dash/:processId" element={<Dashboard />} />
-        <Route path="/notifications" element={<Notification />} />
-        <Route path="/UsersAdmin" element={
-          <ProtectedRoute allowedRoles={["PROFESOR"]}>
-            <UsersAdmin />
-          </ProtectedRoute>
-        } />
-        <Route path="/personalInfo" element={<PersonalConfig />} />
-        <Route path="/uploadEvidence" element={<UploadEvidence />} />
-        <Route path="/evidenceManagement" element={<EvidenceManagement />} />
-        <Route path="/framesAdmin" element={<FrameOfReferenceView/>}/>
-        <Route path="/framesStructure/:frameID" element={<EstructuraMarco/>}/>
+        <ModalProvider>
+          <Route path="/" element={<Login />} />
+          <Route path="/mainmenu" element={
+            <ProtectedRoute>
+              <MenuPrincipal />
+            </ProtectedRoute>
+          } />
+          <Route path="/ReviewEvidence" element={
+            <ProtectedRoute>
+              <ReviewEvidence />
+            </ProtectedRoute>
+          } />
+          <Route path="/PersonalConfig" element={<PersonalConfig />} />
+          <Route path="/dash/:processId" element={<Dashboard />} />
+          <Route path="/notifications" element={<Notification />} />
+          <Route path="/UsersAdmin" element={
+            <ProtectedRoute allowedRoles={["PROFESOR"]}>
+              <UsersAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/personalInfo" element={<PersonalConfig />} />
+          <Route path="/uploadEvidence" element={<UploadEvidence />} />
+          <Route path="/evidenceManagement" element={<EvidenceManagement />} />
+          <Route path="/framesAdmin" element={<FrameOfReferenceView/>}/>
+          <Route path="/framesStructure/:frameID" element={<EstructuraMarco/>}/>
+        </ModalProvider>
       </Routes>
     </Router>
   );
