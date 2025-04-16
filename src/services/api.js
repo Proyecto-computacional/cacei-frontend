@@ -32,14 +32,14 @@ export const login = async (rpe, password) => {
             localStorage.setItem('token', token);
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      return response.data;
+            return response.data;
+        }
+        //retorna si el login no fue exitoso
+        return { correct: false };
+    } catch (error) {
+        console.error("Error en login:", error.response?.data || error.message);
+        throw error; // Lanza el error para que el componente lo maneje (pendiente de revisar)
     }
-    //retorna si el login no fue exitoso
-    return { correct: false };
-  } catch (error) {
-    console.error("Error en login:", error.response?.data || error.message);
-    throw error; // Lanza el error para que el componente lo maneje (pendiente de revisar)
-  }
 };
 
 export const logout = async () => {
