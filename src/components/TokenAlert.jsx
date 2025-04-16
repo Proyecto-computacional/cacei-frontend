@@ -1,13 +1,9 @@
-// Import your API instance—this could be an Axios instance you’ve already configured
-import api from '../api'; // adjust the import path as needed
+import api from "../services/api"
 
 function RefreshTokenModal({ hideModal, setToken, setExpiresAt }) {
-  // Handler for the Refresh button click
-  const handleRefresh = async () => {
+  const handleRefresh = async () => { // Activado por botón
     try {
-      // Make the refresh token API call with headers similar to your example.
-      const response = await api.post(
-        "/api/refreshToken", // adjust the endpoint path to match your backend route
+      const response = await api.post("api/refreshToken",
         {},
         {
           headers: {
@@ -17,23 +13,18 @@ function RefreshTokenModal({ hideModal, setToken, setExpiresAt }) {
         }
       );
 
-      // Destructure the token and new expiration date from the response.
-      // Note: Depending on your backend response, these property names might differ.
+      // Proceso de actualización de token
       const { token: newToken, expires_at: newExpiresAt } = response.data;
 
-      // Optionally update the token in localStorage if the refresh endpoint issues a new token.
       if (newToken) {
         localStorage.setItem('token', newToken);
         setToken(newToken);
       }
 
-      // Update expiration; parsing the new expiration if it is a string:
       setExpiresAt(new Date(newExpiresAt).getTime());
     } catch (error) {
-      console.error("Error refreshing the token:", error);
-      // Optionally: add error handling logic (e.g., notify user, force logout)
+      console.error("No se logró actualizar el token:", error);
     } finally {
-      // Finally, hide the modal regardless of success or error.
       hideModal();
     }
   };
