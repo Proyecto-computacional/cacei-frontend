@@ -12,13 +12,13 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import FrameOfReferenceView from "./pages/framesAdmin";
 import EstructuraMarco from "./pages/frameStructure";
 
-import { ModalProvider } from "./contexts/ModalContext";
+import { TokenAlertProvider } from "./contexts/TokenAlertContext";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <ModalProvider>
+        <TokenAlertProvider>
           <Route path="/" element={<Login />} />
           <Route path="/mainmenu" element={
             <ProtectedRoute>
@@ -43,7 +43,7 @@ function App() {
           <Route path="/evidenceManagement" element={<EvidenceManagement />} />
           <Route path="/framesAdmin" element={<FrameOfReferenceView/>}/>
           <Route path="/framesStructure/:frameID" element={<EstructuraMarco/>}/>
-        </ModalProvider>
+        </TokenAlertProvider>
       </Routes>
     </Router>
   );

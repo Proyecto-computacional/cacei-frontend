@@ -1,15 +1,15 @@
-// src/components/Modal.tsx
+// src/components/TokenAlert.tsx
 import React from "react";
 import { ReactNode, useEffect } from "react";
 import { createPortal } from "react-dom";
 
-interface ModalProps {
+interface TokenAlertProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
 }
 
-export function Modal({ isOpen, onClose, children }: ModalProps) {
+export function TokenAlert({ isOpen, onClose, children }: TokenAlertProps) {
   // prevent background scroll when open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
