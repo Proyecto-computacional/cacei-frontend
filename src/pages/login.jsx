@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import caceiLogo from '../assets/caceiLogo.png'
 import '../app.css'
 import { AppHeader } from "../common";
 import { AppFooter } from "../common";
