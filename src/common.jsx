@@ -1,3 +1,5 @@
+// VER SI AQUÍ PONER EL COMPONENTE DEL TOKENALERT
+
 import React, { useState } from "react";
 import './app.css';
 import headerLogo from './assets/headerLogo.png';
