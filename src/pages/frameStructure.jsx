@@ -16,11 +16,14 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   
     return (
       <div className="border p-4 mb-4 rounded shadow bg-white">
-        <h2 className="text-xl font-semibold mb-2">Crear Categoria</h2>
+        <h2 className="text-xl font-semibold mb-2">Crear Categoría</h2>
+        <label htmlFor="nombreCategoria" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre de la categoría
+        </label>
         <input
           type="text"
           className="border p-2 w-full mb-2"
-          placeholder="Nombre de la categoria"
+          placeholder="Nombre de la categoría"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
@@ -53,7 +56,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   
     return (
       <div className="border p-4 mb-4 rounded shadow bg-white">
-        <h2 className="text-xl font-semibold mb-2">Modificar Categoria</h2>
+        <h2 className="text-xl font-semibold mb-2">Modificar Categoría</h2>
+        <label htmlFor="nombreCategoria" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre de la categoría
+        </label>
         <input
           type="text"
           className="border p-2 w-full mb-2"
@@ -87,7 +93,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   
     return (
       <div className="border p-4 mb-4 rounded shadow bg-white">
-        <h2 className="text-xl font-semibold mb-2">Crear Seccion</h2>
+        <h2 className="text-xl font-semibold mb-2">Crear Sección</h2>
+        <label htmlFor="nombreSeccion" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre de la sección
+        </label>
         <input
           type="text"
           className="border p-2 w-full mb-2"
@@ -95,6 +104,9 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
+        <label htmlFor="descripcionSeccion" className="block text-sm font-medium text-gray-700 mb-1">
+          Descripción de la sección
+        </label>
         <input
             type="text"
             className="border p-2 w-full mb-2"
@@ -134,12 +146,18 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     return (
       <div className="border p-4 mb-4 rounded shadow bg-white">
         <h2 className="text-xl font-semibold mb-2">Modificar Categoria</h2>
+        <label htmlFor="nombreSeccion" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre de la sección
+        </label>
         <input
           type="text"
           className="border p-2 w-full mb-2"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
+        <label htmlFor="descripcionSeccion" className="block text-sm font-medium text-gray-700 mb-1">
+          Descripción de la sección
+        </label>
         <input
             type="text"
             className="border p-2 w-full mb-2"
@@ -176,6 +194,9 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     return (
       <div className="border p-4 mb-4 rounded shadow bg-white">
         <h2 className="text-xl font-semibold mb-2">Crear Criterio</h2>
+        <label htmlFor="nombreCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre del criterio
+        </label>
         <input
           type="text"
           className="border p-2 w-full mb-2"
@@ -183,6 +204,9 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
+        <label htmlFor="descripcionCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+          Descripción del criterio
+        </label>
         <input
             type="text"
             className="border p-2 w-full mb-2"
@@ -192,6 +216,9 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
         />
         <label className="flex items-center">
             <input type="checkbox" className="mr-2" checked={is_transversal} onChange={(e) => setTrasnversal(e.target.checked)}/> Transversal
+        </label>
+        <label htmlFor="AyudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+          Ayuda del criterio
         </label>
         <input
             type="text"
@@ -235,13 +262,19 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   
     return (
       <div className="border p-4 mb-4 rounded shadow bg-white">
-        <h2 className="text-xl font-semibold mb-2">Modificar Categoria</h2>
+        <h2 className="text-xl font-semibold mb-2">Modificar Criterio</h2>
+        <label htmlFor="nombreCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre del criterio
+        </label>
         <input
           type="text"
           className="border p-2 w-full mb-2"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
+        <label htmlFor="descripcionCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+          Descripción del criterio
+        </label>
         <input
             type="text"
             className="border p-2 w-full mb-2"
@@ -250,6 +283,9 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
         />
         <label className="flex items-center">
             <input type="checkbox" className="mr-2" checked={is_transversal} onChange={(e) => setTrasnversal(e.target.checked)}/> Transversal
+        </label>
+        <label htmlFor="AyudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+          Ayuda del criterio
         </label>
         <input
             type="text"
@@ -355,6 +391,8 @@ export default function EstructuraMarco() {
 
     const handleOpenEditCategoria = (categoryId) => {
       setEditingCategoryId(categoryId);
+      setEditingSectionId(null);
+      setEditingCriterioId(null);
       setShowCreateCategoria(false);
       setShowCreateSeccion(false);
       setShowCreateCriterio(false);
@@ -362,6 +400,8 @@ export default function EstructuraMarco() {
 
     const handleOpenEditSeccion = (seccionId) => {
       setEditingSectionId(seccionId);
+      setEditingCategoryId(null);
+      setEditingCriterioId(null);
       setShowCreateCategoria(false);
       setShowCreateSeccion(false);
       setShowCreateCriterio(false);
@@ -399,6 +439,7 @@ export default function EstructuraMarco() {
                 categoriaSeleccionada?.category_id === cat.category_id ? "bg-blue-100" : "hover:bg-gray-100"
               }`}
             >
+              {cat.indice}.
               {cat.category_name}
               <button 
                 className="ml-2 text-sm text-blue-600"
@@ -442,6 +483,7 @@ export default function EstructuraMarco() {
                     seccionSeleccionada?.id === sec.section_id ? "bg-blue-100" : "hover:bg-gray-100"
                   }`}
                 >
+                  {sec.indice}.
                   {sec.section_name}
                   <button 
                     className="ml-2 text-sm text-blue-600"
@@ -478,6 +520,7 @@ export default function EstructuraMarco() {
             <ul className="space-y-1">
               {criterios.map((cri) => (
                 <li key={cri.id} className="px-2 py-1 rounded hover:bg-gray-100">
+                  {cri.indice}.
                   {cri.standard_name}
                   <button 
                     className="ml-2 text-sm text-blue-600"
