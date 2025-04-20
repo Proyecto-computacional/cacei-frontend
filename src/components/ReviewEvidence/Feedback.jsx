@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "../../app.css"
 const Feedback = ({ enviar, cerrar }) => {
     const [feedback, setFeedback] = useState(null);

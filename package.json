@@ -12,12 +12,14 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.6",
+    "@tinymce/tinymce-react": "^6.1.0",
     "axios": "^1.7.9",
     "lucide-react": "^0.476.0",
     "react": "^19.0.0",
     "react-circular-progressbar": "^2.2.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.2.0"
+    "react-router-dom": "^7.2.0",
+    "tinymce": "^7.8.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

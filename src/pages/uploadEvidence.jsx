@@ -6,9 +6,10 @@ import '../app.css';
 import api from "../services/api";
 import { FileQuestion } from "lucide-react";
 import Feedback from "../components/Feedback";
-
+import EditorCacei from "../components/EditorCacei";
 const UploadEvidence = () => {
   const [file, setFile] = useState(null);
+  const [justification, setJustification] = useState(null);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -21,15 +22,16 @@ const UploadEvidence = () => {
   };
 
   const handleUpload = async () => {
+    
     if (!file) {
       alert("Por favor, selecciona un archivo.");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("file", document.querySelector('input[type="file"]').files[0]);
     formData.append("evidence_id", 1); // Reemplaza con el ID correcto
-    formData.append("justification", "Justificación opcional");
+    formData.append("justification", justification);
   
     try {
       const response = await api.post("/api/file", 
@@ -113,12 +115,9 @@ const UploadEvidence = () => {
             Sección/categoria/criterio
             </h1>
             <p className="text-black text-lg font-semibold">Justificación</p>
-            <textarea
-              className="w-full p-2 border rounded mt-2 text-gray-600 bg-gray-100 min-h-[150px]"
-              placeholder="Descripción"
-            ></textarea>
-            <div className="mt-4">
-                <label className="w-full p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
+            <EditorCacei setJustification={setJustification}/>
+            <div className="mt-4 flex">
+                <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
                     Ingresa el archivo aquí
                     <input
                     type="file"
@@ -126,17 +125,12 @@ const UploadEvidence = () => {
                     onChange={handleFileChange}
                     />
                 </label>
+                <div className="w-1/10"><FileQuestion size={50} onClick={() => {setShowCriteriaGuide(true)}}/></div>
             </div>
             <div className="flex space-x-4 mt-8 pl-14">
               <button className="bg-[#00B2E3] text-white px-20 py-2 rounded-full" onClick={handleRemoveFile}>Cancelar</button>
               <button className="bg-[#004A98] text-white px-20 py-2 ml-10 rounded-full" onClick={handleUpload}>Guardar</button>
             </div>
-            <button
-              onClick={() => setShowFeedback(true)}
-              className="mt-4 bg-[#5B7897] text-white px-6 py-2 rounded-full w-1/2 self-center"
-            >
-              Retroalimentación
-            </button>
           </div>
           <div className="w-1/2">
           <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
@@ -155,7 +149,6 @@ const UploadEvidence = () => {
                 ))}
 
           </div>
-          <div className="w-full flex justify-end mt-7"><FileQuestion size={50} onClick={() => {setShowCriteriaGuide(true)}}/></div>
         </div>
       </div>
       <AppFooter />
