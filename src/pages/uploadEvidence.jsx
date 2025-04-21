@@ -1,24 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import FeedbackModal from "../components/Feedback";
 import CriteriaGuide from "../components/CriteriaGuide";
 import '../app.css';
 import api from "../services/api";
-import { FileQuestion } from "lucide-react";
-import Feedback from "../components/Feedback";
+import { FileQuestion, Sheet, FileText, FolderArchive, X } from "lucide-react";
 import EditorCacei from "../components/EditorCacei";
 const UploadEvidence = () => {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [justification, setJustification] = useState(null);
+  const refInputFiles = useRef(null);
 
   const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    if (!selectedFile) return;
+    const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf'];
+    const maxFileSize = 50 * 1024 * 1024; // 50MB
+
+    const selectedFiles = Array.from(event.target.files);
+
+    const validFiles = [];
+
+    selectedFiles.forEach((file) => {
+      const ext = file.name.split('.').pop().toLowerCase();
+      const sizeOk = file.size <= maxFileSize;
+      const typeOk = allowedExtensions.includes(ext);
   
-    setFile({
-      name: selectedFile.name.toLowerCase(), // Guardamos el nombre en minúsculas
-      preview: URL.createObjectURL(selectedFile), // URL para previsualizar archivos compatibles
+      if (sizeOk && typeOk) {
+        validFiles.push({
+          name: file.name.toLowerCase(),
+          type: file.type,
+        });
+      } else {
+        alert(`Archivo rechazado: ${file.name}`);
+      }
     });
+  
+    if (validFiles.length > 0) {
+      setFiles((prevFiles) => {
+        const existingNames = new Set(prevFiles.map(f => f.name));
+        const uniqueNewFiles = validFiles.filter(f => !existingNames.has(f.name));
+        return [...prevFiles, ...uniqueNewFiles];
+      });
+    }
+
+    refInputFiles.current.value = "";
   };
 
   const handleUpload = async () => {
@@ -29,7 +53,7 @@ const UploadEvidence = () => {
     }
 
     const formData = new FormData();
-    formData.append("file", document.querySelector('input[type="file"]').files[0]);
+    formData.append("files", files);
     formData.append("evidence_id", 1); // Reemplaza con el ID correcto
     formData.append("justification", justification);
   
@@ -50,9 +74,8 @@ const UploadEvidence = () => {
     }
   };  
 
-  const handleRemoveFile = () => {
-    setFile(null);
-    document.querySelector('input[type="file"]').value = "";
+  const handleRemoveFile = (fileName) => {
+    setFiles((prev) => prev.filter((file) => file.name !== fileName));
   };
 
   const [showFeedback, setShowFeedback] = useState(false);
@@ -84,6 +107,15 @@ const UploadEvidence = () => {
       default:
         return "bg-gray-300 text-black";
     }
+  };
+
+  const getIcon = (name) => {
+    const extension = name.split('.').pop();
+
+    if (['rar', 'zip', '7z'].includes(extension)) return <FolderArchive />;
+    if (extension === 'pdf') return <FileText />;
+    if (['csv', 'xls', 'xlsx'].includes(extension)) return <Sheet />;
+  
   };
 
   return (
@@ -122,15 +154,22 @@ const UploadEvidence = () => {
                     <input
                     type="file"
                     className="hidden"
+                    multiple 
                     onChange={handleFileChange}
+                    ref={refInputFiles}
                     />
                 </label>
                 <div className="w-1/10"><FileQuestion size={50} onClick={() => {setShowCriteriaGuide(true)}}/></div>
             </div>
-            <div className="flex space-x-4 mt-8 pl-14">
-              <button className="bg-[#00B2E3] text-white px-20 py-2 rounded-full" onClick={handleRemoveFile}>Cancelar</button>
-              <button className="bg-[#004A98] text-white px-20 py-2 ml-10 rounded-full" onClick={handleUpload}>Guardar</button>
-            </div>
+            {files && files.map((file) => (
+                <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
+                  <span className="text-2xl">{getIcon(file.name)}</span>
+                  <p className="font-semibold text-left flex-grow">{file.name}</p>
+                  <X className="cursor-pointer" onClick={() => {handleRemoveFile(file.name)}}/>
+                </div>
+              ))}
+
+              <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload}>Guardar</button>
           </div>
           <div className="w-1/2">
           <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
