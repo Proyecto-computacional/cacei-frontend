@@ -25,10 +25,7 @@ const UploadEvidence = () => {
       const typeOk = allowedExtensions.includes(ext);
   
       if (sizeOk && typeOk) {
-        validFiles.push({
-          name: file.name.toLowerCase(),
-          type: file.type,
-        });
+        validFiles.push(file);
       } else {
         alert(`Archivo rechazado: ${file.name}`);
       }
@@ -47,15 +44,22 @@ const UploadEvidence = () => {
 
   const handleUpload = async () => {
     
-    if (!file) {
+    if (!files) {
       alert("Por favor, selecciona un archivo.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("files", files);
+    files.forEach((file) => {
+      formData.append("files[]", file); // Laravel reconoce arreglos con []
+    });
+  
     formData.append("evidence_id", 1); // Reemplaza con el ID correcto
     formData.append("justification", justification);
+
+    for (var pair of formData.entries()) {
+      console.log(pair[0]+ ', ' + pair[1]); 
+  }
   
     try {
       const response = await api.post("/api/file", 
