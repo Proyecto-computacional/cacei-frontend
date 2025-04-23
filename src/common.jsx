@@ -97,7 +97,7 @@ export function SubHeading() {
                 </div>
 
 
-                <div className="flex justify-between items-center w-75">
+                <div className="flex items-center space-x-4">
                     <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
                         <Mail className="w-5 h-5 text-black cursor-pointer" />
                     </a>
