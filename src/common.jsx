@@ -40,6 +40,7 @@ export function SubHeading() {
     const navigate = useNavigate();
     const [open, setOpen] = useState(false); // Estado para controlar el menú
     const [viewNotifications, setViewNotifications] = useState(false)
+    const userRole = localStorage.getItem("role") || "Usuario";
 
     return (
         <div className="w-full bg-transparent">
@@ -116,7 +117,7 @@ export function SubHeading() {
 
                     <button onClick={() => navigate("/personalInfo")} className="flex items-center justify-center bg-yellow-500 text-white shadow w-55 h-7 cursor-pointer">
                         <User className="w-5 h-5 mr-2 pl-1" />
-                        User
+                        {userRole}
                     </button>
                     <Logout></Logout>
                 </div>
