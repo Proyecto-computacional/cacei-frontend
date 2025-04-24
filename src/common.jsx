@@ -40,7 +40,20 @@ export function SubHeading() {
     const navigate = useNavigate();
     const [open, setOpen] = useState(false); // Estado para controlar el menú
     const [viewNotifications, setViewNotifications] = useState(false)
+    const location = useLocation();
     const userRole = localStorage.getItem("role") || "Usuario";
+    const pathnames = location.pathname.split("/").filter((x) => x);
+
+    const breadcrumbMap = {
+        mainmenu: "Inicio",
+        personalInfo: "Configuración Personal",
+        uploadEvidence: "Carga de Evidencias",
+        usersAdmin: "Administración de Usuarios",
+        ReviewEvidence: "Revisión de Evidencias",
+        framesAdmin: "Gestión de Formato",
+        evidenceManagement: "Gestión de Evidencias",
+        notifications: "Notificaciones"
+    };
 
     return (
         <div className="w-full bg-transparent">
@@ -91,10 +104,26 @@ export function SubHeading() {
                         )}
                     </div>
 
-                    <div className="ml-12">
-                        <a href="https://www.google.com" className="text-[#00B2E3] italic underline">Breadcrumbs</a> /
-                        <a href="https://www.google.com" className="text-[#00B2E3] italic underline">Breadcrumbs</a>
+                    <div className="ml-12 flex items-center space-x-2 text-sm">
+                        <span className="text-[#00B2E3] italic underline cursor-pointer" onClick={() => navigate("/")}>
+                            Inicio
+                        </span>
+                        {pathnames.map((value, index) => {
+                            const to = "/" + pathnames.slice(0, index + 1).join("/");
+                            return (
+                                <span key={to} className="flex items-center space-x-2">
+                                    <span className="mx-1">/</span>
+                                    <span
+                                        className="text-[#00B2E3] italic underline cursor-pointer"
+                                        onClick={() => navigate(to)}
+                                    >
+                                        {breadcrumbMap[value] || value}
+                                    </span>
+                                </span>
+                            );
+                        })}
                     </div>
+
                 </div>
 
 
