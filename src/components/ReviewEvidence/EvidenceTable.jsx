@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import "../../app.css"
-import { Check, X } from "lucide-react";
+import { Filter, Check, X } from "lucide-react";
 import Feedback from "./Feedback";
 import HeaderSort from "./headerSort";
+import CommentViewer from "./CommentViewer";
 import api from "../../services/api";
 
 export default function EvidenceTable() {
 
 
     const [evidences, setEvidences] = useState([]);
+    const [filteredEvidences, setFilteredEvidences] = useState([]);
     const [nextPage, setNextPage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [openFeedback, setOpenFeedback] = useState(false);
@@ -18,7 +20,20 @@ export default function EvidenceTable() {
     const [sortBy, setSortBy] = useState(null);
     const [order, setOrder] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [showCommentModal, setShowCommentModal] = useState(false);
+    const [currentComment, setCurrentComment] = useState("");
 
+    const [filters, setFilters] = useState({
+        category: '',
+        section: '',
+        standard: '',
+        user: ''
+    });
+
+    const categories = [...new Set(evidences.map(item => item.category_name))].filter(Boolean);
+    const sections = [...new Set(evidences.map(item => item.section_name))].filter(Boolean);
+    const standards = [...new Set(evidences.map(item => item.standard_name))].filter(Boolean);
+    const users = [...new Set(evidences.map(item => item.evidence_owner_name))].filter(Boolean);
 
     const handleSort = (column) => {
         const newOrder = sortBy === column && order === "asc" ? "desc" : "asc";
@@ -26,27 +41,21 @@ export default function EvidenceTable() {
         setOrder(newOrder);
     };
 
-    const sendFeedback = (feedback) => {
-        let url = 'api/RevisionEvidencias/'
-        if (statusFeedback) {
-            url += 'aprobar';
-        } else {
-            url += 'desaprobar';
-        }
-
-        console.log(url, statusFeedback);
-
+    const sendFeedback = async (feedbackText) => {
+        let url = 'api/RevisionEvidencias/';
+        url += statusFeedback ? 'aprobar' : 'desaprobar';
         try {
-            const respuesta = api.post(url, {
+            // 1. Agregamos await y capturamos la respuesta correctamente
+            const { data } = await api.post(url, {
                 evidence_id: parseInt(idEvidenceFeedback),
                 user_rpe: statusUserRPE,
-                feedback: feedback
+                feedback: feedbackText // Asegurar que el campo se llame como espera el backend
             });
-            if (respuesta.status == 200) {
-                alert(respuesta.message);
-            }
+    
+            setOpenFeedback(false);
         } catch (e) {
-            alert('Error en el servidor');
+            console.error("Error en el servidor:", e);
+            alert(`Error: ${e.response?.data?.message || e.message}`);
         }
     };
 
@@ -70,18 +79,52 @@ export default function EvidenceTable() {
             url += `&order=${order}`;
         }
 
-        console.log(url);
         api.get(url).then(({ data }) => {
-            console.log(data);
             setEvidences(() => [...data.evidencias.data]);
             setNextPage(data.evidencias.next_page_url);
             setLoading(false);
         });
 
-        console.log(evidences);
-
     }, [searchTerm, sortBy, order]);
 
+    useEffect(() => {
+        let result = evidences;
+        
+        if (filters.category) {
+            result = result.filter(item => item.category_name === filters.category);
+        }
+        
+        if (filters.section) {
+            result = result.filter(item => item.section_name === filters.section);
+        }
+        
+        if (filters.standard) {
+            result = result.filter(item => item.standard_name === filters.standard);
+        }
+        
+        if (filters.user) {
+            result = result.filter(item => item.evidence_owner_name === filters.user);
+        }
+        
+        setFilteredEvidences(result);
+    }, [filters, evidences]);
+
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const resetFilters = () => {
+        setFilters({
+            category: '',
+            section: '',
+            standard: '',
+            user: ''
+        });
+    };
 
     const loadMore = () => {
         if (!nextPage) return;
@@ -94,12 +137,96 @@ export default function EvidenceTable() {
         });
     };
 
+    // Función modificada para manejar cualquier estado
+    const handleStatusClick = (statusObj) => {
+        console.log(statusObj);
+        const comment = (statusObj && ["Aprobado", "Desaprobado"].includes(statusObj.status_description))
+          ? statusObj.feedback || "Sin comentarios"
+          : "Sin comentarios";
+        
+        setCurrentComment(comment);
+        setShowCommentModal(true);
+    };
+
 
     return (
         <>
             <div className="container mx-auto p-5 ">
-                <input type="" placeholder="Usuario , proceso de acreditación, o criterio" className="bg-backgroundFrom text-2xl w-1/2 mb-3 p-1.5"
-                    onChange={(e) => setSearchTerm(e.target.value)} />
+                    <div className="mb-6 p-4 bg-white rounded-lg shadow">
+                    <div className="flex items-center mb-4">
+                        <Filter className="mr-2" size={20} />
+                        <h3 className="text-lg font-medium">Filtros de búsqueda</h3>
+                        <button 
+                            onClick={resetFilters}
+                            className="ml-auto flex items-center text-sm text-gray-600 hover:text-gray-900"
+                        >
+                            <X size={16} className="mr-1" />
+                            Limpiar filtros
+                        </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                            <select
+                                name="category"
+                                value={filters.category}
+                                onChange={handleFilterChange}
+                                className="w-full p-2 border border-gray-300 rounded"
+                            >
+                                <option value="">Todas las categorías</option>
+                                {categories.map((category, index) => (
+                                    <option key={`cat-${index}`} value={category}>{category}</option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Sección</label>
+                            <select
+                                name="section"
+                                value={filters.section}
+                                onChange={handleFilterChange}
+                                className="w-full p-2 border border-gray-300 rounded"
+                            >
+                                <option value="">Todas las secciones</option>
+                                {sections.map((section, index) => (
+                                    <option key={`sec-${index}`} value={section}>{section}</option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Criterio</label>
+                            <select
+                                name="standard"
+                                value={filters.standard}
+                                onChange={handleFilterChange}
+                                className="w-full p-2 border border-gray-300 rounded"
+                            >
+                                <option value="">Todos los criterios</option>
+                                {standards.map((standard, index) => (
+                                    <option key={`std-${index}`} value={standard}>{standard}</option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+                            <select
+                                name="user"
+                                value={filters.user}
+                                onChange={handleFilterChange}
+                                className="w-full p-2 border border-gray-300 rounded"
+                            >
+                                <option value="">Todos los usuarios</option>
+                                {users.map((user, index) => (
+                                    <option key={`usr-${index}`} value={user}>{user}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>    
 
                 <div className="overflow-x-auto overflow-y-scroll max-h-300" onScroll={(e) => {
                     const bottom = e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1;
@@ -110,6 +237,8 @@ export default function EvidenceTable() {
                             <tr className="bg-primary1 text-white">
                                 <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} />
+                                <HeaderSort column="category_name" text={"Categoría"} handleSort={handleSort} sortBy={sortBy} order={order} />
+                                <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <th className="w-3/10 py-3 px-4 text-center" colSpan={4}>Estatus</th>
@@ -124,10 +253,12 @@ export default function EvidenceTable() {
 
                         </thead>
                         <tbody>
-                            {evidences !== null && evidences.length > 0 ? evidences.map((item) => (
+                            {filteredEvidences.length > 0 ? filteredEvidences.map((item) => (
                                 <tr key={item.user_rpe} className="border-b hover:bg-gray-100">
                                     <td className="py-3 px-4">{item.evidence_owner_name}</td>
                                     <td className="py-3 px-4">{item.process_name}</td>
+                                    <td className="py-3 px-4">{item.category_name}</td> 
+                                    <td className="py-3 px-4">{item.section_name}</td>
                                     <td className="py-3 px-4">{item.standard_name}</td>
                                     <td className="py-3 px-4">
                                         {item.files.length > 0 ? (
@@ -151,11 +282,15 @@ export default function EvidenceTable() {
                                         const status = statusObj ? statusObj.status_description : "Pendiente";
                                         const color = status === "Aprobada" ? "text-green-600"
                                             : status === "No aprobada" ? "text-red-600"
-                                                : "text-yellow-600";
+                                            : "text-yellow-600";
 
                                         return (
-                                            <td key={rol} className={`py-3 px-4 font-semibold ${color}`}>
-                                                {status}
+                                            <td 
+                                            key={rol} 
+                                            className={`py-3 px-4 font-semibold ${color} cursor-pointer hover:underline`}
+                                            onClick={() => handleStatusClick(statusObj)}
+                                            >
+                                            {status}
                                             </td>
                                         );
                                     })}
@@ -173,8 +308,8 @@ export default function EvidenceTable() {
                                 </tr>
                             )) :
                                 <tr>
-                                    <td colSpan="4">
-                                        <p className="text-2xl text-neutral-500 text-center width-max my-2">No se encontaron evidencias</p>
+                                    <td colSpan="8" className="py-4 text-center text-gray-500">
+                                        No se encontraron evidencias con los filtros aplicados
                                     </td>
                                 </tr>
                             }
@@ -182,9 +317,19 @@ export default function EvidenceTable() {
                     </table>
                 </div>
             </div >
+            {showCommentModal && (
+                <CommentViewer 
+                    comment={currentComment} 
+                    onClose={() => setShowCommentModal(false)} 
+                />
+            )
+            }
             {openFeedback && (
-                <Feedback cerrar={() => setOpenFeedback(false)}
-                    enviar={sendFeedback} />
+                <Feedback
+                    cerrar={() => setOpenFeedback(false)}
+                    enviar={sendFeedback}
+                    statusFeedback={statusFeedback} // Pasamos el estado (aprobación/rechazo)
+                />
             )
             }
         </>
