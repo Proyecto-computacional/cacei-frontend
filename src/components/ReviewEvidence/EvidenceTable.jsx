@@ -42,21 +42,38 @@ export default function EvidenceTable() {
     };
 
     const sendFeedback = async (feedbackText) => {
-        let url = 'api/RevisionEvidencias/';
-        url += statusFeedback ? 'aprobar' : 'desaprobar';
         try {
-            // 1. Agregamos await y capturamos la respuesta correctamente
+            const url = statusFeedback ? 'api/RevisionEvidencias/aprobar' : 'api/RevisionEvidencias/desaprobar';
+            
             const { data } = await api.post(url, {
                 evidence_id: parseInt(idEvidenceFeedback),
                 user_rpe: statusUserRPE,
-                feedback: feedbackText // Asegurar que el campo se llame como espera el backend
+                feedback: feedbackText
             });
-            const { data: newData } = await api.get(`api/ReviewEvidence`);
-            setEvidences(newData.evidencias.data);
+    
+            if (!statusFeedback) { // Si fue desaprobación
+                // Mostrar resumen de archivos eliminados
+                alert(`Evidencia desaprobada. Archivos eliminados: ${data.deleted_files_count}`);
+                
+                // Actualizar estado local
+                setEvidences(prev => prev.map(ev => 
+                    ev.evidence_id === idEvidenceFeedback
+                        ? { 
+                            ...ev, 
+                            files: [],
+                            statuses: ev.statuses.map(s => 
+                                s.user_rpe === currentUserRPE 
+                                    ? { ...s, status_description: 'Desaprobado' } 
+                                    : s
+                            )
+                        } 
+                        : ev
+                ));
+            }
+    
             setOpenFeedback(false);
-        } catch (e) {
-            console.error("Error en el servidor:", e);
-            alert(`Error: ${e.response?.data?.message || e.message}`);
+        } catch (error) {
+            alert(`Error: ${error.response?.data?.message || error.message}`);
         }
     };
 
