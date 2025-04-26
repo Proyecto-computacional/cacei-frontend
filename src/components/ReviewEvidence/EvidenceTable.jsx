@@ -51,7 +51,8 @@ export default function EvidenceTable() {
                 user_rpe: statusUserRPE,
                 feedback: feedbackText // Asegurar que el campo se llame como espera el backend
             });
-    
+            const { data: newData } = await api.get(`api/ReviewEvidence`);
+            setEvidences(newData.evidencias.data);
             setOpenFeedback(false);
         } catch (e) {
             console.error("Error en el servidor:", e);
@@ -59,7 +60,14 @@ export default function EvidenceTable() {
         }
     };
 
-    const handleFeedback = (id, userRpe, status) => {
+    const userRole = 'ADMINISTRADOR'; // Esto debería venir de tu contexto/auth
+    const isAdmin = userRole === 'ADMINISTRADOR';
+
+    const handleFeedback = (id, userRpe, status, evidence) => {
+        if (hasDecision(evidence)) {
+            alert("Esta evidencia ya tiene una decisión registrada");
+            return;
+        }
         setOpenFeedback(true);
         setIdEvidenceFeedback(id);
         setstatusUserRPE(userRpe);
@@ -139,15 +147,47 @@ export default function EvidenceTable() {
 
     // Función modificada para manejar cualquier estado
     const handleStatusClick = (statusObj) => {
-        console.log(statusObj);
-        const comment = (statusObj && ["Aprobado", "Desaprobado"].includes(statusObj.status_description))
-          ? statusObj.feedback || "Sin comentarios"
-          : "Sin comentarios";
-        
-        setCurrentComment(comment);
+        // Determinar el texto del comentario
+        let comentario = "Sin comentarios";
+        if (statusObj && ["Aprobado", "Desaprobado"].includes(statusObj.status_description)) {
+            comentario = statusObj.feedback || "Sin comentarios";
+        }
+    
+        // Mostrar modal para CUALQUIER estado
+        setCurrentComment({
+            text: comentario,
+            user: statusObj?.user_name,
+            date: statusObj?.status_date
+        });
         setShowCommentModal(true);
     };
 
+    const hasDecision = (evidence) => {
+        return evidence.statuses?.some(s => 
+            ['Aprobado', 'Desaprobado'].includes(s.status_description)
+        );
+    };
+
+    const isFullyApproved = (evidenceId) => {
+        const evidence = evidences.find(ev => ev.evidence_id === evidenceId);
+        if (!evidence) return false;
+        
+        const requiredApprovals = [
+            'ADMINISTRADOR',
+            'JEFE DE AREA', 
+            'COORDINADOR DE CARRERA',
+            'PROFESOR'
+        ].map(role => 
+            users.find(u => u.user_role === role)?.user_rpe
+        ).filter(Boolean);
+    
+        return requiredApprovals.every(rpe => 
+            evidence.statuses?.some(s => 
+                s.user_rpe === rpe && 
+                s.status_description === 'Aprobado'
+            )
+        );
+    };
 
     return (
         <>
@@ -277,31 +317,71 @@ export default function EvidenceTable() {
                                             "Sin archivo"
                                         )}
                                     </td>
-                                    {["ADMINISTRADOR", "JEFE DE ÁREA", "COORDINADOR DE CARRERA", "PROFESOR"].map((rol) => {
+                                    {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR", "PROFESOR"].map((rol) => {
                                         const statusObj = item.statuses.find(s => s.user_role?.toUpperCase() === rol);
                                         const status = statusObj ? statusObj.status_description : "Pendiente";
-                                        const color = status === "Aprobada" ? "text-green-600"
-                                            : status === "No aprobada" ? "text-red-600"
-                                            : "text-yellow-600";
+                                        const color = status === "Aprobado" ? "text-green-600"
+                                                : status === "Desaprobado" ? "text-red-600"
+                                                : "text-yellow-600";
 
                                         return (
                                             <td 
-                                            key={rol} 
-                                            className={`py-3 px-4 font-semibold ${color} cursor-pointer hover:underline`}
-                                            onClick={() => handleStatusClick(statusObj)}
+                                                key={rol}
+                                                className={`py-3 px-4 font-semibold ${color} cursor-pointer hover:underline`}
+                                                onClick={() => handleStatusClick(statusObj)}
                                             >
-                                            {status}
+                                                {status}
                                             </td>
                                         );
                                     })}
 
                                     <td className="py-3 px-4">
                                         <div className="flex gap-2">
-                                            <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true, item)}>
-                                                <Check color="green" size={40} strokeWidth={2} />
-                                            </button>
-                                            <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}>
-                                                <X color="red" size={40} strokeWidth={2} />
+                                        <button
+                                            onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true, item)}
+                                            disabled={!isAdmin && hasDecision(item)}
+                                            className={`p-1 rounded-md ${
+                                                isFullyApproved(item.evidence_id)
+                                                    ? 'bg-green-200 cursor-default'
+                                                    : (isAdmin ? 'bg-green-100 hover:bg-green-200' : 'bg-gray-100')
+                                            }`}
+                                            title={
+                                                isFullyApproved(item.evidence_id) 
+                                                    ? "Evidencia completamente aprobada"
+                                                    : (isAdmin 
+                                                        ? "Aprobará para TODOS los roles" 
+                                                        : "Aprobar evidencia para tu rol")
+                                            }
+                                        >
+                                            <Check 
+                                                color={
+                                                    isFullyApproved(item.evidence_id) 
+                                                        ? "#15803d" 
+                                                        : (isAdmin ? "#16a34a" : "#9ca3af")
+                                                } 
+                                                size={32} 
+                                            />
+                                            {isAdmin && (
+                                                <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                                    ★
+                                                </span>
+                                            )}
+                                        </button>
+                                            <button
+                                                onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false, item)}
+                                                disabled={hasDecision(item)}
+                                                className={`p-1 rounded-md ${
+                                                    hasDecision(item)
+                                                        ? 'bg-gray-200 cursor-not-allowed opacity-50'
+                                                        : 'bg-red-50 hover:bg-red-100'
+                                                }`}
+                                                title={hasDecision(item) ? "Esta evidencia ya tiene una decisión registrada" : ""}
+                                            >
+                                                <X 
+                                                    color={hasDecision(item) ? "#9ca3af" : "#dc2626"} 
+                                                    size={32} 
+                                                    strokeWidth={2}
+                                                />
                                             </button>
                                         </div>
                                     </td>
@@ -319,8 +399,10 @@ export default function EvidenceTable() {
             </div >
             {showCommentModal && (
                 <CommentViewer 
-                    comment={currentComment} 
-                    onClose={() => setShowCommentModal(false)} 
+                    comment={currentComment.text}
+                    userData={currentComment.user}
+                    date={currentComment.date}
+                    onClose={() => setShowCommentModal(false)}
                 />
             )
             }
