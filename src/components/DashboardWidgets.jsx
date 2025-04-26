@@ -3,15 +3,56 @@ import React from "react";
 //import "react-circular-progressbar/dist/styles.css";
 import { Bell } from "lucide-react";
 
-const DashboardWidgets = () => {
-  // Valores para las tres secciones
-  const aprobado = 55; // 55% Aprobado
-  const pendiente = 20; // 20% Pendiente
-  const sinSubir = 25; // 25% Sin Subir
 
+
+
+import { useEffect, useState } from "react";
+import api from "../services/api";  // Importa la API configurada
+
+const DashboardWidgets = () => {
+  const [estadisticas, setEstadisticas] = useState({
+    aprobado: 0,
+    pendiente: 0,
+    sinSubir: 0,
+    notificaciones: 0,
+  });
+
+  // Obtener el RPE del usuario desde el localStorage
+  const rpe = localStorage.getItem("rpe");
+
+  // Función para obtener las estadísticas generales desde la API
+  const fetchEstadisticas = async () => {
+    try {
+      // Verificar si el token está disponible antes de hacer la solicitud
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No se encontró el token de autenticación.");
+        return;
+      }
+
+      // Obtener las estadísticas generales de la API
+      const { data: estadisticasGeneral } = await api.get("/estadisticas/general");
+      // Obtener las notificaciones no vistas
+      const { data: notificacionesData } = await api.get(`/estadisticas/no-vistas/${rpe}`);
+
+      setEstadisticas({
+        aprobado: estadisticasGeneral.aprobado,
+        pendiente: estadisticasGeneral.pendiente,
+        sinSubir: estadisticasGeneral.sin_subir,
+        notificaciones: notificacionesData.no_vistas,
+      });
+    } catch (error) {
+      console.error("Error al obtener las estadísticas:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEstadisticas();
+  }, []);  // Se ejecuta una sola vez al cargar el componente
+
+  const { aprobado, pendiente, sinSubir, notificaciones } = estadisticas;
   const total = aprobado + pendiente + sinSubir;
 
-  // Porcentajes relativos para cada sección
   const aprobadoPercentage = (aprobado / total) * 100;
   const pendientePercentage = (pendiente / total) * 100;
   const sinSubirPercentage = (sinSubir / total) * 100;
@@ -28,13 +69,15 @@ const DashboardWidgets = () => {
         <button className="bg-blue-700 text-white mt-4 py-2 rounded-xl">Actualizar</button>
       </div>
 
-      {/* Notificaciones */}
-      <div className="bg-white shadow-lg rounded-2xl p-6">
+  
+
+       {/* Notificaciones */}
+       <div className="bg-white shadow-lg rounded-2xl p-6">
         <h2 className="text-2xl font-bold mb-2 flex justify-between items-center">
           Notificaciones
           <Bell className="w-5 h-5 text-black cursor-pointer" />
         </h2>
-        <p className="text-4xl font-bold">10</p>
+        <p className="text-4xl font-bold">{notificaciones}</p>
       </div>
 
       {/* Progreso General */}
@@ -98,7 +141,7 @@ const DashboardWidgets = () => {
               fontSize="4"
               fill="black"
             >
-              {aprobado}%
+              {aprobadoPercentage.toFixed(0)}%
             </text>
           </svg>
         </div>
@@ -108,21 +151,21 @@ const DashboardWidgets = () => {
               className="w-4 h-4 rounded-full"
               style={{ backgroundColor: "#004A98" }}
             ></div>
-            <p className="ml-2">55% Aprobado</p>
+            <p className="ml-2">{aprobadoPercentage.toFixed(0)}% Aprobado</p>
           </div>
           <div className="flex items-center">
             <div
               className="w-4 h-4 rounded-full"
               style={{ backgroundColor: "#5B7897" }}
             ></div>
-            <p className="ml-2">20% Pendiente</p>
+            <p className="ml-2">{pendientePercentage.toFixed(0)}% Pendiente</p>
           </div>
           <div className="flex items-center">
             <div
               className="w-4 h-4 rounded-full"
               style={{ backgroundColor: "#FFC600" }}
             ></div>
-            <p className="ml-2">25% Sin subir</p>
+            <p className="ml-2">{sinSubirPercentage.toFixed(0)}% Sin subir</p>
           </div>
         </div>
       </div>
