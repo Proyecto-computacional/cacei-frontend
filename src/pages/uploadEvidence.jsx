@@ -18,6 +18,7 @@ const UploadEvidence = () => {
   const refInputFiles = useRef(null);
   const {evidence_id} = useParams();
   const [user, setUser] = useState(null);
+  const [isLocked, setIsLocked] = useState(false);
 
 useEffect(() => {
   const fetchUser = async () => {
@@ -32,20 +33,30 @@ useEffect(() => {
 }, []);
 
 
-const navigate = useNavigate();
-  useEffect(() => {
-      api.get(`api/evidences/${evidence_id}`).then(
-      (response)=>{
-        setEvidence(response.data);
-        setUploadedFiles(response.data.files);
-        setJustification(response.data.files[0].justification||"");
-      }).catch(error => {
-        if(error.response && error.response.status === 401){
-          navigate("/mainmenu");
+useEffect(() => {
+  api.get(`api/evidences/${evidence_id}`).then(
+    (response) => {
+      setEvidence(response.data);
+      setUploadedFiles(response.data.files);
+      setJustification(response.data.files[0]?.justification || "");
+
+      //Evaluar el estado de la evidencia
+      if (response.data.status && response.data.status.length > 0) {
+        const lastStatus = response.data.status[0];
+
+        if (lastStatus.status_description !== "NO APROBADA") {
+          setIsLocked(true); 
+        } else {
+          setIsLocked(false); 
         }
       }
-    );
-  }, [evidence_id]);
+    }).catch(error => {
+      if(error.response && error.response.status === 401){
+        navigate("/mainmenu");
+      }
+    }
+  );
+}, [evidence_id]);
 
   useEffect(() => {
     async function fetchData() {
@@ -109,9 +120,6 @@ const navigate = useNavigate();
     formData.append("evidence_id", 1); // Reemplaza con el ID correcto
     formData.append("justification", justification);
 
-    for (var pair of formData.entries()) {
-      console.log(pair[0]+ ', ' + pair[1]); 
-  }
   
     try {
       const response = await api.post("/api/file", 
@@ -237,7 +245,7 @@ const navigate = useNavigate();
             {evidence.standard.standard_name}
             </h2>
             <p className="text-black text-lg font-semibold">Justificación</p>
-            <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe}/>
+            <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked}/>
               {user?.user_rpe === evidence.user_rpe && (
               <div className="mt-4 flex">
               <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
@@ -248,6 +256,7 @@ const navigate = useNavigate();
                   multiple 
                   onChange={handleFileChange}
                   ref={refInputFiles}
+                  disabled={isLocked} 
                   />
               </label>
               <div className="w-1/10"><FileQuestion size={50} onClick={() => {setShowCriteriaGuide(true)}}/></div>
@@ -265,11 +274,11 @@ const navigate = useNavigate();
                   <span className="text-2xl">{getIcon(file.file_name)}</span>
                   <p className="font-semibold text-left flex-grow">{file.file_name}</p>
                   <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
-                  <X className="cursor-pointer" onClick={() => handleDeleteUploadedFile(file.file_id)} />
+                  {!isLocked && (<X className="cursor-pointer" onClick={() => {handleRemoveFile(file.name)}}/>)}
                 </div>
               ))}
               {user?.user_rpe === evidence.user_rpe && (
-                  <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload}>Guardar</button>
+                  <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload}  disabled={isLocked}>Guardar</button>
               )}
           </div>
           <div className="w-1/2">
