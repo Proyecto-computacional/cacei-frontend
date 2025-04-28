@@ -33,6 +33,28 @@ const navigate = useNavigate();
     );
   }, []);
 
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await api.get(`api/evidences/${evidence_id}`);
+        setEvidence(response.data);
+        setUploadedFiles(response.data.files);
+        setJustification(response.data.files[0]?.justification || "");
+        
+        // Ahora obtener asignaciones
+        const assignmentsResponse = await api.get('/api/my-assignments');
+        setAsignaciones(assignmentsResponse.data);
+        
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          navigate("/mainmenu");
+        }
+      }
+    }
+    fetchData();
+  }, []);
+  
+
   const handleFileChange = (event) => {
     const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf'];
     const maxFileSize = 50 * 1024 * 1024; // 50MB
@@ -128,12 +150,6 @@ const navigate = useNavigate();
     {criterio:"Criterio 1.2", estado: "PENDIENTE"},
     {criterio:"Criterio 1.3", estado: "NO APROBADA"},
     {criterio:"Criterio 1.4", estado: "APROBADA"}
-  ]
-
-  const statuses = [
-    {revisor:"Cesar Auguto", estado: "APROBADA", feedback:"feedback"},
-    {revisor:"Silvia Vaca", estado: "NO APROBADA", feedback:"feedback"},
-    {revisor:"Lilia del Carmen", estado: "PENDIENTE", feedback:"feedback"},
   ]
 
   const getEstadoClass = (estado) => {
@@ -234,17 +250,20 @@ const navigate = useNavigate();
           <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
             Revisión
             </h1>
-                {statuses.map((item, index) => (
-                  <div>
-                    <div className="flex">
-                    <p className="text-black text-lg font-semibold">Revisor:</p><p className="text-black text-lg ml-1">{item.revisor}</p>
-                    </div>
-                    <p className="text-black text-lg font-semibold">Estado</p>
-                    <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.estado)}`}>{item.estado}</p>
-                    <p className="text-black text-lg font-semibold">Retroalimentación</p>
-                    <p className="w-full p-2 border rounded mt-2 text-gray-600 bg-gray-100 min-h-[150px]">{item.feedback}</p>
-                  </div>
-                ))}
+            {evidence.status.map((item, index) => (
+              <div key={index}>
+                <div className="flex">
+                  <p className="text-black text-lg font-semibold">Revisor:</p>
+                  <p className="text-black text-lg ml-1">{item.user.user_name}</p>
+                </div>
+                <p className="text-black text-lg font-semibold">Estado</p>
+                <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.status_description)}`}>
+                  {item.status_description}
+                </p>
+                <p className="text-black text-lg font-semibold">Retroalimentación</p>
+                <p className="w-full p-2 border rounded mt-2 text-gray-600 bg-gray-100 min-h-[150px]">{item.feedback}</p>
+              </div>
+            ))}
 
           </div>
         </div>
