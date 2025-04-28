@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import FeedbackModal from "../components/Feedback";
 import CriteriaGuide from "../components/CriteriaGuide";
@@ -6,10 +7,31 @@ import '../app.css';
 import api from "../services/api";
 import { FileQuestion, Sheet, FileText, FolderArchive, X } from "lucide-react";
 import EditorCacei from "../components/EditorCacei";
+
+
 const UploadEvidence = () => {
   const [files, setFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [justification, setJustification] = useState(null);
+  const [evidence, setEvidence] = useState(null);
   const refInputFiles = useRef(null);
+
+  const {evidence_id} = useParams();
+
+const navigate = useNavigate();
+  useEffect(() => {
+      api.get(`api/evidences/${evidence_id}`).then(
+      (response)=>{
+        setEvidence(response.data);
+        setUploadedFiles(response.data.files);
+        setJustification(response.data.files[0].justification||"");
+      }).catch(error => {
+        if(error.response && error.response.status === 401){
+          navigate("/mainmenu");
+        }
+      }
+    );
+  }, []);
 
   const handleFileChange = (event) => {
     const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf'];
@@ -76,8 +98,24 @@ const UploadEvidence = () => {
       console.error("Error al subir archivo", error);
       alert("Error al subir archivo");
     }
-  };  
-
+  }; 
+  const handleDeleteUploadedFile = async (fileId) => {
+    if (!window.confirm("¿Seguro que quieres eliminar este archivo?")) return;
+  
+    try {
+      await api.delete(`/api/file/${fileId}`, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      alert("Archivo eliminado correctamente.");
+      setUploadedFiles((prev) => prev.filter((f) => f.file_id !== fileId));
+    } catch (error) {
+      console.error(error);
+      alert("Error al eliminar archivo.");
+    }
+  };
+  
   const handleRemoveFile = (fileName) => {
     setFiles((prev) => prev.filter((file) => file.name !== fileName));
   };
@@ -122,6 +160,10 @@ const UploadEvidence = () => {
   
   };
 
+  if (!evidence) {
+    return <p>Cargando...</p>;
+  }
+  
   return (
     <>
       <AppHeader />
@@ -147,11 +189,17 @@ const UploadEvidence = () => {
             <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
             Subir Evidencia
             </h1>
-            <h1 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
-            Sección/categoria/criterio
-            </h1>
+            <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
+            Proceso: {evidence.process.process_name}
+            </h2>
+            <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
+              
+            {evidence.standard.section.category.category_name}/
+            {evidence.standard.section.section_name}/
+            {evidence.standard.standard_name}
+            </h2>
             <p className="text-black text-lg font-semibold">Justificación</p>
-            <EditorCacei setJustification={setJustification}/>
+            <EditorCacei setJustification={setJustification} value={justification} readOnly={false}/>
             <div className="mt-4 flex">
                 <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
                     Ingresa el archivo aquí
@@ -172,7 +220,14 @@ const UploadEvidence = () => {
                   <X className="cursor-pointer" onClick={() => {handleRemoveFile(file.name)}}/>
                 </div>
               ))}
-
+              {uploadedFiles && uploadedFiles.map((file) => (
+                <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
+                  <span className="text-2xl">{getIcon(file.file_name)}</span>
+                  <p className="font-semibold text-left flex-grow">{file.file_name}</p>
+                  <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
+                  <X className="cursor-pointer" onClick={() => handleDeleteUploadedFile(file.file_id)} />
+                </div>
+              ))}
               <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload}>Guardar</button>
           </div>
           <div className="w-1/2">

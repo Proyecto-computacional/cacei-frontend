@@ -17,7 +17,7 @@ import 'tinymce/plugins/table';
 import 'tinymce/plugins/code';
 import 'tinymce/plugins/wordcount';
 
-export default function EditorCacei({setJustification}) {
+export default function EditorCacei({setJustification, value, readOnly}) {
   const editorRef = useRef(null);
 
 
@@ -28,6 +28,7 @@ export default function EditorCacei({setJustification}) {
         onEditorChange={(content, editor) => {
           setJustification(content);
         }}
+        value={value}
         init={{
           height: 400,
           menubar: false,
@@ -35,6 +36,14 @@ export default function EditorCacei({setJustification}) {
           toolbar:
             'undo redo | fontsize bold italic underline | backcolor | bullist numlist | table ',
             fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
+            setup: (editor) => {
+              editor.on('init', () => {
+                if (readOnly) {
+                  editor.getBody().setAttribute('contenteditable', false);
+                  editor.getBody().style.userSelect = 'none';
+                }
+              });
+            }
         }}
       />
 
