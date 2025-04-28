@@ -34,24 +34,24 @@ const EvidencesCompilation = () => {
 
   const evidencesStructure = [
     {
-      section: "Sección A",
+      section: "Categoría 1",
       categories: [
         {
-          name: "Categoría 1",
-          criteria: ["Criterio 1.1", "Criterio 1.2"],
+          name: "Sección 1.1",
+          criteria: ["Criterio 1.1.1", "Criterio 1.1.2"],
         },
         {
-          name: "Categoría 2",
-          criteria: ["Criterio 2.1"],
+          name: "Sección 1.2",
+          criteria: ["Criterio 1.2.1"],
         },
       ],
     },
     {
-      section: "Sección B",
+      section: "Categoría 2",
       categories: [
         {
-          name: "Categoría 3",
-          criteria: ["Criterio 3.1", "Criterio 3.2", "Criterio 3.3"],
+          name: "Sección 2.1",
+          criteria: ["Criterio 2.1.1", "Criterio 2.1.2", "Criterio 2.1.3"],
         },
       ],
     },

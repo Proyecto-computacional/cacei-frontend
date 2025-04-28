@@ -17,30 +17,16 @@ const Login = () => {
         try {
             const userData = await login(rpe, password);
             if (userData.correct) {
-                // se obtiene el rpe directamente desde userData
                 const userRpe = userData.rpe;
-
-                // si hay procesos relacionados, lo manda a /mainMenu
-                const response = await api.get("api/ProcesosUsuario", {
-                    params: {
-                        userRpe: userRpe, 
-                    },
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem('token')}`, 
-                    },
-                });
-                if(response.data.length>0){
-                    navigate("/mainmenu", { state: { rpe: userRpe } });
-                } else {
-                    navigate("/personalInfo");
-                }
+                localStorage.setItem('userRpe', userRpe);  
+                navigate("/mainmenu");  
             } else {
                 alert('RPE o contraseña incorrecto');
             }
         } catch (err) {
             console.log(err);
         }
-    };
+    };    
     
 
     return (

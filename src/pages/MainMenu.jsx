@@ -12,31 +12,36 @@ const MainMenu = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!userRpe) {
-          console.error("userId no está disponible");
-          return;  // Si no está disponible, no realizamos la solicitud
+        const storedUserRpe = localStorage.getItem('userRpe');
+  
+        if (!storedUserRpe) {
+          console.error("userRpe no está disponible");
+          return;
         }
-        // llamada a la API pasando el `userRpe` como parámetro
+  
         const response = await api.get("api/ProcesosUsuario", {
-          params: {
-            userRpe: userRpe, // se pasa el parámetro `userRpe`
-          },
+          params: { userRpe: storedUserRpe },
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
+            "Authorization": `Bearer ${localStorage.getItem('token')}`,
           },
         });
-
+  
         if (response.status !== 200) {
           throw new Error("Error al obtener los datos");
         }
-
-        const data = response.data
-        setCards(data);  // aquí se almacenan los datos en el estado `cards`
+  
+        const data = response.data;
+        setCards(data);
+  
+        if (data.processes.length === 0) {
+          navigate("/personalInfo");
+        }
+        
       } catch (error) {
         console.error("Error al obtener los datos:", error);
       }
     };
-
+  
     fetchData();
   }, []);
 
