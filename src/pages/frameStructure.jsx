@@ -483,7 +483,7 @@ export default function EstructuraMarco() {
                     seccionSeleccionada?.id === sec.section_id ? "bg-blue-100" : "hover:bg-gray-100"
                   }`}
                 >
-                  {sec.indice}.
+                  {categoriaSeleccionada.indice}.{sec.indice}.
                   {sec.section_name}
                   <button 
                     className="ml-2 text-sm text-blue-600"
@@ -520,7 +520,7 @@ export default function EstructuraMarco() {
             <ul className="space-y-1">
               {criterios.map((cri) => (
                 <li key={cri.id} className="px-2 py-1 rounded hover:bg-gray-100">
-                  {cri.indice}.
+                  {categoriaSeleccionada.indice}.{seccionSeleccionada.indice}.{cri.indice}.
                   {cri.standard_name}
                   <button 
                     className="ml-2 text-sm text-blue-600"
