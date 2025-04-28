@@ -16,8 +16,21 @@ const UploadEvidence = () => {
   const [evidence, setEvidence] = useState(null);
   const [asignaciones, setAsignaciones] = useState([]);
   const refInputFiles = useRef(null);
-
   const {evidence_id} = useParams();
+  const [user, setUser] = useState(null);
+
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const response = await api.get('/api/user');
+      setUser(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  fetchUser();
+}, []);
+
 
 const navigate = useNavigate();
   useEffect(() => {
@@ -166,6 +179,23 @@ const navigate = useNavigate();
   
   };
 
+  const canViewPage = () => {
+    if (!user || !evidence) return false;
+  
+    const allowedRoles = ["ADMINISTRADOR", "DIRECTIVO"];
+    if (allowedRoles.includes(user.user_role)) return true;
+  
+    if (user.user_rpe === evidence.user_rpe) return true; // responsable de la evidencia
+    if (user.user_rpe === evidence.process.career.user_rpe) return true; // coordinador de carrera
+    if (user.user_rpe === evidence.process.career.area.user_rpe) return true; // jefe de área
+  
+    return false;
+  };
+
+  if (user && !canViewPage()) {
+    return <div className="text-center mt-20 text-3xl font-bold">No tienes permiso para ver esta evidencia.</div>;
+  }
+
   if (!evidence) {
     return <p>Cargando...</p>;
   }
@@ -207,20 +237,22 @@ const navigate = useNavigate();
             {evidence.standard.standard_name}
             </h2>
             <p className="text-black text-lg font-semibold">Justificación</p>
-            <EditorCacei setJustification={setJustification} value={justification} readOnly={false}/>
-            <div className="mt-4 flex">
-                <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
-                    Ingresa el archivo aquí
-                    <input
-                    type="file"
-                    className="hidden"
-                    multiple 
-                    onChange={handleFileChange}
-                    ref={refInputFiles}
-                    />
-                </label>
-                <div className="w-1/10"><FileQuestion size={50} onClick={() => {setShowCriteriaGuide(true)}}/></div>
-            </div>
+            <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe}/>
+              {user?.user_rpe === evidence.user_rpe && (
+              <div className="mt-4 flex">
+              <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
+                  Ingresa el archivo aquí
+                  <input
+                  type="file"
+                  className="hidden"
+                  multiple 
+                  onChange={handleFileChange}
+                  ref={refInputFiles}
+                  />
+              </label>
+              <div className="w-1/10"><FileQuestion size={50} onClick={() => {setShowCriteriaGuide(true)}}/></div>
+              </div>
+              )}
             {files && files.map((file) => (
                 <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
                   <span className="text-2xl">{getIcon(file.name)}</span>
@@ -236,7 +268,9 @@ const navigate = useNavigate();
                   <X className="cursor-pointer" onClick={() => handleDeleteUploadedFile(file.file_id)} />
                 </div>
               ))}
-              <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload}>Guardar</button>
+              {user?.user_rpe === evidence.user_rpe && (
+                  <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload}>Guardar</button>
+              )}
           </div>
           <div className="w-1/2">
           <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
