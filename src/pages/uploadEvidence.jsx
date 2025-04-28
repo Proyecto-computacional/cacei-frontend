@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import FeedbackModal from "../components/Feedback";
 import CriteriaGuide from "../components/CriteriaGuide";
@@ -14,6 +14,7 @@ const UploadEvidence = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [justification, setJustification] = useState(null);
   const [evidence, setEvidence] = useState(null);
+  const [asignaciones, setAsignaciones] = useState([]);
   const refInputFiles = useRef(null);
 
   const {evidence_id} = useParams();
@@ -31,17 +32,11 @@ const navigate = useNavigate();
         }
       }
     );
-  }, []);
+  }, [evidence_id]);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await api.get(`api/evidences/${evidence_id}`);
-        setEvidence(response.data);
-        setUploadedFiles(response.data.files);
-        setJustification(response.data.files[0]?.justification || "");
-        
-        // Ahora obtener asignaciones
         const assignmentsResponse = await api.get('/api/my-assignments');
         setAsignaciones(assignmentsResponse.data);
         
@@ -145,12 +140,7 @@ const navigate = useNavigate();
   const [showFeedback, setShowFeedback] = useState(false);
   const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
 
-  const asignaciones = [
-    {criterio:"Criterio 1.1", estado: "NO CARGADA"},
-    {criterio:"Criterio 1.2", estado: "PENDIENTE"},
-    {criterio:"Criterio 1.3", estado: "NO APROBADA"},
-    {criterio:"Criterio 1.4", estado: "APROBADA"}
-  ]
+
 
   const getEstadoClass = (estado) => {
     switch (estado) {
@@ -188,16 +178,18 @@ const navigate = useNavigate();
         <div className="bg-cyan-300 w-2/10">
         <p className="w-full text-center text-3xl bg-cyan-500 text-amber-50 py-2">Mis asignaciones</p>
           <div>
-      {asignaciones.map((item, index) => (
-        <div
-          key={index}
-          className="flex justify-around text-[20px] items-center p-2 cursor-pointer hover:bg-cyan-500">
-          <p className="w-1/2">{item.criterio}</p>
-          <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.estado)}`}>
-            {item.estado}
-          </p>
-        </div>
-      ))}
+          {asignaciones.map((item, index) => (
+            <Link 
+              key={index} 
+              to={`/UploadEvidence/${item.evidence_id}`}
+              className="flex justify-around text-[20px] items-center p-2 cursor-pointer hover:bg-cyan-500"
+            >
+              <p className="w-1/2">{item.criterio}</p>
+              <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.estado)}`}>
+                {item.estado}
+              </p>
+            </Link>
+          ))}
         </div>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-lg flex flex-wrap flex-row w-7/10 min-h-[500px]">
