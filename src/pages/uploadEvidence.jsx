@@ -338,12 +338,12 @@ const UploadEvidence = () => {
               <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={isLocked}>Guardar</button>
             )}
           </div>
-          <div className="w-1/2">
+          <div className="w-1/2 overflow-y-auto max-h-[700px]">
             <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
               Revisión
             </h1>
             {evidence.status.map((item, index) => (
-              <div key={index}>
+              <div key={index} className="border rounded bg-gray-200 text-gray-600 p-2 my-3">
                 <div className="flex">
                   <p className="text-black text-lg font-semibold">Revisor:</p>
                   <p className="text-black text-lg ml-1">{item.user.user_name}</p>
@@ -353,7 +353,7 @@ const UploadEvidence = () => {
                   {item.status_description}
                 </p>
                 <p className="text-black text-lg font-semibold">Retroalimentación</p>
-                <p className="w-full p-2 border rounded mt-2 text-gray-600 bg-gray-100 min-h-[150px]">{item.feedback}</p>
+                <p className="w-full p-2 border rounded mt-2 text-gray-600 bg-gray-50 min-h-[150px]">{item.feedback}</p>
               </div>
             ))}
 
