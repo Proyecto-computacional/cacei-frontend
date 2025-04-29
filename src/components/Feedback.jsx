@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Feedback = ({ onClose }) => {
+const Feedback = ({ onClose, help }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center">
       <div className="w-[400px] bg-white shadow-lg rounded-lg border border-gray-300 p-6">

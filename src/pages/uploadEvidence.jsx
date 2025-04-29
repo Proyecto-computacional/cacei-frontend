@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link, resolvePath } from "react-router-dom";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import FeedbackModal from "../components/Feedback";
 import CriteriaGuide from "../components/CriteriaGuide";
@@ -8,7 +8,6 @@ import api from "../services/api";
 import { FileQuestion, Sheet, FileText, FolderArchive, X } from "lucide-react";
 import EditorCacei from "../components/EditorCacei";
 
-
 const UploadEvidence = () => {
   const [files, setFiles] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -16,54 +15,75 @@ const UploadEvidence = () => {
   const [evidence, setEvidence] = useState(null);
   const [asignaciones, setAsignaciones] = useState([]);
   const refInputFiles = useRef(null);
-  const {evidence_id} = useParams();
+  const { evidence_id } = useParams();
   const [user, setUser] = useState(null);
   const [isLocked, setIsLocked] = useState(false);
 
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const response = await api.get('/api/user');
-      setUser(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  fetchUser();
-}, []);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get('/api/user');
+        setUser(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchUser();
+  }, []);
 
 
-useEffect(() => {
-  api.get(`api/evidences/${evidence_id}`).then(
-    (response) => {
-      setEvidence(response.data);
-      setUploadedFiles(response.data.files);
-      setJustification(response.data.files[0]?.justification || "");
+  useEffect(() => {
+    api.get(`api/evidences/${evidence_id}`).then(
+      (response) => {
+        setEvidence(response.data);
+        setUploadedFiles(response.data.files);
+        setJustification(response.data.files[0]?.justification || "");
 
-      //Evaluar el estado de la evidencia
-      if (response.data.status && response.data.status.length > 0) {
-        const lastStatus = response.data.status[0];
+        let isApprovedByAdmin = false;
+        let hasNoApproved = false;
 
-        if (lastStatus.status_description !== "NO APROBADA") {
-          setIsLocked(true); 
+        console.log(response.data);
+
+        if (response.data.status && response.data.status.length > 0) {
+          for (let s of response.data.status) {
+            if (s.status_description === "APROBADA" && s.user.user_role === "ADMINISTRADOR") {
+              isApprovedByAdmin = true;
+              break;
+            }
+            if (s.status_description === "NO APROBADA") {
+              hasNoApproved = true;
+            }
+          }
         } else {
-          setIsLocked(false); 
+          if (response.data.files && response.data.files.length > 0) {
+            setIsLocked(true);
+          }
+        }
+
+        if (isApprovedByAdmin) {
+          setIsLocked(true);
+        } else if (hasNoApproved) {
+          setIsLocked(false);
+        } else {
+          setIsLocked(true);
+        }
+
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          navigate("/mainmenu");
         }
       }
-    }).catch(error => {
-      if(error.response && error.response.status === 401){
-        navigate("/mainmenu");
-      }
-    }
-  );
-}, [evidence_id]);
+      );
+  }, [evidence_id]);
 
   useEffect(() => {
     async function fetchData() {
       try {
         const assignmentsResponse = await api.get('/api/my-assignments');
         setAsignaciones(assignmentsResponse.data);
-        
+
       } catch (error) {
         if (error.response && error.response.status === 401) {
           navigate("/mainmenu");
@@ -72,7 +92,7 @@ useEffect(() => {
     }
     fetchData();
   }, []);
-  
+
 
   const handleFileChange = (event) => {
     const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf'];
@@ -86,14 +106,14 @@ useEffect(() => {
       const ext = file.name.split('.').pop().toLowerCase();
       const sizeOk = file.size <= maxFileSize;
       const typeOk = allowedExtensions.includes(ext);
-  
+
       if (sizeOk && typeOk) {
         validFiles.push(file);
       } else {
         alert(`Archivo rechazado: ${file.name}`);
       }
     });
-  
+
     if (validFiles.length > 0) {
       setFiles((prevFiles) => {
         const existingNames = new Set(prevFiles.map(f => f.name));
@@ -106,7 +126,7 @@ useEffect(() => {
   };
 
   const handleUpload = async () => {
-    
+
     if (!files) {
       alert("Por favor, selecciona un archivo.");
       return;
@@ -114,32 +134,66 @@ useEffect(() => {
 
     const formData = new FormData();
     files.forEach((file) => {
-      formData.append("files[]", file); // Laravel reconoce arreglos con []
+      formData.append("files[]", file);
     });
-  
-    formData.append("evidence_id", 1); // Reemplaza con el ID correcto
+
+    formData.append("evidence_id", evidence.evidence_id); // Reemplaza con el ID correcto
     formData.append("justification", justification);
 
-  
+
     try {
-      const response = await api.post("/api/file", 
+      const response = await api.post("/api/file",
         formData, { //Ajusta la URL
         headers: {
           "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
           "Content-Type": "multipart/form-data",
         },
       });
-  
-      console.log("Archivo subido con éxito:", response.data);
+
       alert("Archivo subido con éxito");
+
+      await api.get(`api/evidences/${evidence_id}`).then(
+        (response) => {
+          setEvidence(response.data);
+          setUploadedFiles(response.data.files);
+          setJustification(response.data.files[0].justification || "");
+        }
+      );
+      setFiles([]);
+
+      // 2. Cambiar estados a PENDIENTE si era NO APROBADA
+      if (response.data.status && response.data.status.some(s => s.status_description === "NO APROBADA")) {
+        for (const status of response.data.status) {
+          await api.post(`/api/RevisionEvidencias/pendiente`, {
+            user_rpe: response.data.user_rpe,
+            reviser_rpe: status.user_rpe,
+            evidence_id: response.data.evidence_id,
+            feedback: null
+          }, {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem('token')}`,
+            }
+          });
+        }
+        // 3. Volvemos a cargar evidencia para refrescar
+        const updatedData = await api.get(`api/evidences/${evidence_id}`);
+        setEvidence(updatedData.data);
+        setUploadedFiles(updatedData.data.files);
+        setJustification(updatedData.data.files[0]?.justification || "");
+      }
+
+      // 4. Bloquear la pantalla después de subir
+      setIsLocked(true);
+
+
     } catch (error) {
       console.error("Error al subir archivo", error);
       alert("Error al subir archivo");
     }
-  }; 
+  };
   const handleDeleteUploadedFile = async (fileId) => {
     if (!window.confirm("¿Seguro que quieres eliminar este archivo?")) return;
-  
+
     try {
       await api.delete(`/api/file/${fileId}`, {
         headers: {
@@ -153,7 +207,7 @@ useEffect(() => {
       alert("Error al eliminar archivo.");
     }
   };
-  
+
   const handleRemoveFile = (fileName) => {
     setFiles((prev) => prev.filter((file) => file.name !== fileName));
   };
@@ -184,106 +238,109 @@ useEffect(() => {
     if (['rar', 'zip', '7z'].includes(extension)) return <FolderArchive />;
     if (extension === 'pdf') return <FileText />;
     if (['csv', 'xls', 'xlsx'].includes(extension)) return <Sheet />;
-  
+
   };
 
   const canViewPage = () => {
+    console.log(evidence);
     if (!user || !evidence) return false;
-  
+
     const allowedRoles = ["ADMINISTRADOR", "DIRECTIVO"];
     if (allowedRoles.includes(user.user_role)) return true;
-  
+
     if (user.user_rpe === evidence.user_rpe) return true; // responsable de la evidencia
     if (user.user_rpe === evidence.process.career.user_rpe) return true; // coordinador de carrera
     if (user.user_rpe === evidence.process.career.area.user_rpe) return true; // jefe de área
-  
+
     return false;
   };
 
-  if (user && !canViewPage()) {
-    return <div className="text-center mt-20 text-3xl font-bold">No tienes permiso para ver esta evidencia.</div>;
-  }
+  useEffect(() => {
+    if (user && evidence && !canViewPage()) {
+      navigate("/mainmenu");
+    }
+  }, [user, evidence]);
 
   if (!evidence) {
     return <p>Cargando...</p>;
   }
-  
+
   return (
     <>
       <AppHeader />
       <SubHeading />
       <div className="h-fit p-10 flex justify-around items-stretch relative" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
         <div className="bg-cyan-300 w-2/10">
-        <p className="w-full text-center text-3xl bg-cyan-500 text-amber-50 py-2">Mis asignaciones</p>
+          <p className="w-full text-center text-3xl bg-cyan-500 text-amber-50 py-2">Mis asignaciones</p>
           <div>
-          {asignaciones.map((item, index) => (
-            <Link 
-              key={index} 
-              to={`/UploadEvidence/${item.evidence_id}`}
-              className="flex justify-around text-[20px] items-center p-2 cursor-pointer hover:bg-cyan-500"
-            >
-              <p className="w-1/2">{item.criterio}</p>
-              <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.estado)}`}>
-                {item.estado}
-              </p>
-            </Link>
-          ))}
-        </div>
+            {asignaciones.map((item, index) => (
+              <Link
+                key={index}
+                to={`/UploadEvidence/${item.evidence_id}`}
+                className="flex justify-around text-[20px] items-center p-2 cursor-pointer hover:bg-cyan-500"
+              >
+                <p className="w-1/2">{item.criterio}</p>
+                <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.estado)}`}>
+                  {item.estado}
+                </p>
+              </Link>
+            ))}
+          </div>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-lg flex flex-wrap flex-row w-7/10 min-h-[500px]">
           <div className="flex flex-col flex-1 mr-10 w-1/2">
             <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
-            Subir Evidencia
+              Subir Evidencia
             </h1>
             <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
-            Proceso: {evidence.process.process_name}
+              Proceso: {evidence.process.process_name}
             </h2>
             <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
-              
-            {evidence.standard.section.category.category_name}/
-            {evidence.standard.section.section_name}/
-            {evidence.standard.standard_name}
+
+              {evidence.standard.section.category.category_name}/
+              {evidence.standard.section.section_name}/
+              {evidence.standard.standard_name}
             </h2>
             <p className="text-black text-lg font-semibold">Justificación</p>
-            <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked}/>
-              {user?.user_rpe === evidence.user_rpe && (
+            <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
+            {user?.user_rpe === evidence.user_rpe && (
               <div className="mt-4 flex">
-              <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
+                <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
                   Ingresa el archivo aquí
                   <input
-                  type="file"
-                  className="hidden"
-                  multiple 
-                  onChange={handleFileChange}
-                  ref={refInputFiles}
-                  disabled={isLocked} 
+                    type="file"
+                    className="hidden"
+                    multiple
+                    onChange={handleFileChange}
+                    ref={refInputFiles}
+                    disabled={isLocked}
                   />
-              </label>
-              <div className="w-1/10"><FileQuestion size={50} onClick={() => {setShowCriteriaGuide(true)}}/></div>
+                </label>
+                <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
               </div>
-              )}
+            )}
             {files && files.map((file) => (
-                <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
-                  <span className="text-2xl">{getIcon(file.name)}</span>
-                  <p className="font-semibold text-left flex-grow">{file.name}</p>
-                  <X className="cursor-pointer" onClick={() => {handleRemoveFile(file.name)}}/>
-                </div>
-              ))}
-              {uploadedFiles && uploadedFiles.map((file) => (
-                <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
-                  <span className="text-2xl">{getIcon(file.file_name)}</span>
-                  <p className="font-semibold text-left flex-grow">{file.file_name}</p>
-                  <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
-                  {!isLocked && (<X className="cursor-pointer" onClick={() => {handleRemoveFile(file.name)}}/>)}
-                </div>
-              ))}
-              {user?.user_rpe === evidence.user_rpe && (
-                  <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload}  disabled={isLocked}>Guardar</button>
-              )}
+              <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
+                <span className="text-2xl">{getIcon(file.name)}</span>
+                <p className="font-semibold text-left flex-grow">{file.name}</p>
+                <X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />
+              </div>
+            ))}
+            {uploadedFiles && uploadedFiles.map((file) => (
+              <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
+                <span className="text-2xl">{getIcon(file.file_name)}</span>
+                <p className="font-semibold text-left flex-grow">{file.file_name}</p>
+                <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
+                {!isLocked && (<X className="cursor-pointer" onClick={() => { handleDeleteUploadedFile(file.file_id) }} />)}
+              </div>
+            ))}
+            {user?.user_rpe === evidence.user_rpe && !isLocked && (
+              <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={isLocked}>Guardar</button>
+            )}
           </div>
           <div className="w-1/2">
-          <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
-            Revisión
+            <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
+              Revisión
             </h1>
             {evidence.status.map((item, index) => (
               <div key={index}>
@@ -304,8 +361,7 @@ useEffect(() => {
         </div>
       </div>
       <AppFooter />
-      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
-      {showCriteriaGuide && <CriteriaGuide onClose={() => setShowCriteriaGuide(false)} />}
+      {showCriteriaGuide && <CriteriaGuide onClose={() => setShowCriteriaGuide(false)} help={evidence.standard.help} />}
     </>
   );
 };
