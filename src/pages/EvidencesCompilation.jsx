@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
+import api from "../services/api"
 
 const EvidencesCompilation = () => {
   const [showModal, setShowModal] = useState(false);
   const [finalize, setFinalize] = useState(false);
   const [openSections, setOpenSections] = useState({});
   const [openCategories, setOpenCategories] = useState({});
+  const [link, setLink] = useState(null);
 
   const toggleSection = (sectionIndex) => {
     setOpenSections((prev) => ({
@@ -29,7 +31,19 @@ const EvidencesCompilation = () => {
   const confirmCompilation = () => {
     console.log("Compilando evidencias...");
     console.log("Finalizar acreditación:", finalize);
-    setShowModal(false);
+
+    api.get("/api/procesos/1/descargar-evidencias", {
+      responseType: "blob",
+    })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        setLink(url); 
+        setShowModal(false); 
+        console.log("Evidencias compiladas correctamente.");
+      })
+      .catch((error) => {
+        console.error("Error al compilar las evidencias:", error);
+      });
   };
 
   const evidencesStructure = [
@@ -70,7 +84,6 @@ const EvidencesCompilation = () => {
         </h1>
 
         <div className="flex gap-10">
-          {/* Árbol interactivo */}
           <div className="w-2/3 bg-white p-6 rounded-xl shadow-md">
             <ul className="space-y-4">
               {evidencesStructure.map((sec, i) => (
@@ -166,6 +179,17 @@ const EvidencesCompilation = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Si hay un enlace para descargar las evidencias, mostrar un botón para la descarga */}
+      {link && (
+        <div className="flex justify-center mt-6">
+          <a href={link} download="evidencias_compiladas.zip">
+            <button className="bg-green-600 text-white py-2 px-6 rounded-xl text-lg font-semibold">
+              Descargar Evidencias Compiladas
+            </button>
+          </a>
         </div>
       )}
 
