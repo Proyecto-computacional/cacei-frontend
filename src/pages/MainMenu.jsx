@@ -33,7 +33,7 @@ const MainMenu = () => {
         const data = response.data;
         setCards(data);
   
-        if (data.processes.length === 0) {
+        if (data.length === 0) {
           navigate("/personalInfo");
         }
         
