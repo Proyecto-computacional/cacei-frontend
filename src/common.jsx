@@ -7,8 +7,7 @@ import Logout from "./components/logout";
 import NotificationsTable from "./components/NotificationTable";
 import { Mail, Bell, User, Menu } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import './index.css'
-import './app.css'
+
 
 export function AppHeader() {
     return (
@@ -55,14 +54,8 @@ export function SubHeading() {
                         {open && (
                             <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                                 <ul className="py-2">
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/mainmenu"); }}>
-                                        Inicio
-                                    </li>
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/personalInfo"); setOpen(false); }}>
-                                        Configuración personal
-                                    </li>
+                                    
+                                    
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                         onClick={() => { navigate("/uploadEvidence"); setOpen(false); }} >
                                         Carga de evidencias
@@ -83,10 +76,7 @@ export function SubHeading() {
                                         onClick={() => { navigate("/evidenceManagement"); setOpen(false); }} >
                                         Gestión de evidencias
                                     </li>
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/notifications"); setOpen(); }} >
-                                        Notificaciones
-                                    </li>
+                                    
                                 </ul>
                             </div>
                         )}
