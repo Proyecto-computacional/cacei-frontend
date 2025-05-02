@@ -1,3 +1,5 @@
+
+
 import React from "react";
 //import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 //import "react-circular-progressbar/dist/styles.css";
@@ -12,34 +14,36 @@ import api from "../services/api";  // Importa la API configurada
 const DashboardWidgets = () => {
   const [estadisticas, setEstadisticas] = useState({
     aprobado: 0,
-    pendiente: 0,
-    sinSubir: 0,
+    desaprobado: 0,
+    sin_evidencia: 0,
     notificaciones: 0,
   });
 
   // Obtener el RPE del usuario desde el localStorage
   const rpe = localStorage.getItem("rpe");
-
+ 
   // Función para obtener las estadísticas generales desde la API
   const fetchEstadisticas = async () => {
     try {
-      // Verificar si el token está disponible antes de hacer la solicitud
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No se encontró el token de autenticación.");
-        return;
-      }
 
       // Obtener las estadísticas generales de la API
-      const { data: estadisticasGeneral } = await api.get("/estadisticas/general");
+      const { data: resumenGeneralPorRPE } = await api.get(`/estadisticas/resumen/${rpe}`);
+      console.log("resumenGeneralPorRPE: ", resumenGeneralPorRPE); 
+
       // Obtener las notificaciones no vistas
       const { data: notificacionesData } = await api.get(`/estadisticas/no-vistas/${rpe}`);
+      console.log("Notificaciones: ", notificacionesData); 
+
+      // Obtener la última actualización del CV
+      const { data: ultimaActualizacionCV } = await api.get(`/cv/ultima-actualizacion/${rpe}`);
+      console.log("ultimaActualizacionCV: ", ultimaActualizacionCV); 
 
       setEstadisticas({
-        aprobado: estadisticasGeneral.aprobado,
-        pendiente: estadisticasGeneral.pendiente,
-        sinSubir: estadisticasGeneral.sin_subir,
+        aprobado: resumenGeneralPorRPE.aprobado,
+        desaprobado: resumenGeneralPorRPE.desaprobado,
+        sin_evidencia: resumenGeneralPorRPE.sin_evidencia,
         notificaciones: notificacionesData.no_vistas,
+        ultimaActualizacionCV: ultimaActualizacionCV.ultima_actualizacion_cv, // Fecha de la última actualización
       });
     } catch (error) {
       console.error("Error al obtener las estadísticas:", error);
@@ -48,14 +52,14 @@ const DashboardWidgets = () => {
 
   useEffect(() => {
     fetchEstadisticas();
-  }, []);  // Se ejecuta una sola vez al cargar el componente
+  }, []); // Se ejecuta una sola vez al cargar el componente
 
-  const { aprobado, pendiente, sinSubir, notificaciones } = estadisticas;
-  const total = aprobado + pendiente + sinSubir;
+  const { aprobado, desaprobado, sin_evidencia, notificaciones } = estadisticas;
+  const total = aprobado + desaprobado + sin_evidencia;
 
   const aprobadoPercentage = (aprobado / total) * 100;
-  const pendientePercentage = (pendiente / total) * 100;
-  const sinSubirPercentage = (sinSubir / total) * 100;
+  const desaprobadoPercentage = (desaprobado / total) * 100;
+  const sinSubirPercentage = (sin_evidencia / total) * 100;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-21 mr-21 mb-21">
@@ -64,15 +68,19 @@ const DashboardWidgets = () => {
         <div>
           <h2 className="text-2xl font-bold mb-2">CV</h2>
           <p className="text-gray-500">Última actualización:</p>
-          <p className="font-semibold">15/01/2023</p>
+          <p className="font-semibold">
+            {estadisticas.ultimaActualizacionCV
+              ? new Date(estadisticas.ultimaActualizacionCV).toLocaleDateString()
+              : "No disponible"}
+          </p>
         </div>
-        <button className="bg-blue-700 text-white mt-4 py-2 rounded-xl">Actualizar</button>
+        <button className="bg-blue-700 text-white mt-4 py-2 rounded-xl">
+          <a href="http://localhost:5173/personalInfo">Actualizar</a>
+        </button>
       </div>
 
-  
-
-       {/* Notificaciones */}
-       <div className="bg-white shadow-lg rounded-2xl p-6">
+      {/* Notificaciones */}
+      <div className="bg-white shadow-lg rounded-2xl p-6">
         <h2 className="text-2xl font-bold mb-2 flex justify-between items-center">
           Notificaciones
           <Bell className="w-5 h-5 text-black cursor-pointer" />
@@ -84,12 +92,7 @@ const DashboardWidgets = () => {
       <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-2">Progreso General</h2>
         <div className="relative w-24 h-24">
-          <svg
-            width="100%"
-            height="100%"
-            viewBox="0 0 36 36"
-            className="circular-chart"
-          >
+          <svg width="100%" height="100%" viewBox="0 0 36 36" className="circular-chart">
             {/* Fondo del círculo */}
             <circle
               cx="18"
@@ -118,7 +121,7 @@ const DashboardWidgets = () => {
               fill="none"
               stroke="#5B7897"
               strokeWidth="3"
-              strokeDasharray={`${pendientePercentage} ${100 - pendientePercentage}`}
+              strokeDasharray={`${desaprobadoPercentage} ${100 - desaprobadoPercentage}`}
               strokeDashoffset={25 + aprobadoPercentage}
             />
             {/* Sin subir */}
@@ -130,17 +133,10 @@ const DashboardWidgets = () => {
               stroke="#FFC600"
               strokeWidth="3"
               strokeDasharray={`${sinSubirPercentage} ${100 - sinSubirPercentage}`}
-              strokeDashoffset={25 + aprobadoPercentage + pendientePercentage}
+              strokeDashoffset={25 + aprobadoPercentage + desaprobadoPercentage}
             />
             {/* Texto en el centro del círculo */}
-            <text
-              x="18"
-              y="18"
-              textAnchor="middle"
-              dy=".3em"
-              fontSize="4"
-              fill="black"
-            >
+            <text x="18" y="18" textAnchor="middle" dy=".3em" fontSize="4" fill="black">
               {aprobadoPercentage.toFixed(0)}%
             </text>
           </svg>
@@ -158,7 +154,7 @@ const DashboardWidgets = () => {
               className="w-4 h-4 rounded-full"
               style={{ backgroundColor: "#5B7897" }}
             ></div>
-            <p className="ml-2">{pendientePercentage.toFixed(0)}% Pendiente</p>
+            <p className="ml-2">{desaprobadoPercentage.toFixed(0)}% Desaprobado</p>
           </div>
           <div className="flex items-center">
             <div
