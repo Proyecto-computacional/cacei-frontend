@@ -1,7 +1,13 @@
-import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { useModal } from "../contexts/ModalContext";
-import api from "../services/api";  // your Axios instance
-import RefreshTokenModal from "../components/RefreshTokenModal";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { useModal } from "../contexts/TokenAlertContext";
+import api from "../services/api"; // your Axios instance
+import RefreshTokenModal from "../components/TokenAlert";
 
 interface AuthContextType {
   token: string | null;
@@ -19,7 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Whenever token changes (e.g., on login or manual set), parse its expiry and schedule warning
   useEffect(() => {
     if (!token) return;
-    
+
     // Optionally decode token to get exp, or assume expiresAt set separately on login/refresh
     // Here we rely on setExpiresAt being called with a timestamp
     if (!expiresAt) return;
@@ -78,9 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ token }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ token }}>{children}</AuthContext.Provider>
   );
 }
 

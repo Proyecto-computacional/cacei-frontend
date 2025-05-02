@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import Card from "../components/Card";
+
+
 const MainMenu = () => {
   const [cards, setCards] = useState([]);
   const location = useLocation();  // se usa useLocation para acceder al estado pasado

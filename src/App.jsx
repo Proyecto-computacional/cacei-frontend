@@ -1,3 +1,6 @@
+import { ModalProvider }         from './contexts/TestModalContext';
+import TestComponent             from './components/TestComponent';
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MenuPrincipal from "./pages/MainMenu";
 import Login from "./pages/login";
@@ -14,7 +17,9 @@ import EstructuraMarco from "./pages/frameStructure";
 
 function App() {
   return (
+    <ModalProvider>
     <Router>
+    <TestComponent />
       <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/mainmenu" element={
@@ -42,6 +47,7 @@ function App() {
           <Route path="/framesStructure/:frameID" element={<EstructuraMarco/>}/>
       </Routes>
     </Router>
+    </ModalProvider>
   );
 }
 
