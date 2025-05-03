@@ -331,7 +331,7 @@ export default function EstructuraMarco() {
   
     const fetchCategorias = async () => {
       try {
-        const res = await api.post(`/api/categories`, {frame_id: marco.frame_id});
+        const res = await api.post(`/api/categories`, { frame_id: marco.frame_id });
         setCategorias(res.data);
         setSecciones([]);
         setCriterios([]);
@@ -344,7 +344,7 @@ export default function EstructuraMarco() {
   
     const fetchSecciones = async (categoriaId) => {
       try {
-        const res = await api.post(`/api/sections`, {category_id: categoriaId});
+        const res = await api.post(`/api/sections`, { category_id: categoriaId });
         setSecciones(res.data);
         setCriterios([]);
         setSeccionSeleccionada(null);
@@ -355,7 +355,7 @@ export default function EstructuraMarco() {
   
     const fetchCriterios = async (seccionId) => {
       try {
-        const res = await api.post(`/api/standards`, {section_id: seccionId});
+        const res = await api.post(`/api/standards`, { section_id: seccionId });
         setCriterios(res.data);
       } catch (err) {
         alert("Error al cargar criterios");

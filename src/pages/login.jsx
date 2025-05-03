@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import caceiLogo from '../assets/caceiLogo.png'
 import '../app.css'
 import { AppHeader } from "../common";
 import { AppFooter } from "../common";
 import { login } from "../services/api"
-const API_URL = import.meta.env.VITE_API_URL;
+import api from "../services/api"
 
 const Login = () => {
     const [rpe, setRpe] = useState("");
@@ -17,28 +16,26 @@ const Login = () => {
     
         try {
             const userData = await login(rpe, password);
-            if (userData) {
-                // se obtiene el rpe directamente desde userData
+            if (userData.correct) {
                 const userRpe = userData.rpe;
-                // navegar a la página /mainmenu pasando el userRpe
-                navigate("/mainmenu", { state: { rpe: userRpe } });
+                localStorage.setItem('userRpe', userRpe);  
+                navigate("/mainmenu");  
             } else {
                 alert('RPE o contraseña incorrecto');
             }
         } catch (err) {
             console.log(err);
         }
-    };
+    };    
     
 
     return (
         <>
             <AppHeader></AppHeader>
-            <div className="flex justify-center w-full items-start bg-linear-to-b from-backgroundFrom to-backgroundTo to-40%">
+            <div className="flex justify-center w-full min-h-screen items-start bg-gradient-to-b from-backgroundFrom to-backgroundTo to-40% pt-15">
                 <div className=" p-10 w-5/9" id="info">
                     <h1 className=" font-bold text-4xl">Bienvenido</h1>
-                    <p className="mt-5 mb-10">Este sistema permitirá a los usuarios cargar evidencias en forma de archivos, los cuales serán almacenados en una base de datos y organizados según las categorías y secciones del Marco de Referencia 2025</p>
-                    <img src={caceiLogo} alt="Logo no encontrado" className="w-3/4 m-auto" />
+                    <p className="mt-5 mb-10">Esta plataforma facilita la integración, organización y respaldo de evidencias digitales en los procesos de autoevaluación alineados a los Marcos de Referencia establecidos por los organismos acreditadores, atendiendo a la mejora continua de nuestros Programas Educativos.</p>
                 </div>
                 <div className="flex justify-center items-center h-fit w-3/9">
                     <form className="p-2 w-full" onSubmit={manejarLogin}>

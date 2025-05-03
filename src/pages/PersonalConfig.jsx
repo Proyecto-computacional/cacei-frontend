@@ -22,6 +22,7 @@ const PersonalConfig = () => {
       } catch (err) {
         console.error("Error fetching CV:", err);
         setError(err.message);
+        alert(`Error al cargar datos: ${err.message}`);
       } finally {
         setLoading(false);
       }
