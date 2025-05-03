@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import api from "../services/api"
 
@@ -8,6 +8,7 @@ const EvidencesCompilation = () => {
   const [openSections, setOpenSections] = useState({});
   const [openCategories, setOpenCategories] = useState({});
   const [link, setLink] = useState(null);
+  const [evidencesStructure, setEvidencesStructure] = useState([]);
 
   const toggleSection = (sectionIndex) => {
     setOpenSections((prev) => ({
@@ -46,30 +47,61 @@ const EvidencesCompilation = () => {
       });
   };
 
-  const evidencesStructure = [
-    {
-      section: "Categoría 1",
-      categories: [
-        {
-          name: "Sección 1.1",
-          criteria: ["Criterio 1.1.1", "Criterio 1.1.2"],
-        },
-        {
-          name: "Sección 1.2",
-          criteria: ["Criterio 1.2.1"],
-        },
-      ],
-    },
-    {
-      section: "Categoría 2",
-      categories: [
-        {
-          name: "Sección 2.1",
-          criteria: ["Criterio 2.1.1", "Criterio 2.1.2", "Criterio 2.1.3"],
-        },
-      ],
-    },
-  ];
+  useEffect(() => {
+    const fetchStructure = async () => {
+      try {
+        // Fetch categories
+        const categoriesRes = await api.post('/api/categories', { frame_id: 1 });
+        if (!categoriesRes || !categoriesRes.data) {
+          throw new Error('No categories data received');
+        }
+        const categories = categoriesRes.data;
+
+        // Fetch sections for each category
+        const sectionsPromises = categories.map(cat => 
+          api.post('/api/sections', { category_id: cat.category_id })
+        );
+        const sectionsRes = await Promise.all(sectionsPromises);
+
+        // Fetch standards for each section
+        const standardsPromises = sectionsRes.flatMap(res => {
+          if (!res || !res.data) {
+            console.warn('Invalid section response:', res);
+            return [];
+          }
+          return res.data.map(sec => 
+            api.post('/api/standards', { section_id: sec.section_id })
+          );
+        });
+        const standardsRes = await Promise.all(standardsPromises);
+
+        // Build the structure
+        const structure = categories.map((cat, i) => {
+          const sectionData = sectionsRes[i]?.data || [];
+          const standardData = standardsRes[i]?.data || [];
+          
+          return {
+            section: cat.category_name,
+            categories: sectionData.map((sec, j) => ({
+              name: sec.section_name,
+              criteria: standardData.map(std => std.standard_name)
+            }))
+          };
+        });
+
+        setEvidencesStructure(structure);
+      } catch (error) {
+        console.error("Error fetching structure:", error);
+        console.error("Error details:", {
+          message: error.message,
+          response: error.response,
+          stack: error.stack
+        });
+      }
+    };
+
+    fetchStructure();
+  }, []);
 
   return (
     <>
@@ -87,37 +119,43 @@ const EvidencesCompilation = () => {
           <div className="w-2/3 bg-white p-6 rounded-xl shadow-md">
             <ul className="space-y-4">
               {evidencesStructure.map((sec, i) => (
-                <li key={i}>
+                <li key={i} className="border-l-2 border-gray-200 pl-4">
                   <button
                     onClick={() => toggleSection(i)}
-                    className="flex items-center gap-2 font-bold text-lg mb-1 hover:text-blue-700"
+                    className="flex items-center gap-2 font-bold text-lg mb-1 hover:text-blue-700 transition-colors duration-200"
                   >
-                    <span>
-                      {openSections[i] ? "➖" : "➕"}
+                    <span className="text-blue-600">
+                      {openSections[i] ? "📂" : "📁"}
                     </span>
-                    {sec.section}
+                    <span className="text-gray-800">{sec.section}</span>
                   </button>
 
                   {openSections[i] && (
-                    <ul className="ml-6 space-y-2">
+                    <ul className="ml-6 space-y-3 mt-2">
                       {sec.categories.map((cat, j) => {
                         const catKey = `${i}-${j}`;
                         return (
-                          <li key={j}>
+                          <li key={j} className="border-l-2 border-gray-200 pl-4">
                             <button
                               onClick={() => toggleCategory(i, j)}
-                              className="flex items-center gap-2 font-semibold hover:text-blue-600"
+                              className="flex items-center gap-2 font-semibold hover:text-blue-600 transition-colors duration-200"
                             >
-                              <span>
-                                {openCategories[catKey] ? "📂" : "📁"}
+                              <span className="text-blue-500">
+                                {openCategories[catKey] ? "📄" : "📄"}
                               </span>
-                              {cat.name}
+                              <span className="text-gray-700">{cat.name}</span>
                             </button>
 
                             {openCategories[catKey] && (
-                              <ul className="ml-6 list-disc text-gray-700 text-sm">
+                              <ul className="ml-6 mt-2 space-y-2">
                                 {cat.criteria.map((crit, k) => (
-                                  <li key={k}>{crit}</li>
+                                  <li 
+                                    key={k} 
+                                    className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+                                  >
+                                    <span className="text-blue-400">•</span>
+                                    <span className="text-sm">{crit}</span>
+                                  </li>
                                 ))}
                               </ul>
                             )}
@@ -132,16 +170,18 @@ const EvidencesCompilation = () => {
           </div>
 
           <div className="w-1/3 flex flex-col items-end justify-start pr-8 pt-2">
-            <p className="text-sm text-gray-600 mb-3 text-right max-w-[280px]">
+            <div className="bg-white p-6 rounded-xl shadow-md w-full">
+              <p className="text-sm text-gray-600 mb-4">
                 Al compilar las evidencias, se agruparán todas las que ya fueron aprobadas.
-            </p>
-            <button
+              </p>
+              <button
                 onClick={handleCompileClick}
-                className="bg-blue-700 text-white py-2 px-6 rounded-xl text-lg font-semibold"
-            >
+                className="w-full bg-blue-700 text-white py-3 px-6 rounded-xl text-lg font-semibold hover:bg-blue-800 transition-colors duration-200 flex items-center justify-center gap-2"
+              >
                 Compilar Evidencias
-            </button>
-        </div>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
