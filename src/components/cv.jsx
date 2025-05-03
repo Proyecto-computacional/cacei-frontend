@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Section from "./Section";
 import api from "../services/api";
 
 
@@ -191,9 +190,21 @@ const CV = () => {
       
           const config = sectionConfigs[sectionId];
           if (!config) return;
+
+          // Filter out empty rows and validate payloads
+          const validRows = data[sectionId].filter(row => {
+            const payload = config.transform(row);
+            const hasValues = Object.values(payload).some(value => value !== undefined && value !== null && value !== '');
+            return hasValues;
+          });
+
+          if (validRows.length === 0) {
+            alert('No hay datos válidos para guardar');
+            return;
+          }
       
           // Enviar datos para la sección actual
-          await Promise.all(data[sectionId].map(async (row) => {
+          await Promise.all(validRows.map(async (row) => {
             const payload = config.transform(row);
             await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
           }));
@@ -201,9 +212,13 @@ const CV = () => {
           alert('¡Datos guardados correctamente!');
         } catch (error) {
           console.error('Error:', error.response?.data);
-          alert(`Error al guardar: ${error.response?.data.message || error.message}`);
+          if (error.response?.status === 422) {
+            alert('Por favor ingrese los datos necesarios en las celdas');
+          } else {
+            alert(`Error al guardar: ${error.response?.data.message || error.message}`);
+          }
         }
-      };
+    };
 
 
     const secciones = [
