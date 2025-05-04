@@ -89,15 +89,11 @@ export default function EvidenceTable() {
             url += `&order=${order}`;
         }
 
-        console.log(url);
         api.get(url).then(({ data }) => {
-            console.log(data);
             setEvidences(() => [...data.evidencias.data]);
             setNextPage(data.evidencias.next_page_url);
             setLoading(false);
         });
-
-        console.log(evidences);
 
     }, [searchTerm, sortBy, order, refresh]);
 

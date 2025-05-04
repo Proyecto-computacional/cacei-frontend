@@ -54,31 +54,25 @@ const UploadEvidence = () => {
           if (adminStatus) {
             if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "PENDIENTE") {
               setIsLocked(true);
-              console.log('a');
             } else if (adminStatus.status_description === "NO APROBADA") {
               setIsLocked(false);
-              console.log('b');
             }
           } else {
             if (firstStatus.status_description === "NO APROBADA") {
               setIsLocked(false);
-              console.log('c');
             } else if (
               firstStatus.status_description === "APROBADA" ||
               firstStatus.status_description === "PENDIENTE"
             ) {
               setIsLocked(true);
-              console.log('d');
             }
           }
         } else {
           // Si no hay estatus pero sí archivos, bloquear
           if (response.data.evidence.files && response.data.evidence.files.length > 0) {
             setIsLocked(true);
-            console.log('e');
           } else {
             setIsLocked(false);
-            console.log('f');
           }
         }
 
@@ -165,7 +159,6 @@ const UploadEvidence = () => {
 
 
       for (const revisor of firstRevisor) {
-        console.log("Enviar estatus", revisor);
         await api.post(`/api/RevisionEvidencias/pendiente`, {
           user_rpe: evidence.user_rpe,
           reviser_rpe: revisor,
@@ -249,7 +242,6 @@ const UploadEvidence = () => {
   };
 
   const canViewPage = () => {
-    console.log(evidence);
     if (!user || !evidence) return false;
 
     const allowedRoles = ["ADMINISTRADOR", "DIRECTIVO"];
