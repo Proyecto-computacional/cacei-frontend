@@ -13,11 +13,14 @@ const UploadEvidence = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [justification, setJustification] = useState(null);
   const [evidence, setEvidence] = useState(null);
+  const [firstRevisor, setFirstRevisor] = useState(null);
   const [asignaciones, setAsignaciones] = useState([]);
   const refInputFiles = useRef(null);
   const { evidence_id } = useParams();
   const [user, setUser] = useState(null);
   const [isLocked, setIsLocked] = useState(false);
+  const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -37,38 +40,48 @@ const UploadEvidence = () => {
   useEffect(() => {
     api.get(`api/evidences/${evidence_id}`).then(
       (response) => {
-        setEvidence(response.data);
-        setUploadedFiles(response.data.files);
-        setJustification(response.data.files[0]?.justification || "");
+        setEvidence(response.data.evidence);
+        setFirstRevisor(response.data.first_revisor);
+        setUploadedFiles(response.data.evidence.files);
+        setJustification(response.data.evidence.files[0]?.justification || "");
 
-        let isApprovedByAdmin = false;
-        let hasNoApproved = false;
+        if (response.data.evidence.status && response.data.evidence.status.length > 0) {
+          const firstStatus = response.data.evidence.status[0];
+          const adminStatus = response.data.evidence.status.find(
+            (s) => s.user.user_role === "ADMINISTRADOR"
+          );
 
-        console.log(response.data);
-
-        if (response.data.status && response.data.status.length > 0) {
-          for (let s of response.data.status) {
-            if (s.status_description === "APROBADA" && s.user.user_role === "ADMINISTRADOR") {
-              isApprovedByAdmin = true;
-              break;
+          if (adminStatus) {
+            if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "PENDIENTE") {
+              setIsLocked(true);
+              console.log('a');
+            } else if (adminStatus.status_description === "NO APROBADA") {
+              setIsLocked(false);
+              console.log('b');
             }
-            if (s.status_description === "NO APROBADA") {
-              hasNoApproved = true;
+          } else {
+            if (firstStatus.status_description === "NO APROBADA") {
+              setIsLocked(false);
+              console.log('c');
+            } else if (
+              firstStatus.status_description === "APROBADA" ||
+              firstStatus.status_description === "PENDIENTE"
+            ) {
+              setIsLocked(true);
+              console.log('d');
             }
           }
         } else {
-          if (response.data.files && response.data.files.length > 0) {
+          // Si no hay estatus pero sí archivos, bloquear
+          if (response.data.evidence.files && response.data.evidence.files.length > 0) {
             setIsLocked(true);
+            console.log('e');
+          } else {
+            setIsLocked(false);
+            console.log('f');
           }
         }
 
-        if (isApprovedByAdmin) {
-          setIsLocked(true);
-        } else if (hasNoApproved) {
-          setIsLocked(false);
-        } else {
-          setIsLocked(true);
-        }
 
       }).catch(error => {
         if (error.response && error.response.status === 401) {
@@ -76,7 +89,7 @@ const UploadEvidence = () => {
         }
       }
       );
-  }, [evidence_id]);
+  }, [evidence_id,]);
 
   useEffect(() => {
     async function fetchData() {
@@ -150,37 +163,32 @@ const UploadEvidence = () => {
         },
       });
 
+      // 2. Cambiar estados a PENDIENTE si era NO APROBADA
+      for (const revisor of firstRevisor) {
+        console.log("Enviar estatus", revisor);
+        await api.post(`/api/RevisionEvidencias/pendiente`, {
+          user_rpe: evidence.user_rpe,
+          reviser_rpe: revisor,
+          evidence_id: evidence.evidence_id,
+          feedback: null
+        }, {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
+          }
+        });
+      }
+
       alert("Archivo subido con éxito");
 
       await api.get(`api/evidences/${evidence_id}`).then(
         (response) => {
-          setEvidence(response.data);
-          setUploadedFiles(response.data.files);
-          setJustification(response.data.files[0].justification || "");
+          setEvidence(response.data.evidence);
+          setUploadedFiles(response.data.evidence.files);
+          setJustification(response.data.evidence.files[0].justification || "");
         }
       );
       setFiles([]);
 
-      // 2. Cambiar estados a PENDIENTE si era NO APROBADA
-      if (response.data.status && response.data.status.some(s => s.status_description === "NO APROBADA")) {
-        for (const status of response.data.status) {
-          await api.post(`/api/RevisionEvidencias/pendiente`, {
-            user_rpe: response.data.user_rpe,
-            reviser_rpe: status.user_rpe,
-            evidence_id: response.data.evidence_id,
-            feedback: null
-          }, {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem('token')}`,
-            }
-          });
-        }
-        // 3. Volvemos a cargar evidencia para refrescar
-        const updatedData = await api.get(`api/evidences/${evidence_id}`);
-        setEvidence(updatedData.data);
-        setUploadedFiles(updatedData.data.files);
-        setJustification(updatedData.data.files[0]?.justification || "");
-      }
 
       // 4. Bloquear la pantalla después de subir
       setIsLocked(true);
@@ -211,9 +219,6 @@ const UploadEvidence = () => {
   const handleRemoveFile = (fileName) => {
     setFiles((prev) => prev.filter((file) => file.name !== fileName));
   };
-
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
 
 
 
