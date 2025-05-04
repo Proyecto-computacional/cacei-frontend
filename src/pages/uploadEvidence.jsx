@@ -109,7 +109,7 @@ const UploadEvidence = () => {
 
   const handleFileChange = (event) => {
     const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf'];
-    const maxFileSize = 50 * 1024 * 1024; // 50MB
+    const maxFileSize = 50 * 1024 * 1024;
 
     const selectedFiles = Array.from(event.target.files);
 
@@ -139,7 +139,7 @@ const UploadEvidence = () => {
   };
 
   const handleUpload = async () => {
-
+    setIsLocked(true);
     if (!files) {
       alert("Por favor, selecciona un archivo.");
       return;
@@ -163,7 +163,7 @@ const UploadEvidence = () => {
         },
       });
 
-      // 2. Cambiar estados a PENDIENTE si era NO APROBADA
+
       for (const revisor of firstRevisor) {
         console.log("Enviar estatus", revisor);
         await api.post(`/api/RevisionEvidencias/pendiente`, {
@@ -195,13 +195,14 @@ const UploadEvidence = () => {
 
 
     } catch (error) {
+      setIsLocked(false);
       console.error("Error al subir archivo", error);
       alert("Error al subir archivo");
     }
   };
   const handleDeleteUploadedFile = async (fileId) => {
     if (!window.confirm("¿Seguro que quieres eliminar este archivo?")) return;
-
+    setIsLocked(true);
     try {
       await api.delete(`/api/file/${fileId}`, {
         headers: {
@@ -214,6 +215,7 @@ const UploadEvidence = () => {
       console.error(error);
       alert("Error al eliminar archivo.");
     }
+    setIsLocked(false);
   };
 
   const handleRemoveFile = (fileName) => {
@@ -328,7 +330,7 @@ const UploadEvidence = () => {
               <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
                 <span className="text-2xl">{getIcon(file.name)}</span>
                 <p className="font-semibold text-left flex-grow">{file.name}</p>
-                <X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />
+                {!isLocked && (<X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />)}
               </div>
             ))}
             {uploadedFiles && uploadedFiles.map((file) => (

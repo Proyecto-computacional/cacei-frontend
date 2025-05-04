@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "../../app.css"
-const Feedback = ({ enviar, cerrar }) => {
+const Feedback = ({ enviar, cerrar, status }) => {
     const [feedback, setFeedback] = useState(null);
 
     const sendFeedback = () => {
@@ -11,6 +11,9 @@ const Feedback = ({ enviar, cerrar }) => {
         <>
             <div className="fixed inset-0 flex items-center justify-center bg-black/40">
                 <div className="bg-white p-5 border-primary1 w-8/10">
+                    <h2 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-2 mb-2">
+                        {status ? "Aprobar evidencia" : "No aprobar evidencia"}
+                    </h2>
                     <h2 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-2 mb-2">Retroalimentación</h2>
                     <div></div>
                     <label className="w-9/10 m-auto block">Máximo 255 caracteres.</label>

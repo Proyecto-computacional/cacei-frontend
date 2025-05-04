@@ -18,6 +18,22 @@ export default function EvidenceTable() {
     const [sortBy, setSortBy] = useState(null);
     const [order, setOrder] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [user, setUser] = useState(null);
+    const [refresh, setRefresh] = useState(false);
+
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await api.get('/api/user');
+                setUser(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchUser();
+    }, []);
+
 
 
     const handleSort = (column) => {
@@ -26,26 +42,29 @@ export default function EvidenceTable() {
         setOrder(newOrder);
     };
 
-    const sendFeedback = (feedback) => {
-        let url = 'api/RevisionEvidencias/'
+    const sendFeedback = async (feedback) => {
+        let url = 'api/RevisionEvidencias/';
         if (statusFeedback) {
             url += 'aprobar';
         } else {
             url += 'desaprobar';
         }
 
-        console.log(url, statusFeedback);
+        setOpenFeedback(false);
 
         try {
-            const respuesta = api.post(url, {
+            const respuesta = await api.post(url, {
                 evidence_id: parseInt(idEvidenceFeedback),
                 user_rpe: statusUserRPE,
                 feedback: feedback
             });
-            if (respuesta.status == 200) {
-                alert(respuesta.message);
+
+            if (respuesta.status === 200) {
+                alert(respuesta.data?.message || 'Feedback enviado con éxito');
+                setRefresh(prev => !prev)
             }
         } catch (e) {
+            console.error(e);
             alert('Error en el servidor');
         }
     };
@@ -80,7 +99,7 @@ export default function EvidenceTable() {
 
         console.log(evidences);
 
-    }, [searchTerm, sortBy, order]);
+    }, [searchTerm, sortBy, order, refresh]);
 
 
     const loadMore = () => {
@@ -92,6 +111,20 @@ export default function EvidenceTable() {
             setNextPage(data.evidence.next_page_url);
             setLoading(false);
         });
+    };
+
+    const canReview = (statuses) => {
+
+        if (user.user_role === "ADMINISTRADOR") {
+            return true;
+        } else {
+            return statuses.some(
+                (s) => {
+                    return s.status_description === "PENDIENTE" && s.user_rpe === user.user_rpe
+                }
+            );
+        }
+
     };
 
 
@@ -148,9 +181,9 @@ export default function EvidenceTable() {
                                     </td>
                                     {["ADMINISTRADOR", "JEFE DE ÁREA", "COORDINADOR DE CARRERA", "PROFESOR"].map((rol) => {
                                         const statusObj = item.statuses.find(s => s.user_role?.toUpperCase() === rol);
-                                        const status = statusObj ? statusObj.status_description : "Pendiente";
-                                        const color = status === "Aprobada" ? "text-green-600"
-                                            : status === "No aprobada" ? "text-red-600"
+                                        const status = statusObj ? statusObj.status_description : "PENDIENTE";
+                                        const color = status === "APROBADA" ? "text-green-600"
+                                            : status === "NO APROBADA" ? "text-red-600"
                                                 : "text-yellow-600";
 
                                         return (
@@ -161,14 +194,18 @@ export default function EvidenceTable() {
                                     })}
 
                                     <td className="py-3 px-4">
-                                        <div className="flex gap-2">
-                                            <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true, item)}>
-                                                <Check color="green" size={40} strokeWidth={2} />
-                                            </button>
-                                            <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}>
-                                                <X color="red" size={40} strokeWidth={2} />
-                                            </button>
-                                        </div>
+                                        {canReview(item.statuses) ? (
+                                            <div className="flex gap-2">
+                                                <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true)}>
+                                                    <Check color="green" size={40} strokeWidth={2} />
+                                                </button>
+                                                <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}>
+                                                    <X color="red" size={40} strokeWidth={2} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-500 italic">Ya revisado o aun falta aprobacion de otro usuario</p>
+                                        )}
                                     </td>
                                 </tr>
                             )) :
@@ -184,7 +221,8 @@ export default function EvidenceTable() {
             </div >
             {openFeedback && (
                 <Feedback cerrar={() => setOpenFeedback(false)}
-                    enviar={sendFeedback} />
+                    enviar={sendFeedback}
+                    status={statusFeedback} />
             )
             }
         </>
