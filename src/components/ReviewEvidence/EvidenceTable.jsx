@@ -61,7 +61,7 @@ export default function EvidenceTable() {
         try {
             const url = statusFeedback ? 'api/RevisionEvidencias/aprobar' : 'api/RevisionEvidencias/desaprobar';
 
-            const { data } = await api.post(url, {
+            const respuesta = await api.post(url, {
                 evidence_id: parseInt(idEvidenceFeedback),
                 user_rpe: statusUserRPE,
                 feedback: feedbackText
@@ -80,10 +80,6 @@ export default function EvidenceTable() {
     const isAdmin = userRole === 'ADMINISTRADOR';
 
     const handleFeedback = (id, userRpe, status, evidence) => {
-        if (hasDecision(evidence)) {
-            alert("Esta evidencia ya tiene una decisión registrada");
-            return;
-        }
         setOpenFeedback(true);
         setIdEvidenceFeedback(id);
         setstatusUserRPE(userRpe);
@@ -93,9 +89,10 @@ export default function EvidenceTable() {
     useEffect(() => {
         let url = `api/ReviewEvidence?`;
         api.get(url).then(({ data }) => {
-            setEvidences(() => [...data.evidencias.data]);
-            setNextPage(data.evidencias.next_page_url);
-            setLoading(false);
+            console.log(data);
+            setEvidences(() => [...data.evidencias]);
+            //setNextPage(data.evidencias.next_page_url);
+            //setLoading(false);
         });
     }, [refresh]);
 
@@ -179,11 +176,11 @@ export default function EvidenceTable() {
         setShowCommentModal(true);
     };
 
-    const hasDecision = (evidence) => {
+    /*const hasDecision = (evidence) => {
         return evidence.statuses?.some(s =>
             ['Aprobado', 'Desaprobado'].includes(s.status_description)
         );
-    };
+    };*/
 
     const isFullyApproved = (evidenceId) => {
         const evidence = evidences.find(ev => ev.evidence_id === evidenceId);
