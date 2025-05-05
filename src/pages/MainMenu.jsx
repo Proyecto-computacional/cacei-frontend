@@ -3,26 +3,27 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import Card from "../components/Card";
+
 const MainMenu = () => {
   const [cards, setCards] = useState([]);
-  const location = useLocation();  // se usa useLocation para acceder al estado pasado
-  const userRpe = localStorage.getItem('rpe');  // se obtiene el userRpe del estado
-  const navigate = useNavigate(); // para navegar
+  const [percentages, setPercentages] = useState({});
+  const location = useLocation();
+  const userRpe = localStorage.getItem('rpe');
+  const navigate = useNavigate();
+  const userRol = localStorage.getItem("rol");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!userRpe) {
           console.error("userId no está disponible");
-          return;  // Si no está disponible, no realizamos la solicitud
+          return;
         }
-        // llamada a la API pasando el `userRpe` como parámetro
+
         const response = await api.get("api/ProcesosUsuario", {
-          params: {
-            userRpe: userRpe, // se pasa el parámetro `userRpe`
-          },
+          params: { userRpe },
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
+            "Authorization": `Bearer ${localStorage.getItem('token')}`,
           },
         });
 
@@ -30,8 +31,28 @@ const MainMenu = () => {
           throw new Error("Error al obtener los datos");
         }
 
-        const data = response.data
-        setCards(data);  // aquí se almacenan los datos en el estado `cards`
+        const data = response.data;
+        setCards(data);
+
+        // Ahora cargamos los porcentajes
+        const percentagesMap = {};
+        for (const card of data) {
+          let estRes;
+          try {
+            if (userRol === "ADMINISTRADOR") {
+              estRes = await api.get(`/estadisticas/${userRpe}/${card.frame_name}/${card.career_name}`);
+            } else if (userRol === "PROFESOR" || userRol === "DEPARTAMENTO UNIVERSITARIO") {
+              estRes = await api.get(`/estadisticas/por-autor/${userRpe}/${card.frame_name}/${card.career_name}`);
+            }
+            percentagesMap[card.process_id] = estRes?.data?.aprobados ?? 0;
+          } catch (error) {
+            console.warn(`Error obteniendo porcentaje para ${card.process_id}`, error);
+            percentagesMap[card.process_id] = 0;
+          }
+        }
+
+        setPercentages(percentagesMap);
+
       } catch (error) {
         console.error("Error al obtener los datos:", error);
       }
@@ -54,14 +75,14 @@ const MainMenu = () => {
         </h1>
         <div className="flex gap-4 flex-wrap">
           {cards.length > 0 ? (
-            cards.map((card, index) => (
+            cards.map((card) => (
               <Card
+                key={card.process_id}
                 title={card.frame_name}
                 area={card.area_name}
                 career={card.career_name}
-                /*PLACEHOLDER*/
-                percentage="15%"
-                onClick={() => handleCardClick(card.process_id)} // Al hacer clic, navega a la página de detalles
+                percentage={`${percentages[card.process_id] ?? 0}%`}
+                onClick={() => handleCardClick(card.process_id)}
               />
             ))
           ) : (

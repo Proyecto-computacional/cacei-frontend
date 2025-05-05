@@ -15,7 +15,7 @@ const DashboardWidgets = () => {
   const [estadisticas, setEstadisticas] = useState({
     aprobado: 0,
     desaprobado: 0,
-    sin_evidencia: 0,
+    pendientes: 0,
     notificaciones: 0,
   });
 
@@ -39,28 +39,30 @@ const DashboardWidgets = () => {
       console.log("ultimaActualizacionCV: ", ultimaActualizacionCV); 
 
       setEstadisticas({
-        aprobado: resumenGeneralPorRPE.aprobado,
-        desaprobado: resumenGeneralPorRPE.desaprobado,
-        sin_evidencia: resumenGeneralPorRPE.sin_evidencia,
+        aprobado: resumenGeneralPorRPE[0]?.aprobado ?? 0,
+        desaprobado: resumenGeneralPorRPE[0]?.desaprobado ?? 0,
+        pendientes: resumenGeneralPorRPE[0]?.pendientes ?? 0,
         notificaciones: notificacionesData.no_vistas,
         ultimaActualizacionCV: ultimaActualizacionCV.ultima_actualizacion_cv, // Fecha de la última actualización
       });
     } catch (error) {
       console.error("Error al obtener las estadísticas:", error);
     }
+    console.log("resumenGeneralPorRPE.pendientes: ", resumenGeneralPorRPE.pendientes); 
+
   };
 
   useEffect(() => {
     fetchEstadisticas();
   }, []); // Se ejecuta una sola vez al cargar el componente
 
-  const { aprobado, desaprobado, sin_evidencia, notificaciones } = estadisticas;
-  const total = aprobado + desaprobado + sin_evidencia;
-
+  const { aprobado, desaprobado, pendientes, notificaciones } = estadisticas;
+  const total = aprobado + desaprobado + pendientes;
+ 
   const aprobadoPercentage = (aprobado / total) * 100;
   const desaprobadoPercentage = (desaprobado / total) * 100;
-  const sinSubirPercentage = (sin_evidencia / total) * 100;
-
+  const sinSubirPercentage = (pendientes / total) * 100;
+   
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-21 mr-21 mb-21">
       {/* CV */}
@@ -161,7 +163,7 @@ const DashboardWidgets = () => {
               className="w-4 h-4 rounded-full"
               style={{ backgroundColor: "#FFC600" }}
             ></div>
-            <p className="ml-2">{sinSubirPercentage.toFixed(0)}% Sin subir</p>
+            <p className="ml-2">{sinSubirPercentage.toFixed(0)}% Pendientes</p>
           </div>
         </div>
       </div>
