@@ -1,21 +1,20 @@
-//import React from "react";
-import { Search } from "lucide-react";
-import api from "../services/api";
 import React, { useEffect, useState } from "react";
+import api from "../services/api";
 
 const AssignTask = ({ onClose }) => {
   const [categories, setCategories] = useState([]);
   const [sections, setSections] = useState([]);
   const [standards, setStandards] = useState([]);
-  const [evidences, setEvidences] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
   const [selectedStandard, setSelectedStandard] = useState("");
-  const [selectedEvidence, setSelectedEvidence] = useState("");
   const [userRpe, setUserRpe] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationError, setValidationError] = useState("");
 
   useEffect(() => {
-    api.get("/api/categories") // Ajusta ruta si es diferente
+    api.post("/api/categories", { frame_id: 1 })
       .then(res => setCategories(res.data));
   }, []);
 
@@ -33,26 +32,59 @@ const AssignTask = ({ onClose }) => {
     }
   }, [selectedSection]);
 
-  useEffect(() => {
-    if (selectedStandard) {
-      api.post("/api/evidences", { standard_id: selectedStandard })
-        .then(res => setEvidences(res.data));
+  const validateUser = async (rpe) => {
+    setIsValidating(true);
+    setValidationError("");
+    
+    try {
+      const response = await api.post("/api/validate-user", { rpe });
+      const data = response.data;
+  
+      if (!data.correcto) {
+        throw new Error("El RPE no es válido o no está registrado en el sistema");
+      }
+  
+      return true;
+    } catch (error) {
+      setValidationError(error.message);
+      return false;
+    } finally {
+      setIsValidating(false);
     }
-  }, [selectedStandard]);
-
-  const handleSave = () => {
-    api.post("/api/reviser", {
-      user_rpe: userRpe,
-      evidence_id: selectedEvidence,
-    })
-    .then(res => {
-      alert(res.data.message);
-      onClose();
-    })
-    .catch(err => {
-      alert("Error al asignar: " + err.response.data.message);
-    });
   };
+
+  const handleSave = async () => {
+    if (!userRpe) {
+      setValidationError("Por favor ingresa un RPE");
+      return;
+    }
+
+    // Validar el RPE primero
+    const isValid = await validateUser(userRpe);
+    if (!isValid) return;
+
+    try {
+      // Primero creamos la evidencia
+      const evidenceResponse = await api.post("/api/evidence", {
+        standard_id: selectedStandard,
+        user_rpe: userRpe,
+        process_id: 1,
+        due_date: dueDate
+      });
+
+      // Luego asignamos el revisor usando el evidence_id recién creado
+      const reviserResponse = await api.post("/api/reviser", {
+        user_rpe: userRpe,
+        evidence_id: evidenceResponse.data.evidence.evidence_id,
+      });
+
+      alert(reviserResponse.data.message);
+      onClose();
+    } catch (err) {
+      alert("Error al asignar: " + (err.response?.data?.message || err.message));
+    }
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-96 bg-white p-6 rounded-2xl shadow-lg">
@@ -79,9 +111,9 @@ const AssignTask = ({ onClose }) => {
         </div>
   
         <div className="mb-4">
-          <label className="block mb-1 font-medium">Punto (estándar):</label>
+          <label className="block mb-1 font-medium">Criterio:</label>
           <select className="w-full p-2 border rounded" value={selectedStandard} onChange={(e) => setSelectedStandard(e.target.value)}>
-            <option value="">Selecciona un punto</option>
+            <option value="">Selecciona un criterio</option>
             {standards.map(std => (
               <option key={std.standard_id} value={std.standard_id}>{std.standard_name}</option>
             ))}
@@ -89,13 +121,13 @@ const AssignTask = ({ onClose }) => {
         </div>
   
         <div className="mb-4">
-          <label className="block mb-1 font-medium">Criterio:</label>
-          <select className="w-full p-2 border rounded" value={selectedEvidence} onChange={(e) => setSelectedEvidence(e.target.value)}>
-            <option value="">Selecciona una evidencia</option>
-            {evidences.map(evi => (
-              <option key={evi.evidence_id} value={evi.evidence_id}>Evidencia #{evi.evidence_id}</option>
-            ))}
-          </select>
+          <label className="block mb-1 font-medium">Fecha Límite:</label>
+          <input
+            type="date"
+            className="w-full p-2 border rounded"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
         </div>
   
         <div className="mb-4">
@@ -107,14 +139,29 @@ const AssignTask = ({ onClose }) => {
             value={userRpe}
             onChange={(e) => setUserRpe(e.target.value)}
           />
+          {isValidating && <p className="text-blue-500 text-sm mt-1">Validando RPE...</p>}
+          {validationError && <p className="text-red-500 text-sm mt-1">{validationError}</p>}
         </div>
   
         <div className="flex justify-between mt-4">
-          <button className="px-4 py-2 bg-blue-500 text-white rounded" onClick={handleSave}>Guardar</button>
-          <button className="px-4 py-2 border border-gray-300 rounded" onClick={onClose}>Cancelar</button>
+          <button 
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300" 
+            onClick={handleSave}
+            disabled={isValidating}
+          >
+            {isValidating ? "Validando..." : "Guardar"}
+          </button>
+          <button 
+            className="px-4 py-2 border border-gray-300 rounded" 
+            onClick={onClose}
+            disabled={isValidating}
+          >
+            Cancelar
+          </button>
         </div>
       </div>
     </div>
   );
-}
+};
+
 export default AssignTask;

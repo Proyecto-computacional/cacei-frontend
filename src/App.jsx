@@ -11,6 +11,7 @@ import EvidenceManagement from "./pages/evidenceManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FrameOfReferenceView from "./pages/framesAdmin";
 import EstructuraMarco from "./pages/frameStructure";
+import EvidencesCompilation from "./pages/EvidencesCompilation";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/PersonalConfig" element={<PersonalConfig />} />
+        <Route path="/EvidencesCompilation" element={<EvidencesCompilation />} />
         <Route path="/dash/:processId" element={<Dashboard />} />
         <Route path="/notifications" element={<Notification />} />
         <Route path="/UsersAdmin" element={

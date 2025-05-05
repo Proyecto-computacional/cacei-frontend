@@ -79,7 +79,7 @@ export function SubHeading() {
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                         onClick={() => { navigate("/evidenceManagement"); setOpen(false); }} >
-                                        Gestión de evidencias
+                                        Asignación de tareas
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                         onClick={() => { navigate("/notifications"); setOpen(); }} >
@@ -97,7 +97,7 @@ export function SubHeading() {
                 </div>
 
 
-                <div className="flex justify-between items-center w-75">
+                <div className="flex items-center space-x-4">
                     <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
                         <Mail className="w-5 h-5 text-black cursor-pointer" />
                     </a>

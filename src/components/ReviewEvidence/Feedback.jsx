@@ -1,33 +1,105 @@
 import { useState } from "react";
 import "../../app.css"
-const Feedback = ({ enviar, cerrar, status }) => {
-    const [feedback, setFeedback] = useState(null);
+import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 
-    const sendFeedback = () => {
-        enviar(feedback);
+const Feedback = ({ enviar, cerrar, statusFeedback }) => {
+    const [feedback, setFeedback] = useState("");
+    const [confirmacionAbierta, setConfirmacionAbierta] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const handleConfirmacion = async () => {
+        setLoading(true);
+        try {
+            await enviar(feedback);
+            cerrar();
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <>
-            <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-                <div className="bg-white p-5 border-primary1 w-8/10">
-                    <h2 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-2 mb-2">
-                        {status ? "Aprobar evidencia" : "No aprobar evidencia"}
+            {/* Modal de Feedback Principal */}
+            <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+                <div className="bg-white p-6 rounded-lg w-full max-w-md">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                        {statusFeedback ? (
+                            <CheckCircle className="text-green-500" />
+                        ) : (
+                            <XCircle className="text-red-500" />
+                        )}
+                        Retroalimentación
                     </h2>
-                    <h2 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-2 mb-2">Retroalimentación</h2>
-                    <div></div>
-                    <label className="w-9/10 m-auto block">Máximo 255 caracteres.</label>
-                    <textarea onChange={(e) => setFeedback(e.target.value)} placeholder="Retroalimentación" className="w-9/10 m-auto block text-2xl p-2 resize-none h-32 bg-neutral-300"></textarea>
-                    <div className="flex justify-center mt-6 gap-4">
-                        <button className="text-white text-2xl py-2 px-6 rounded-2xl bg-primary2"
-                            onClick={sendFeedback}>Enviar</button>
-                        <button className="text-white text-2xl py-2 px-6 rounded-2xl bg-alt1"
-                            onClick={cerrar}>Cancelar</button>
+
+                    <textarea
+                        value={feedback}
+                        onChange={(e) => setFeedback(e.target.value)}
+                        placeholder="Escribe tus comentarios..."
+                        className="w-full p-3 border rounded mb-4 min-h-[120px]"
+                    />
+
+                    <div className="flex justify-end gap-2">
+                        <button
+                            onClick={cerrar}
+                            className="px-4 py-2 bg-gray-300 rounded"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            onClick={() => setConfirmacionAbierta(true)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                            Enviar
+                        </button>
                     </div>
                 </div>
             </div>
+
+            {/* Modal de Confirmación */}
+            {confirmacionAbierta && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+                    <div className="bg-white p-6 rounded-lg w-full max-w-md">
+                        <div className="flex items-center gap-3 mb-4">
+                            <AlertTriangle className="text-yellow-500" size={24} />
+                            <h3 className="text-lg font-bold">Confirmar acción</h3>
+                        </div>
+
+                        <p className="mb-4">
+                            ¿Estás seguro que deseas {statusFeedback ? "aprobar" : "rechazar"} esta evidencia?
+                            <br />
+                            <span className="font-semibold">Esta acción no se puede deshacer.</span>
+                        </p>
+
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => setConfirmacionAbierta(false)}
+                                className="px-4 py-2 bg-gray-300 rounded"
+                                disabled={loading}
+                            >
+                                Volver
+                            </button>
+                            <button
+                                onClick={handleConfirmacion}
+                                className={`px-4 py-2 ${statusFeedback
+                                    ? "bg-green-500 hover:bg-green-600"
+                                    : "bg-red-500 hover:bg-red-600"
+                                    } text-white rounded`}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <span className="inline-block animate-spin">↻</span>
+                                ) : statusFeedback ? (
+                                    "Sí, aprobar"
+                                ) : (
+                                    "Sí, rechazar"
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
-    )
-}
+    );
+};
 
 export default Feedback;
