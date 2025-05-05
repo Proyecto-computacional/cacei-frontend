@@ -74,7 +74,7 @@ export function SubHeading() {
                                     </li>
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                         onClick={() => { navigate("/evidenceManagement"); setOpen(false); }} >
-                                        Gestión de evidencias
+                                        Asignación de tareas
                                     </li>
                                     
                                 </ul>

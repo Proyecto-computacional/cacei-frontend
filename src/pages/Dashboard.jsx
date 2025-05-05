@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import { useLocation } from "react-router-dom";
 import DashboardWidgets from "../components/DashboardWidgets";
+import { useNavigate } from 'react-router-dom';
 import api from "../services/api";
 import { Link } from "lucide-react";
 
@@ -61,6 +62,7 @@ const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evi
 const Dashboard = () => {
   const location = useLocation();
   const processId = location.state?.processId;
+  const navigate = useNavigate();
 
   const sampleEvidences = [
     { name: "Evidencia 0239..", responsible: "Ernesto Lopez", info: "Sección 2.1.3", file: "Apuntes.Pdf", verified: "(X)", evaluated: "Marco Alcaraz" },
@@ -69,20 +71,10 @@ const Dashboard = () => {
     { name: "Evidencia 0242..", responsible: "Marco Alcaraz", info: "Sección 1.1.3", file: "NomArchivo.Pdf", verified: "(X)", evaluated: "Ernesto Lopez" }
   ];
 
-  // Definir el estado del modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [Link, setLink] = useState("");
-
-  // Función para abrir el modal
-  const openModal = () => {
-    setIsModalOpen(true);
+  const handleClick = () => {
+    console.log('Navigating to EvidencesCompilation with processId:', processId);
+    navigate('/EvidencesCompilation', { state: { processId } }); 
   };
-
-  // Función para cerrar el modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
   return (
     <>
       <AppHeader />
@@ -103,63 +95,21 @@ const Dashboard = () => {
         </div>
 
 
-        <div className="mt-10 mb-10">
-          <h1 className="text-[24px] font-semibold text-black font-['Open_Sans'] mt-15 mb-3">
+        <div className="mt-10 mb-10 h-200 flex flex-col items-end text-right">
+          <h1 className="text-[20px] font-semibold text-black font-['Open_Sans'] mt-15 text-right w-150">
             Compilación de evidencias
           </h1>
-          <div className="text-sm text-gray-700 mb-3">
+          <div className="text-sm text-gray-700 mb-3 w-130 text-right">
             <p>Al dar clic en "Compilar Evidencias", se tomarán todas las evidencias aprobadas para la compilación. Además, podrás finalizar el proceso de acreditación, lo que impedirá que los usuarios suban más evidencias.*</p>
           </div>
           <button 
-            onClick={ () => {openModal(); api.get('/api/procesos/1/descargar-evidencias', {
-              responseType: 'blob', // Esto es muy importante
-            })
-            .then((response) => {
-              // Crear una URL para el blob
-              const url = window.URL.createObjectURL(new Blob([response.data]));
-             
-              setLink(url);
-            })
-            .catch((error) => {
-              console.error('Error al descargar el archivo:', error);
-            }); }} 
-            className="bg-blue-700 text-white py-2 px-6 rounded-xl text-lg font-semibold"
+            onClick={handleClick}
+            className="bg-blue-700 text-white py-1 px-3 rounded-xl text-lg font-semibold text-[14px] h-8"
           >
             Compilar Evidencias
           </button>
         </div>
       </div>
-
-      {/* Modal de confirmación */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-2xl font-semibold text-center mb-4">Confirmar Finalización</h2>
-            <p className="text-center mb-6">¿Estás seguro de que deseas finalizar el proceso de acreditación? Esto impedirá que los usuarios suban más evidencias.</p>
-            <div className="flex justify-around">
-              <button 
-                onClick={closeModal}
-                className="bg-gray-300 text-black py-2 px-4 rounded-lg"
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={() => {
-                  // Aquí puedes manejar el cierre del proceso
-                  alert("Proceso finalizado");
-                  //api.get("/api/procesos/{1}/descargar-evidencias");
-                  window.location.href = "http://proyectocacei.test/api/procesos/1/descargar-evidencias";
-                  closeModal();
-                }}
-                className="bg-red-600 text-white py-2 px-4 rounded-lg"
-              >
-                Finalizar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <AppFooter />
     </>
   );

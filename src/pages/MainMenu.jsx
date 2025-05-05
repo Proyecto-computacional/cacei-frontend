@@ -24,9 +24,10 @@ const MainMenu = () => {
           params: { userRpe },
           headers: {
             "Authorization": `Bearer ${localStorage.getItem('token')}`,
+            "Authorization": `Bearer ${localStorage.getItem('token')}`,
           },
         });
-
+  
         if (response.status !== 200) {
           throw new Error("Error al obtener los datos");
         }
@@ -58,7 +59,7 @@ const MainMenu = () => {
         console.error("Error al obtener los datos:", error);
       }
     };
-
+  
     fetchData();
   }, []);
 

@@ -331,7 +331,7 @@ export default function EstructuraMarco() {
   
     const fetchCategorias = async () => {
       try {
-        const res = await api.post(`/api/categories`, {frame_id: marco.frame_id});
+        const res = await api.post(`/api/categories`, { frame_id: marco.frame_id });
         setCategorias(res.data);
         setSecciones([]);
         setCriterios([]);
@@ -344,7 +344,7 @@ export default function EstructuraMarco() {
   
     const fetchSecciones = async (categoriaId) => {
       try {
-        const res = await api.post(`/api/sections`, {category_id: categoriaId});
+        const res = await api.post(`/api/sections`, { category_id: categoriaId });
         setSecciones(res.data);
         setCriterios([]);
         setSeccionSeleccionada(null);
@@ -355,7 +355,7 @@ export default function EstructuraMarco() {
   
     const fetchCriterios = async (seccionId) => {
       try {
-        const res = await api.post(`/api/standards`, {section_id: seccionId});
+        const res = await api.post(`/api/standards`, { section_id: seccionId });
         setCriterios(res.data);
       } catch (err) {
         alert("Error al cargar criterios");
@@ -483,7 +483,7 @@ export default function EstructuraMarco() {
                     seccionSeleccionada?.id === sec.section_id ? "bg-blue-100" : "hover:bg-gray-100"
                   }`}
                 >
-                  {sec.indice}.
+                  {categoriaSeleccionada.indice}.{sec.indice}.
                   {sec.section_name}
                   <button 
                     className="ml-2 text-sm text-blue-600"
@@ -520,7 +520,7 @@ export default function EstructuraMarco() {
             <ul className="space-y-1">
               {criterios.map((cri) => (
                 <li key={cri.id} className="px-2 py-1 rounded hover:bg-gray-100">
-                  {cri.indice}.
+                  {categoriaSeleccionada.indice}.{seccionSeleccionada.indice}.{cri.indice}.
                   {cri.standard_name}
                   <button 
                     className="ml-2 text-sm text-blue-600"
