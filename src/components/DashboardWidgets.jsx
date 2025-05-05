@@ -10,6 +10,10 @@ import { Bell } from "lucide-react";
 
 import { useEffect, useState } from "react";
 import api from "../services/api";  // Importa la API configurada
+const frameName = localStorage.getItem("frameName");
+const careerName = localStorage.getItem("careerName");
+const userRole = localStorage.getItem("role") || "Usuario";
+
 
 const DashboardWidgets = () => {
   const [estadisticas, setEstadisticas] = useState({
@@ -18,17 +22,22 @@ const DashboardWidgets = () => {
     pendientes: 0,
     notificaciones: 0,
   });
-
+ 
   // Obtener el RPE del usuario desde el localStorage
   const rpe = localStorage.getItem("rpe");
  
   // Función para obtener las estadísticas generales desde la API
   const fetchEstadisticas = async () => {
     try {
-
+      let resumenGeneralPorRPE = {};
       // Obtener las estadísticas generales de la API
-      const { data: resumenGeneralPorRPE } = await api.get(`/estadisticas/resumen/${rpe}`);
-      console.log("resumenGeneralPorRPE: ", resumenGeneralPorRPE); 
+      if (userRole === "ADMINISTRADOR") {
+        const res = await api.get(`/estadisticas/${rpe}/${frameName}/${careerName}`);
+        resumenGeneralPorRPE = res.data;
+      } else if (userRole === "PROFESOR" || userRol === "DEPARTAMENTO UNIVERSITARIO") {
+        const res = await api.get(`/estadisticas/por-autor/${rpe}/${frameName}/${careerName}`);
+        resumenGeneralPorRPE = res.data;
+      }
 
       // Obtener las notificaciones no vistas
       const { data: notificacionesData } = await api.get(`/estadisticas/no-vistas/${rpe}`);
@@ -39,17 +48,21 @@ const DashboardWidgets = () => {
       console.log("ultimaActualizacionCV: ", ultimaActualizacionCV); 
 
       setEstadisticas({
-        aprobado: resumenGeneralPorRPE[0]?.aprobado ?? 0,
-        desaprobado: resumenGeneralPorRPE[0]?.desaprobado ?? 0,
-        pendientes: resumenGeneralPorRPE[0]?.pendientes ?? 0,
-        notificaciones: notificacionesData.no_vistas,
-        ultimaActualizacionCV: ultimaActualizacionCV.ultima_actualizacion_cv, // Fecha de la última actualización
+        aprobado: resumenGeneralPorRPE[0]?.aprobado || 0,
+        desaprobado: resumenGeneralPorRPE[0]?.desaprobado || 0,
+        pendientes: resumenGeneralPorRPE[0]?.pendientes || 0,
+        notificaciones: notificacionesData?.no_vistas ,
+        ultimaActualizacionCV: ultimaActualizacionCV?.ultima_actualizacion_cv ,
       });
+
+      console.log("aprobado: ", aprobado);
+      console.log("desaprobado: ", desaprobado);
+      console.log("pendientes: ", pendientes);
+      console.log("notificaciones: ", notificaciones); 
+      
     } catch (error) {
       console.error("Error al obtener las estadísticas:", error);
     }
-    console.log("resumenGeneralPorRPE.pendientes: ", resumenGeneralPorRPE.pendientes); 
-
   };
 
   useEffect(() => {
@@ -58,11 +71,11 @@ const DashboardWidgets = () => {
 
   const { aprobado, desaprobado, pendientes, notificaciones } = estadisticas;
   const total = aprobado + desaprobado + pendientes;
- 
+
   const aprobadoPercentage = (aprobado / total) * 100;
   const desaprobadoPercentage = (desaprobado / total) * 100;
   const sinSubirPercentage = (pendientes / total) * 100;
-   
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-21 mr-21 mb-21">
       {/* CV */}
@@ -126,7 +139,7 @@ const DashboardWidgets = () => {
               strokeDasharray={`${desaprobadoPercentage} ${100 - desaprobadoPercentage}`}
               strokeDashoffset={25 + aprobadoPercentage}
             />
-            {/* Sin subir */}
+            {/* Pendiente */}
             <circle
               cx="18"
               cy="18"
@@ -163,7 +176,7 @@ const DashboardWidgets = () => {
               className="w-4 h-4 rounded-full"
               style={{ backgroundColor: "#FFC600" }}
             ></div>
-            <p className="ml-2">{sinSubirPercentage.toFixed(0)}% Pendientes</p>
+            <p className="ml-2">{sinSubirPercentage.toFixed(0)}% Pendiente</p>
           </div>
         </div>
       </div>

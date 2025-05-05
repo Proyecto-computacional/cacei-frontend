@@ -10,7 +10,7 @@ const MainMenu = () => {
   const location = useLocation();
   const userRpe = localStorage.getItem('rpe');
   const navigate = useNavigate();
-  const userRol = localStorage.getItem("rol");
+  const userRol = localStorage.getItem("role") || "Usuario";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,7 +61,9 @@ const MainMenu = () => {
     fetchData();
   }, []);
 
-  const handleCardClick = (processId) => {
+  const handleCardClick = (processId, frameName, careerName) => {
+    localStorage.setItem("frameName", frameName);
+    localStorage.setItem("careerName", careerName)
     navigate(`/dash/${processId}`, { state: { processId } });
   };
 
@@ -82,7 +84,7 @@ const MainMenu = () => {
                 area={card.area_name}
                 career={card.career_name}
                 percentage={`${percentages[card.process_id] ?? 0}%`}
-                onClick={() => handleCardClick(card.process_id)}
+                onClick={() => handleCardClick(card.process_id, card.frame_name, card.career_name)}
               />
             ))
           ) : (
