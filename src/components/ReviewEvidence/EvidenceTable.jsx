@@ -20,7 +20,6 @@ export default function EvidenceTable() {
     const [sortBy, setSortBy] = useState(null);
     const [order, setOrder] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
-<<<<<<< HEAD
     const [user, setUser] = useState(null);
     const [refresh, setRefresh] = useState(false);
 
@@ -37,10 +36,8 @@ export default function EvidenceTable() {
         fetchUser();
     }, []);
 
-=======
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [currentComment, setCurrentComment] = useState("");
->>>>>>> origin/main
 
     const [filters, setFilters] = useState({
         category: '',
@@ -60,32 +57,15 @@ export default function EvidenceTable() {
         setOrder(newOrder);
     };
 
-<<<<<<< HEAD
-    const sendFeedback = async (feedback) => {
-        let url = 'api/RevisionEvidencias/';
-        if (statusFeedback) {
-            url += 'aprobar';
-        } else {
-            url += 'desaprobar';
-        }
-
-        setOpenFeedback(false);
-
-        try {
-            const respuesta = await api.post(url, {
-=======
     const sendFeedback = async (feedbackText) => {
         try {
             const url = statusFeedback ? 'api/RevisionEvidencias/aprobar' : 'api/RevisionEvidencias/desaprobar';
-            
+
             const { data } = await api.post(url, {
->>>>>>> origin/main
                 evidence_id: parseInt(idEvidenceFeedback),
                 user_rpe: statusUserRPE,
                 feedback: feedbackText
             });
-<<<<<<< HEAD
-
             if (respuesta.status === 200) {
                 alert(respuesta.data?.message || 'Feedback enviado con éxito');
                 setRefresh(prev => !prev)
@@ -93,32 +73,6 @@ export default function EvidenceTable() {
         } catch (e) {
             console.error(e);
             alert('Error en el servidor');
-=======
-    
-            if (!statusFeedback) { // Si fue desaprobación
-                // Mostrar resumen de archivos eliminados
-                alert(`Evidencia desaprobada. Archivos eliminados: ${data.deleted_files_count}`);
-                
-                // Actualizar estado local
-                setEvidences(prev => prev.map(ev => 
-                    ev.evidence_id === idEvidenceFeedback
-                        ? { 
-                            ...ev, 
-                            files: [],
-                            statuses: ev.statuses.map(s => 
-                                s.user_rpe === currentUserRPE 
-                                    ? { ...s, status_description: 'Desaprobado' } 
-                                    : s
-                            )
-                        } 
-                        : ev
-                ));
-            }
-    
-            setOpenFeedback(false);
-        } catch (error) {
-            alert(`Error: ${error.response?.data?.message || error.message}`);
->>>>>>> origin/main
         }
     };
 
@@ -138,48 +92,32 @@ export default function EvidenceTable() {
 
     useEffect(() => {
         let url = `api/ReviewEvidence?`;
-
-        if (searchTerm) {
-            url += `search=${searchTerm}`;
-        }
-        if (sortBy) {
-            url += `&sort_by=${sortBy}`;
-        }
-        if (order) {
-            url += `&order=${order}`;
-        }
-
         api.get(url).then(({ data }) => {
             setEvidences(() => [...data.evidencias.data]);
             setNextPage(data.evidencias.next_page_url);
             setLoading(false);
         });
-
-<<<<<<< HEAD
-    }, [searchTerm, sortBy, order, refresh]);
-=======
-    }, [searchTerm, sortBy, order]);
->>>>>>> origin/main
+    }, [refresh]);
 
     useEffect(() => {
         let result = evidences;
-        
+
         if (filters.category) {
             result = result.filter(item => item.category_name === filters.category);
         }
-        
+
         if (filters.section) {
             result = result.filter(item => item.section_name === filters.section);
         }
-        
+
         if (filters.standard) {
             result = result.filter(item => item.standard_name === filters.standard);
         }
-        
+
         if (filters.user) {
             result = result.filter(item => item.evidence_owner_name === filters.user);
         }
-        
+
         setFilteredEvidences(result);
     }, [filters, evidences]);
 
@@ -200,7 +138,7 @@ export default function EvidenceTable() {
         });
     };
 
-    const loadMore = () => {
+    /*const loadMore = () => {
         if (!nextPage) return;
         setLoading(true);
 
@@ -209,9 +147,7 @@ export default function EvidenceTable() {
             setNextPage(data.evidence.next_page_url);
             setLoading(false);
         });
-    };
-
-<<<<<<< HEAD
+    };*/
     const canReview = (statuses) => {
 
         if (user.user_role === "ADMINISTRADOR") {
@@ -226,7 +162,6 @@ export default function EvidenceTable() {
 
     };
 
-=======
     // Función modificada para manejar cualquier estado
     const handleStatusClick = (statusObj) => {
         // Determinar el texto del comentario
@@ -234,7 +169,7 @@ export default function EvidenceTable() {
         if (statusObj && ["Aprobado", "Desaprobado"].includes(statusObj.status_description)) {
             comentario = statusObj.feedback || "Sin comentarios";
         }
-    
+
         // Mostrar modal para CUALQUIER estado
         setCurrentComment({
             text: comentario,
@@ -245,7 +180,7 @@ export default function EvidenceTable() {
     };
 
     const hasDecision = (evidence) => {
-        return evidence.statuses?.some(s => 
+        return evidence.statuses?.some(s =>
             ['Aprobado', 'Desaprobado'].includes(s.status_description)
         );
     };
@@ -253,33 +188,32 @@ export default function EvidenceTable() {
     const isFullyApproved = (evidenceId) => {
         const evidence = evidences.find(ev => ev.evidence_id === evidenceId);
         if (!evidence) return false;
-        
+
         const requiredApprovals = [
             'ADMINISTRADOR',
-            'JEFE DE AREA', 
+            'JEFE DE AREA',
             'COORDINADOR DE CARRERA',
             'PROFESOR'
-        ].map(role => 
+        ].map(role =>
             users.find(u => u.user_role === role)?.user_rpe
         ).filter(Boolean);
-    
-        return requiredApprovals.every(rpe => 
-            evidence.statuses?.some(s => 
-                s.user_rpe === rpe && 
+
+        return requiredApprovals.every(rpe =>
+            evidence.statuses?.some(s =>
+                s.user_rpe === rpe &&
                 s.status_description === 'Aprobado'
             )
         );
     };
->>>>>>> origin/main
 
     return (
         <>
             <div className="container mx-auto p-5 ">
-                    <div className="mb-6 p-4 bg-white rounded-lg shadow">
+                <div className="mb-6 p-4 bg-white rounded-lg shadow">
                     <div className="flex items-center mb-4">
                         <Filter className="mr-2" size={20} />
                         <h3 className="text-lg font-medium">Filtros de búsqueda</h3>
-                        <button 
+                        <button
                             onClick={resetFilters}
                             className="ml-auto flex items-center text-sm text-gray-600 hover:text-gray-900"
                         >
@@ -287,7 +221,7 @@ export default function EvidenceTable() {
                             Limpiar filtros
                         </button>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
@@ -303,7 +237,7 @@ export default function EvidenceTable() {
                                 ))}
                             </select>
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Sección</label>
                             <select
@@ -318,7 +252,7 @@ export default function EvidenceTable() {
                                 ))}
                             </select>
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Criterio</label>
                             <select
@@ -333,7 +267,7 @@ export default function EvidenceTable() {
                                 ))}
                             </select>
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
                             <select
@@ -349,12 +283,9 @@ export default function EvidenceTable() {
                             </select>
                         </div>
                     </div>
-                </div>    
+                </div>
 
-                <div className="overflow-x-auto overflow-y-scroll max-h-300" onScroll={(e) => {
-                    const bottom = e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1;
-                    if (bottom && !loading) loadMore();
-                }}>
+                <div className="overflow-x-auto overflow-y-scroll max-h-300">
                     <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed text-2xl">
                         <thead className="sticky top-0 z-0">
                             <tr className="bg-primary1 text-white">
@@ -380,7 +311,7 @@ export default function EvidenceTable() {
                                 <tr key={item.user_rpe} className="border-b hover:bg-gray-100">
                                     <td className="py-3 px-4">{item.evidence_owner_name}</td>
                                     <td className="py-3 px-4">{item.process_name}</td>
-                                    <td className="py-3 px-4">{item.category_name}</td> 
+                                    <td className="py-3 px-4">{item.category_name}</td>
                                     <td className="py-3 px-4">{item.section_name}</td>
                                     <td className="py-3 px-4">{item.standard_name}</td>
                                     <td className="py-3 px-4">
@@ -402,19 +333,13 @@ export default function EvidenceTable() {
                                     </td>
                                     {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR", "PROFESOR"].map((rol) => {
                                         const statusObj = item.statuses.find(s => s.user_role?.toUpperCase() === rol);
-<<<<<<< HEAD
                                         const status = statusObj ? statusObj.status_description : "PENDIENTE";
                                         const color = status === "APROBADA" ? "text-green-600"
                                             : status === "NO APROBADA" ? "text-red-600"
-=======
-                                        const status = statusObj ? statusObj.status_description : "Pendiente";
-                                        const color = status === "Aprobado" ? "text-green-600"
-                                                : status === "Desaprobado" ? "text-red-600"
->>>>>>> origin/main
                                                 : "text-yellow-600";
 
                                         return (
-                                            <td 
+                                            <td
                                                 key={rol}
                                                 className={`py-3 px-4 font-semibold ${color} cursor-pointer hover:underline`}
                                                 onClick={() => handleStatusClick(statusObj)}
@@ -425,7 +350,6 @@ export default function EvidenceTable() {
                                     })}
 
                                     <td className="py-3 px-4">
-<<<<<<< HEAD
                                         {canReview(item.statuses) ? (
                                             <div className="flex gap-2">
                                                 <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true)}>
@@ -438,56 +362,6 @@ export default function EvidenceTable() {
                                         ) : (
                                             <p className="text-gray-500 italic">Ya revisado o aun falta aprobacion de otro usuario</p>
                                         )}
-=======
-                                        <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true, item)}
-                                            disabled={!isAdmin && hasDecision(item)}
-                                            className={`p-1 rounded-md ${
-                                                isFullyApproved(item.evidence_id)
-                                                    ? 'bg-green-200 cursor-default'
-                                                    : (isAdmin ? 'bg-green-100 hover:bg-green-200' : 'bg-gray-100')
-                                            }`}
-                                            title={
-                                                isFullyApproved(item.evidence_id) 
-                                                    ? "Evidencia completamente aprobada"
-                                                    : (isAdmin 
-                                                        ? "Aprobará para TODOS los roles" 
-                                                        : "Aprobar evidencia para tu rol")
-                                            }
-                                        >
-                                            <Check 
-                                                color={
-                                                    isFullyApproved(item.evidence_id) 
-                                                        ? "#15803d" 
-                                                        : (isAdmin ? "#16a34a" : "#9ca3af")
-                                                } 
-                                                size={32} 
-                                            />
-                                            {isAdmin && (
-                                                <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                                    ★
-                                                </span>
-                                            )}
-                                        </button>
-                                            <button
-                                                onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false, item)}
-                                                disabled={hasDecision(item)}
-                                                className={`p-1 rounded-md ${
-                                                    hasDecision(item)
-                                                        ? 'bg-gray-200 cursor-not-allowed opacity-50'
-                                                        : 'bg-red-50 hover:bg-red-100'
-                                                }`}
-                                                title={hasDecision(item) ? "Esta evidencia ya tiene una decisión registrada" : ""}
-                                            >
-                                                <X 
-                                                    color={hasDecision(item) ? "#9ca3af" : "#dc2626"} 
-                                                    size={32} 
-                                                    strokeWidth={2}
-                                                />
-                                            </button>
-                                        </div>
->>>>>>> origin/main
                                     </td>
                                 </tr>
                             )) :
@@ -502,7 +376,7 @@ export default function EvidenceTable() {
                 </div>
             </div >
             {showCommentModal && (
-                <CommentViewer 
+                <CommentViewer
                     comment={currentComment.text}
                     userData={currentComment.user}
                     date={currentComment.date}
@@ -511,17 +385,11 @@ export default function EvidenceTable() {
             )
             }
             {openFeedback && (
-<<<<<<< HEAD
-                <Feedback cerrar={() => setOpenFeedback(false)}
-                    enviar={sendFeedback}
-                    status={statusFeedback} />
-=======
                 <Feedback
                     cerrar={() => setOpenFeedback(false)}
                     enviar={sendFeedback}
                     statusFeedback={statusFeedback} // Pasamos el estado (aprobación/rechazo)
                 />
->>>>>>> origin/main
             )
             }
         </>
