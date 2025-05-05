@@ -37,20 +37,22 @@ const MainMenu = () => {
         // Ahora cargamos los porcentajes
         const percentagesMap = {};
         for (const card of data) {
-          let estRes;
+          let estRes = {};
           try {
             if (userRol === "ADMINISTRADOR") {
               estRes = await api.get(`/estadisticas/${userRpe}/${card.frame_name}/${card.career_name}`);
             } else if (userRol === "PROFESOR" || userRol === "DEPARTAMENTO UNIVERSITARIO") {
               estRes = await api.get(`/estadisticas/por-autor/${userRpe}/${card.frame_name}/${card.career_name}`);
+              console.log("estRes: ", estRes.data[0]?.aprobado, userRpe, card.frame_name, card.career_name);
             }
-            percentagesMap[card.process_id] = estRes?.data?.aprobados ?? 0;
+            
+
+            percentagesMap[card.process_id] = estRes?.data[0]?.aprobado ?? 0;
           } catch (error) {
             console.warn(`Error obteniendo porcentaje para ${card.process_id}`, error);
             percentagesMap[card.process_id] = 0;
           }
         }
-
         setPercentages(percentagesMap);
 
       } catch (error) {
