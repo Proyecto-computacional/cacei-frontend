@@ -1,126 +1,366 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate, useParams, Link, resolvePath } from "react-router-dom";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import FeedbackModal from "../components/Feedback";
 import CriteriaGuide from "../components/CriteriaGuide";
 import '../app.css';
 import api from "../services/api";
+import { FileQuestion, Sheet, FileText, FolderArchive, X } from "lucide-react";
+import EditorCacei from "../components/EditorCacei";
 
 const UploadEvidence = () => {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [justification, setJustification] = useState(null);
+  const [evidence, setEvidence] = useState(null);
+  const [firstRevisor, setFirstRevisor] = useState(null);
+  const [asignaciones, setAsignaciones] = useState([]);
+  const refInputFiles = useRef(null);
+  const { evidence_id } = useParams();
+  const [user, setUser] = useState(null);
+  const [isLocked, setIsLocked] = useState(false);
+  const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
+
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get('/api/user');
+        setUser(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchUser();
+  }, []);
+
+
+  useEffect(() => {
+    api.get(`api/evidences/${evidence_id}`).then(
+      (response) => {
+        setEvidence(response.data.evidence);
+        setFirstRevisor(response.data.first_revisor);
+        setUploadedFiles(response.data.evidence.files);
+        setJustification(response.data.evidence.files[0]?.justification || "");
+
+        if (response.data.evidence.status && response.data.evidence.status.length > 0) {
+          const firstStatus = response.data.evidence.status[0];
+          const adminStatus = response.data.evidence.status.find(
+            (s) => s.user.user_role === "ADMINISTRADOR"
+          );
+
+          if (adminStatus) {
+            if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "PENDIENTE") {
+              setIsLocked(true);
+            } else if (adminStatus.status_description === "NO APROBADA") {
+              setIsLocked(false);
+            }
+          } else {
+            if (firstStatus.status_description === "NO APROBADA") {
+              setIsLocked(false);
+            } else if (
+              firstStatus.status_description === "APROBADA" ||
+              firstStatus.status_description === "PENDIENTE"
+            ) {
+              setIsLocked(true);
+            }
+          }
+        } else {
+          // Si no hay estatus pero sí archivos, bloquear
+          if (response.data.evidence.files && response.data.evidence.files.length > 0) {
+            setIsLocked(true);
+          } else {
+            setIsLocked(false);
+          }
+        }
+
+
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          navigate("/mainmenu");
+        }
+      }
+      );
+  }, [evidence_id,]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const assignmentsResponse = await api.get('/api/my-assignments');
+        setAsignaciones(assignmentsResponse.data);
+
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          navigate("/mainmenu");
+        }
+      }
+    }
+    fetchData();
+  }, []);
+
 
   const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    if (!selectedFile) return;
-  
-    setFile({
-      name: selectedFile.name.toLowerCase(), // Guardamos el nombre en minúsculas
-      preview: URL.createObjectURL(selectedFile), // URL para previsualizar archivos compatibles
+    const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf'];
+    const maxFileSize = 50 * 1024 * 1024;
+
+    const selectedFiles = Array.from(event.target.files);
+
+    const validFiles = [];
+
+    selectedFiles.forEach((file) => {
+      const ext = file.name.split('.').pop().toLowerCase();
+      const sizeOk = file.size <= maxFileSize;
+      const typeOk = allowedExtensions.includes(ext);
+
+      if (sizeOk && typeOk) {
+        validFiles.push(file);
+      } else {
+        alert(`Archivo rechazado: ${file.name}`);
+      }
     });
+
+    if (validFiles.length > 0) {
+      setFiles((prevFiles) => {
+        const existingNames = new Set(prevFiles.map(f => f.name));
+        const uniqueNewFiles = validFiles.filter(f => !existingNames.has(f.name));
+        return [...prevFiles, ...uniqueNewFiles];
+      });
+    }
+
+    refInputFiles.current.value = "";
   };
 
   const handleUpload = async () => {
-    if (!file) {
+    setIsLocked(true);
+    if (!files) {
       alert("Por favor, selecciona un archivo.");
       return;
     }
-  
+
     const formData = new FormData();
-    formData.append("file", document.querySelector('input[type="file"]').files[0]);
-    formData.append("evidence_id", 1); // Reemplaza con el ID correcto
-    formData.append("justification", "Justificación opcional");
-  
+    files.forEach((file) => {
+      formData.append("files[]", file);
+    });
+
+    formData.append("evidence_id", evidence.evidence_id); // Reemplaza con el ID correcto
+    formData.append("justification", justification);
+
+
     try {
-      const response = await api.post("/api/file", 
+      const response = await api.post("/api/file",
         formData, { //Ajusta la URL
         headers: {
           "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
           "Content-Type": "multipart/form-data",
         },
       });
-  
-      console.log("Archivo subido con éxito:", response.data);
+
+
+      for (const revisor of firstRevisor) {
+        await api.post(`/api/RevisionEvidencias/pendiente`, {
+          user_rpe: evidence.user_rpe,
+          reviser_rpe: revisor,
+          evidence_id: evidence.evidence_id,
+          feedback: null
+        }, {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
+          }
+        });
+      }
+
       alert("Archivo subido con éxito");
+
+      await api.get(`api/evidences/${evidence_id}`).then(
+        (response) => {
+          setEvidence(response.data.evidence);
+          setUploadedFiles(response.data.evidence.files);
+          setJustification(response.data.evidence.files[0].justification || "");
+        }
+      );
+      setFiles([]);
+
+
+      // 4. Bloquear la pantalla después de subir
+      setIsLocked(true);
+
+
     } catch (error) {
+      setIsLocked(false);
       console.error("Error al subir archivo", error);
       alert("Error al subir archivo");
     }
-  };  
-
-  const handleRemoveFile = () => {
-    setFile(null);
-    document.querySelector('input[type="file"]').value = "";
+  };
+  const handleDeleteUploadedFile = async (fileId) => {
+    if (!window.confirm("¿Seguro que quieres eliminar este archivo?")) return;
+    setIsLocked(true);
+    try {
+      await api.delete(`/api/file/${fileId}`, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      alert("Archivo eliminado correctamente.");
+      setUploadedFiles((prev) => prev.filter((f) => f.file_id !== fileId));
+    } catch (error) {
+      console.error(error);
+      alert("Error al eliminar archivo.");
+    }
+    setIsLocked(false);
   };
 
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
+  const handleRemoveFile = (fileName) => {
+    setFiles((prev) => prev.filter((file) => file.name !== fileName));
+  };
+
+
+
+  const getEstadoClass = (estado) => {
+    switch (estado) {
+      case "NO CARGADA":
+        return "bg-neutral-500 text-neutral-50";
+      case "PENDIENTE":
+        return "bg-yellow-400 text-white";
+      case "NO APROBADA":
+        return "bg-red-500 text-white";
+      case "APROBADA":
+        return "bg-green-500 text-white";
+      default:
+        return "bg-gray-300 text-black";
+    }
+  };
+
+  const getIcon = (name) => {
+    const extension = name.split('.').pop();
+
+    if (['rar', 'zip', '7z'].includes(extension)) return <FolderArchive />;
+    if (extension === 'pdf') return <FileText />;
+    if (['csv', 'xls', 'xlsx'].includes(extension)) return <Sheet />;
+
+  };
+
+  const canViewPage = () => {
+    if (!user || !evidence) return false;
+
+    const allowedRoles = ["ADMINISTRADOR", "DIRECTIVO"];
+    if (allowedRoles.includes(user.user_role)) return true;
+
+    if (user.user_rpe === evidence.user_rpe) return true; // responsable de la evidencia
+    if (user.user_rpe === evidence.process.career.user_rpe) return true; // coordinador de carrera
+    if (user.user_rpe === evidence.process.career.area.user_rpe) return true; // jefe de área
+
+    return false;
+  };
+
+  useEffect(() => {
+    if (user && evidence && !canViewPage()) {
+      navigate("/mainmenu");
+    }
+  }, [user, evidence]);
+
+  if (!evidence) {
+    return <p>Cargando...</p>;
+  }
 
   return (
     <>
       <AppHeader />
       <SubHeading />
-      <div className="min-h-screen p-10 flex flex-col items-center relative" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
-        <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-2 mb-2 self-start">
-          Subir Evidencia
-        </h1>
-        <div className="bg-white p-6 rounded-lg shadow-lg flex flex-row w-[80%] min-w-7xl min-h-[500px]">
-          <div className="flex flex-col flex-1 mr-10">
-            <p className="text-black text-lg font-semibold">Nombre del criterio</p>
-            <textarea
-              className="w-full p-2 border rounded mt-2 text-gray-600 bg-gray-100 min-h-[150px]"
-              placeholder="Descripción"
-            ></textarea>
-            <div className="mt-4">
-                <label className="w-full p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
-                    Ingresa el archivo aquí
-                    <input
+      <div className="h-fit p-10 flex justify-around items-stretch relative" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
+        <div className="bg-cyan-300 w-2/10">
+          <p className="w-full text-center text-3xl bg-cyan-500 text-amber-50 py-2">Mis asignaciones</p>
+          <div>
+            {asignaciones.map((item, index) => (
+              <Link
+                key={index}
+                to={`/UploadEvidence/${item.evidence_id}`}
+                className="flex justify-around text-[20px] items-center p-2 cursor-pointer hover:bg-cyan-500"
+              >
+                <p className="w-1/2">{item.criterio}</p>
+                <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.estado)}`}>
+                  {item.estado}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-lg flex flex-wrap flex-row w-7/10 min-h-[500px]">
+          <div className="flex flex-col flex-1 mr-10 w-1/2">
+            <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
+              Subir Evidencia
+            </h1>
+            <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
+              Proceso: {evidence.process.process_name}
+            </h2>
+            <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
+
+              {evidence.standard.section.category.category_name}/
+              {evidence.standard.section.section_name}/
+              {evidence.standard.standard_name}
+            </h2>
+            <p className="text-black text-lg font-semibold">Justificación</p>
+            <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
+            {user?.user_rpe === evidence.user_rpe && (
+              <div className="mt-4 flex">
+                <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
+                  Ingresa el archivo aquí
+                  <input
                     type="file"
                     className="hidden"
+                    multiple
                     onChange={handleFileChange}
-                    />
+                    ref={refInputFiles}
+                    disabled={isLocked}
+                  />
                 </label>
-            </div>
-            <div className="flex space-x-4 mt-8 pl-14">
-              <button className="bg-[#00B2E3] text-white px-20 py-2 rounded-full" onClick={handleRemoveFile}>Cancelar</button>
-              <button className="bg-[#004A98] text-white px-20 py-2 ml-10 rounded-full" onClick={handleUpload}>Guardar</button>
-            </div>
-            <button
-              onClick={() => setShowFeedback(true)}
-              className="mt-4 bg-[#5B7897] text-white px-6 py-2 rounded-full w-1/2 self-center"
-            >
-              Retroalimentación
-            </button>
-          </div>
-          <div className="flex-1 flex justify-center items-center border rounded bg-gray-100 p-4">
-            {file ? (
-              file.name.endsWith(".png") ||
-              file.name.endsWith(".jpg") ||
-              file.name.endsWith(".jpeg") ||
-              file.name.endsWith(".gif") ? (
-                <img src={file.preview} alt="Preview" className="w-full h-full object-cover" />
-              ) : file.name.endsWith(".pdf") ? (
-                <iframe src={file.preview} title="Vista previa PDF" className="w-full h-full" />
-              ) : file.name.endsWith(".docx") || file.name.endsWith(".doc") ? (
-                <p className="text-blue-600 text-center">
-                  Archivo de Word cargado correctamente, pero no se puede previsualizar.
-                </p>
-              ) : file.name.endsWith(".xlsx") ? (
-                <p className="text-gray-600 text-center">
-                  Archivo .xlsx aceptado, pero no se puede previsualizar.
-                </p>
-              ) : (
-                <p className="text-red-600 text-center">
-                  Formato de archivo no permitido.
-                </p>
-              )
-            ) : (
-              <p className="text-gray-600">Preview</p> // Solo muestra esto si no hay archivo
+                <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
+              </div>
             )}
+            {files && files.map((file) => (
+              <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
+                <span className="text-2xl">{getIcon(file.name)}</span>
+                <p className="font-semibold text-left flex-grow">{file.name}</p>
+                {!isLocked && (<X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />)}
+              </div>
+            ))}
+            {uploadedFiles && uploadedFiles.map((file) => (
+              <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
+                <span className="text-2xl">{getIcon(file.file_name)}</span>
+                <p className="font-semibold text-left flex-grow">{file.file_name}</p>
+                <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
+                {!isLocked && (<X className="cursor-pointer" onClick={() => { handleDeleteUploadedFile(file.file_id) }} />)}
+              </div>
+            ))}
+            {user?.user_rpe === evidence.user_rpe && !isLocked && (
+              <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={isLocked}>Guardar</button>
+            )}
+          </div>
+          <div className="w-1/2 overflow-y-auto max-h-[700px]">
+            <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
+              Revisión
+            </h1>
+            {evidence.status.map((item, index) => (
+              <div key={index} className="border rounded bg-gray-200 text-gray-600 p-2 my-3">
+                <div className="flex">
+                  <p className="text-black text-lg font-semibold">Revisor:</p>
+                  <p className="text-black text-lg ml-1">{item.user.user_name}</p>
+                </div>
+                <p className="text-black text-lg font-semibold">Estado</p>
+                <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.status_description)}`}>
+                  {item.status_description}
+                </p>
+                <p className="text-black text-lg font-semibold">Retroalimentación</p>
+                <p className="w-full p-2 border rounded mt-2 text-gray-600 bg-gray-50 min-h-[150px]">{item.feedback}</p>
+              </div>
+            ))}
+
           </div>
         </div>
       </div>
       <AppFooter />
-      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
-      {showCriteriaGuide && <CriteriaGuide onClose={() => setShowCriteriaGuide(false)} />}
+      {showCriteriaGuide && <CriteriaGuide onClose={() => setShowCriteriaGuide(false)} help={evidence.standard.help} />}
     </>
   );
 };

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../../app.css"
 import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 
 const Feedback = ({ enviar, cerrar, statusFeedback }) => {
@@ -29,14 +30,14 @@ const Feedback = ({ enviar, cerrar, statusFeedback }) => {
                         )}
                         Retroalimentación
                     </h2>
-                    
+
                     <textarea
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
                         placeholder="Escribe tus comentarios..."
                         className="w-full p-3 border rounded mb-4 min-h-[120px]"
                     />
-                    
+
                     <div className="flex justify-end gap-2">
                         <button
                             onClick={cerrar}
@@ -62,13 +63,13 @@ const Feedback = ({ enviar, cerrar, statusFeedback }) => {
                             <AlertTriangle className="text-yellow-500" size={24} />
                             <h3 className="text-lg font-bold">Confirmar acción</h3>
                         </div>
-                        
+
                         <p className="mb-4">
                             ¿Estás seguro que deseas {statusFeedback ? "aprobar" : "rechazar"} esta evidencia?
                             <br />
                             <span className="font-semibold">Esta acción no se puede deshacer.</span>
                         </p>
-                        
+
                         <div className="flex justify-end gap-2">
                             <button
                                 onClick={() => setConfirmacionAbierta(false)}
@@ -79,11 +80,10 @@ const Feedback = ({ enviar, cerrar, statusFeedback }) => {
                             </button>
                             <button
                                 onClick={handleConfirmacion}
-                                className={`px-4 py-2 ${
-                                    statusFeedback 
-                                        ? "bg-green-500 hover:bg-green-600" 
-                                        : "bg-red-500 hover:bg-red-600"
-                                } text-white rounded`}
+                                className={`px-4 py-2 ${statusFeedback
+                                    ? "bg-green-500 hover:bg-green-600"
+                                    : "bg-red-500 hover:bg-red-600"
+                                    } text-white rounded`}
                                 disabled={loading}
                             >
                                 {loading ? (

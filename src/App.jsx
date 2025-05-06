@@ -38,7 +38,7 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/personalInfo" element={<PersonalConfig />} />
-        <Route path="/uploadEvidence" element={<UploadEvidence />} />
+        <Route path="/uploadEvidence/:evidence_id" element={<UploadEvidence />} />
         <Route path="/evidenceManagement" element={<EvidenceManagement />} />
         <Route path="/framesAdmin" element={<FrameOfReferenceView/>}/>
         <Route path="/framesStructure/:frameID" element={<EstructuraMarco/>}/>
