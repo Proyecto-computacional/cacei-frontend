@@ -148,13 +148,20 @@ export default function EvidenceTable() {
     const canReview = (statuses) => {
 
         if (user.user_role === "ADMINISTRADOR") {
-            return true;
+            return !statuses.some(
+                (s) => {
+                    return s.status_description === "APROBADA" && s.user_rpe === user.user_rpe
+                }
+            );
         } else {
             return statuses.some(
                 (s) => {
                     return s.status_description === "PENDIENTE" && s.user_rpe === user.user_rpe
                 }
-            );
+            ) && !statuses.some(
+                (s) => {
+                    return s.status_description === "APROBADA" && s.user_rpe === user.user_rpe
+                });
         }
 
     };
@@ -292,14 +299,13 @@ export default function EvidenceTable() {
                                 <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} />
                                 <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <th className="w-3/10 py-3 px-4 text-center" colSpan={4}>Estatus</th>
+                                <th className="w-3/10 py-3 px-4 text-center" colSpan={3}>Estatus</th>
                                 <th className="w-3/10 py-3 px-4 text-left" rowSpan={2}>Revisión</th>
                             </tr>
                             <tr className="bg-primary1 text-white">
                                 <th className="py-2 px-4">Administrador</th>
                                 <th className="py-2 px-4">Jefe de Área</th>
                                 <th className="py-2 px-4">Coordinador de Carrera</th>
-                                <th className="py-2 px-4">Profesor Responsable</th>
                             </tr>
 
                         </thead>
@@ -328,7 +334,7 @@ export default function EvidenceTable() {
                                             "Sin archivo"
                                         )}
                                     </td>
-                                    {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR", "PROFESOR"].map((rol) => {
+                                    {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR"].map((rol) => {
                                         const statusObj = item.statuses.find(s => s.user_role?.toUpperCase() === rol);
                                         const status = statusObj ? statusObj.status_description : "PENDIENTE";
                                         const color = status === "APROBADA" ? "text-green-600"
