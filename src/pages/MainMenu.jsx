@@ -23,8 +23,7 @@ const MainMenu = () => {
         const response = await api.get("api/ProcesosUsuario", {
           params: { userRpe },
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem('token')}`,
-            "Authorization": `Bearer ${localStorage.getItem('token')}`,
+            "Authorization": `Bearer ${localStorage.getItem('token')}`
           },
         });
   
