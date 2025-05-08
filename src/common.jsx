@@ -115,25 +115,37 @@ export function SubHeading() {
                                     Inicio
                                 </span>
                                 <span className="mx-0.5 text-gray-400 text-lg">/</span>
-                                <span className="text-[#00B2E3] text-lg font-medium">Dashboard</span>
+                                <span className="text-[#00B2E3] text-lg font-medium">
+                                    Dashboard
+                                </span>
                             </>
                         ) : (
                             <>
                                 <span 
                                     className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
-                                    onClick={() => {
-                                        const processId = localStorage.getItem('currentProcessId');
-                                        if (processId) {
-                                            navigate(`/dash/${processId}`);
-                                        } else {
-                                            navigate('/mainmenu');
-                                        }
-                                    }}
+                                    onClick={() => navigate('/mainmenu')}
                                 >
                                     Inicio
                                 </span>
+                                {(pathnames.includes('uploadEvidence') || pathnames.includes('evidenceManagement')) && (
+                                    <>
+                                        <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                        <span 
+                                            className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
+                                            onClick={() => {
+                                                const processId = localStorage.getItem('currentProcessId');
+                                                if (processId) {
+                                                    navigate(`/dash/${processId}`);
+                                                }
+                                            }}
+                                        >
+                                            Dashboard
+                                        </span>
+                                    </>
+                                )}
                                 {pathnames.map((value, index) => {
                                     const to = "/" + pathnames.slice(0, index + 1).join("/");
+                                    // Skip rendering if this is a numeric ID (evidence_id)
                                     if (!isNaN(value)) return null;
                                     return (
                                         <span key={to} className="flex items-center">
@@ -147,7 +159,10 @@ export function SubHeading() {
                                             {processName && (value === 'uploadEvidence' || value === 'evidenceManagement') && (
                                                 <>
                                                     <span className="mx-0.5 text-gray-400 text-lg">/</span>
-                                                    <span className="text-[#00B2E3] text-lg font-medium">
+                                                    <span 
+                                                        className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
+                                                        onClick={() => navigate('/uploadEvidence')}
+                                                    >
                                                         {processName}
                                                     </span>
                                                 </>
