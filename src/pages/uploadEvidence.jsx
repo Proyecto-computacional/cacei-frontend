@@ -209,15 +209,15 @@ const UploadEvidence = () => {
   const getEstadoClass = (estado) => {
     switch (estado) {
       case "NO CARGADA":
-        return "bg-neutral-500 text-neutral-50";
+        return "bg-gray-100 text-gray-600";
       case "PENDIENTE":
-        return "bg-yellow-400 text-white";
+        return "bg-yellow-50 text-yellow-600";
       case "NO APROBADA":
-        return "bg-red-500 text-white";
+        return "bg-red-50 text-red-600";
       case "APROBADA":
-        return "bg-green-500 text-white";
+        return "bg-green-50 text-green-600";
       default:
-        return "bg-gray-300 text-black";
+        return "bg-gray-100 text-gray-600";
     }
   };
 
@@ -253,26 +253,38 @@ const UploadEvidence = () => {
     <>
       <AppHeader />
       <SubHeading />
-      <div className="h-fit p-10 flex justify-around items-stretch relative" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
-        <div className="bg-cyan-300 w-2/10">
-          <p className="w-full text-center text-3xl bg-cyan-500 text-amber-50 py-2">Mis asignaciones</p>
-          <div>
+      <div className="h-fit p-10 flex justify-around items-stretch relative gap-6" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
+        <div className="w-1/4 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+          <div className="bg-primary1 p-3">
+            <h2 className="text-lg font-semibold text-white text-center">Mis asignaciones</h2>
+          </div>
+          <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
             {asignaciones.map((item, index) => (
               <Link
                 key={index}
                 to={`/uploadEvidence/${item.evidence_id}`}
-                className="flex justify-around text-[20px] items-center p-2 cursor-pointer hover:bg-cyan-500"
+                className={`block p-3 transition-colors duration-200 ${
+                  evidence_id === item.evidence_id.toString()
+                    ? 'bg-primary1/10 border-l-4 border-primary1'
+                    : 'hover:bg-gray-50'
+                }`}
               >
-                <p className="w-1/2">{item.criterio}</p>
-                <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.estado)}`}>
-                  {item.estado}
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className={`font-medium text-base flex-1 truncate ${
+                    evidence_id === item.evidence_id.toString()
+                      ? 'text-primary1'
+                      : 'text-gray-800'
+                  }`}>{item.criterio}</p>
+                  <span className={`px-2 py-0.5 rounded-full text-sm font-medium whitespace-nowrap ${getEstadoClass(item.estado)}`}>
+                    {item.estado}
+                  </span>
+                </div>
               </Link>
             ))}
           </div>
         </div>
         {evidence_id && evidence ? (
-          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-wrap flex-row w-7/10 min-h-[500px]">
+          <div className="bg-white p-6 rounded-xl shadow-md flex flex-wrap flex-row w-3/4 min-h-[500px]">
             <div className="flex flex-col flex-1 mr-10 w-1/2">
               <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
                 Subir Evidencia
