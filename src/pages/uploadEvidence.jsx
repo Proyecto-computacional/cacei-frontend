@@ -260,7 +260,7 @@ const UploadEvidence = () => {
             {asignaciones.map((item, index) => (
               <Link
                 key={index}
-                to={`/UploadEvidence/${item.evidence_id}`}
+                to={`/uploadEvidence/${item.evidence_id}`}
                 className="flex justify-around text-[20px] items-center p-2 cursor-pointer hover:bg-cyan-500"
               >
                 <p className="w-1/2">{item.criterio}</p>

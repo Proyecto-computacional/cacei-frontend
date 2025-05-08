@@ -64,7 +64,8 @@ const MainMenu = () => {
 
   const handleCardClick = (processId, frameName, careerName) => {
     localStorage.setItem("frameName", frameName);
-    localStorage.setItem("careerName", careerName)
+    localStorage.setItem("careerName", careerName);
+    localStorage.setItem("currentProcessId", processId);
     navigate(`/dash/${processId}`, { state: { processId } });
   };
 
