@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import './app.css';
 import headerLogo from './assets/headerLogo.png';
 import headerImg from './assets/headerImage.png';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Logout from "./components/logout";
 import NotificationsTable from "./components/NotificationTable";
 import { Mail, Bell, User, Menu } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import api from "./services/api";
 
 
 export function AppHeader() {
@@ -30,6 +31,7 @@ export function SubHeading() {
     const location = useLocation();
     const userRole = localStorage.getItem("role") || "Usuario";
     const pathnames = location.pathname.split("/").filter((x) => x);
+    const { evidence_id } = useParams();
 
     const breadcrumbMap = {
         mainmenu: "Inicio",
@@ -41,6 +43,25 @@ export function SubHeading() {
         evidenceManagement: "Gestión de Evidencias",
         notifications: "Notificaciones"
     };
+
+    const [processName, setProcessName] = useState("");
+
+    useEffect(() => {
+        const fetchProcessName = async () => {
+            if (pathnames.includes('uploadEvidence') || pathnames.includes('evidenceManagement')) {
+                try {
+                    const processId = localStorage.getItem('currentProcessId');
+                    if (processId) {
+                        const response = await api.get(`/api/processes/${processId}`);
+                        setProcessName(response.data.process_name);
+                    }
+                } catch (error) {
+                    console.error('Error fetching process name:', error);
+                }
+            }
+        };
+        fetchProcessName();
+    }, [pathnames]);
 
     return (
         <div className="w-full bg-transparent">
@@ -82,24 +103,83 @@ export function SubHeading() {
                         )}
                     </div>
 
-                    <div className="ml-12 flex items-center space-x-2 text-sm">
-                        <span className="text-[#00B2E3] italic underline cursor-pointer" onClick={() => navigate("/")}>
-                            Inicio
-                        </span>
-                        {pathnames.map((value, index) => {
-                            const to = "/" + pathnames.slice(0, index + 1).join("/");
-                            return (
-                                <span key={to} className="flex items-center space-x-2">
-                                    <span className="mx-1">/</span>
-                                    <span
-                                        className="text-[#00B2E3] italic underline cursor-pointer"
-                                        onClick={() => navigate(to)}
-                                    >
-                                        {breadcrumbMap[value] || value}
-                                    </span>
+                    <div className="ml-12 flex items-center">
+                        {pathnames.includes('mainmenu') ? (
+                            <span className="text-[#00B2E3] text-lg font-medium">Inicio</span>
+                        ) : pathnames.includes('dash') ? (
+                            <>
+                                <span 
+                                    className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
+                                    onClick={() => navigate('/mainmenu')}
+                                >
+                                    Inicio
                                 </span>
-                            );
-                        })}
+                                <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                <span className="text-[#00B2E3] text-lg font-medium">
+                                    Dashboard
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                <span 
+                                    className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
+                                    onClick={() => navigate('/mainmenu')}
+                                >
+                                    Inicio
+                                </span>
+                                {(pathnames.includes('uploadEvidence') || pathnames.includes('evidenceManagement')) && (
+                                    <>
+                                        <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                        <span 
+                                            className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
+                                            onClick={() => {
+                                                const processId = localStorage.getItem('currentProcessId');
+                                                if (processId) {
+                                                    navigate(`/dash/${processId}`);
+                                                }
+                                            }}
+                                        >
+                                            Dashboard
+                                        </span>
+                                    </>
+                                )}
+                                {pathnames.map((value, index) => {
+                                    const to = "/" + pathnames.slice(0, index + 1).join("/");
+                                    // Skip rendering if this is a numeric ID (evidence_id)
+                                    if (!isNaN(value)) return null;
+                                    return (
+                                        <span key={to} className="flex items-center">
+                                            <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                            <span
+                                                className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
+                                                onClick={() => navigate(to)}
+                                            >
+                                                {breadcrumbMap[value] || value}
+                                            </span>
+                                            {processName && (value === 'uploadEvidence' || value === 'evidenceManagement') && (
+                                                <>
+                                                    <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                                    <span 
+                                                        className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
+                                                        onClick={() => navigate('/uploadEvidence')}
+                                                    >
+                                                        {processName}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </span>
+                                    );
+                                })}
+                                {pathnames.includes('uploadEvidence') && evidence_id && (
+                                    <>
+                                        <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                        <span className="text-[#00B2E3] text-lg font-medium">
+                                            {evidence_id}
+                                        </span>
+                                    </>
+                                )}
+                            </>
+                        )}
                     </div>
 
                 </div>

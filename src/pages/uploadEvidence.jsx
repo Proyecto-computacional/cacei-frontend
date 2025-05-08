@@ -21,7 +21,6 @@ const UploadEvidence = () => {
   const [isLocked, setIsLocked] = useState(false);
   const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
 
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,54 +35,51 @@ const UploadEvidence = () => {
     fetchUser();
   }, []);
 
-
   useEffect(() => {
-    api.get(`api/evidences/${evidence_id}`).then(
-      (response) => {
-        setEvidence(response.data.evidence);
-        setFirstRevisor(response.data.first_revisor);
-        setUploadedFiles(response.data.evidence.files);
-        setJustification(response.data.evidence.files[0]?.justification || "");
+    if (evidence_id) {
+      api.get(`api/evidences/${evidence_id}`).then(
+        (response) => {
+          setEvidence(response.data.evidence);
+          setFirstRevisor(response.data.first_revisor);
+          setUploadedFiles(response.data.evidence.files);
+          setJustification(response.data.evidence.files[0]?.justification || "");
 
-        if (response.data.evidence.status && response.data.evidence.status.length > 0) {
-          const firstStatus = response.data.evidence.status[0];
-          const adminStatus = response.data.evidence.status.find(
-            (s) => s.user.user_role === "ADMINISTRADOR"
-          );
+          if (response.data.evidence.status && response.data.evidence.status.length > 0) {
+            const firstStatus = response.data.evidence.status[0];
+            const adminStatus = response.data.evidence.status.find(
+              (s) => s.user.user_role === "ADMINISTRADOR"
+            );
 
-          if (adminStatus) {
-            if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "PENDIENTE") {
-              setIsLocked(true);
-            } else if (adminStatus.status_description === "NO APROBADA") {
-              setIsLocked(false);
+            if (adminStatus) {
+              if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "PENDIENTE") {
+                setIsLocked(true);
+              } else if (adminStatus.status_description === "NO APROBADA") {
+                setIsLocked(false);
+              }
+            } else {
+              if (firstStatus.status_description === "NO APROBADA") {
+                setIsLocked(false);
+              } else if (
+                firstStatus.status_description === "APROBADA" ||
+                firstStatus.status_description === "PENDIENTE"
+              ) {
+                setIsLocked(true);
+              }
             }
           } else {
-            if (firstStatus.status_description === "NO APROBADA") {
-              setIsLocked(false);
-            } else if (
-              firstStatus.status_description === "APROBADA" ||
-              firstStatus.status_description === "PENDIENTE"
-            ) {
+            if (response.data.evidence.files && response.data.evidence.files.length > 0) {
               setIsLocked(true);
+            } else {
+              setIsLocked(false);
             }
           }
-        } else {
-          // Si no hay estatus pero sí archivos, bloquear
-          if (response.data.evidence.files && response.data.evidence.files.length > 0) {
-            setIsLocked(true);
-          } else {
-            setIsLocked(false);
+        }).catch(error => {
+          if (error.response && error.response.status === 401) {
+            navigate("/mainmenu");
           }
-        }
-
-
-      }).catch(error => {
-        if (error.response && error.response.status === 401) {
-          navigate("/mainmenu");
-        }
-      }
-      );
-  }, [evidence_id,]);
+        });
+    }
+  }, [evidence_id]);
 
   useEffect(() => {
     async function fetchData() {
@@ -99,7 +95,6 @@ const UploadEvidence = () => {
     }
     fetchData();
   }, []);
-
 
   const handleFileChange = (event) => {
     const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf'];
@@ -147,7 +142,6 @@ const UploadEvidence = () => {
     formData.append("evidence_id", evidence.evidence_id); // Reemplaza con el ID correcto
     formData.append("justification", justification);
 
-
     try {
       const response = await api.post("/api/file",
         formData, { //Ajusta la URL
@@ -156,7 +150,6 @@ const UploadEvidence = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-
 
       for (const revisor of firstRevisor) {
         await api.post(`/api/RevisionEvidencias/pendiente`, {
@@ -182,10 +175,8 @@ const UploadEvidence = () => {
       );
       setFiles([]);
 
-
       // 4. Bloquear la pantalla después de subir
       setIsLocked(true);
-
 
     } catch (error) {
       setIsLocked(false);
@@ -214,8 +205,6 @@ const UploadEvidence = () => {
   const handleRemoveFile = (fileName) => {
     setFiles((prev) => prev.filter((file) => file.name !== fileName));
   };
-
-
 
   const getEstadoClass = (estado) => {
     switch (estado) {
@@ -260,10 +249,6 @@ const UploadEvidence = () => {
     }
   }, [user, evidence]);
 
-  if (!evidence) {
-    return <p>Cargando...</p>;
-  }
-
   return (
     <>
       <AppHeader />
@@ -275,7 +260,7 @@ const UploadEvidence = () => {
             {asignaciones.map((item, index) => (
               <Link
                 key={index}
-                to={`/UploadEvidence/${item.evidence_id}`}
+                to={`/uploadEvidence/${item.evidence_id}`}
                 className="flex justify-around text-[20px] items-center p-2 cursor-pointer hover:bg-cyan-500"
               >
                 <p className="w-1/2">{item.criterio}</p>
@@ -286,81 +271,83 @@ const UploadEvidence = () => {
             ))}
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-lg flex flex-wrap flex-row w-7/10 min-h-[500px]">
-          <div className="flex flex-col flex-1 mr-10 w-1/2">
-            <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
-              Subir Evidencia
-            </h1>
-            <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
-              Proceso: {evidence.process.process_name}
-            </h2>
-            <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
-
-              {evidence.standard.section.category.category_name}/
-              {evidence.standard.section.section_name}/
-              {evidence.standard.standard_name}
-            </h2>
-            <p className="text-black text-lg font-semibold">Justificación</p>
-            <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
-            {user?.user_rpe === evidence.user_rpe && (
-              <div className="mt-4 flex">
-                <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
-                  Ingresa el archivo aquí
-                  <input
-                    type="file"
-                    className="hidden"
-                    multiple
-                    onChange={handleFileChange}
-                    ref={refInputFiles}
-                    disabled={isLocked}
-                  />
-                </label>
-                <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
-              </div>
-            )}
-            {files && files.map((file) => (
-              <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
-                <span className="text-2xl">{getIcon(file.name)}</span>
-                <p className="font-semibold text-left flex-grow">{file.name}</p>
-                {!isLocked && (<X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />)}
-              </div>
-            ))}
-            {uploadedFiles && uploadedFiles.map((file) => (
-              <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
-                <span className="text-2xl">{getIcon(file.file_name)}</span>
-                <p className="font-semibold text-left flex-grow">{file.file_name}</p>
-                <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
-                {!isLocked && (<X className="cursor-pointer" onClick={() => { handleDeleteUploadedFile(file.file_id) }} />)}
-              </div>
-            ))}
-            {user?.user_rpe === evidence.user_rpe && !isLocked && (
-              <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={isLocked}>Guardar</button>
-            )}
-          </div>
-          <div className="w-1/2 overflow-y-auto max-h-[700px]">
-            <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
-              Revisión
-            </h1>
-            {evidence.status.map((item, index) => (
-              <div key={index} className="border rounded bg-gray-200 text-gray-600 p-2 my-3">
-                <div className="flex">
-                  <p className="text-black text-lg font-semibold">Revisor:</p>
-                  <p className="text-black text-lg ml-1">{item.user.user_name}</p>
+        {evidence_id && evidence ? (
+          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-wrap flex-row w-7/10 min-h-[500px]">
+            <div className="flex flex-col flex-1 mr-10 w-1/2">
+              <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
+                Subir Evidencia
+              </h1>
+              <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
+                Proceso: {evidence.process.process_name}
+              </h2>
+              <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
+                {evidence.standard.section.category.category_name}/
+                {evidence.standard.section.section_name}/
+                {evidence.standard.standard_name}
+              </h2>
+              <p className="text-black text-lg font-semibold">Justificación</p>
+              <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
+              {user?.user_rpe === evidence.user_rpe && (
+                <div className="mt-4 flex">
+                  <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
+                    Ingresa el archivo aquí
+                    <input
+                      type="file"
+                      className="hidden"
+                      multiple
+                      onChange={handleFileChange}
+                      ref={refInputFiles}
+                      disabled={isLocked}
+                    />
+                  </label>
+                  <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
                 </div>
-                <p className="text-black text-lg font-semibold">Estado</p>
-                <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.status_description)}`}>
-                  {item.status_description}
-                </p>
-                <p className="text-black text-lg font-semibold">Retroalimentación</p>
-                <p className="w-full p-2 border rounded mt-2 text-gray-600 bg-gray-50 min-h-[150px]">{item.feedback}</p>
-              </div>
-            ))}
-
+              )}
+              {files && files.map((file) => (
+                <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
+                  <span className="text-2xl">{getIcon(file.name)}</span>
+                  <p className="font-semibold text-left flex-grow">{file.name}</p>
+                  {!isLocked && (<X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />)}
+                </div>
+              ))}
+              {uploadedFiles && uploadedFiles.map((file) => (
+                <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
+                  <span className="text-2xl">{getIcon(file.file_name)}</span>
+                  <p className="font-semibold text-left flex-grow">{file.file_name}</p>
+                  <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
+                  {!isLocked && (<X className="cursor-pointer" onClick={() => { handleDeleteUploadedFile(file.file_id) }} />)}
+                </div>
+              ))}
+              {user?.user_rpe === evidence.user_rpe && !isLocked && (
+                <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={isLocked}>Guardar</button>
+              )}
+            </div>
+            <div className="w-1/2 overflow-y-auto max-h-[700px]">
+              <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
+                Revisión
+              </h1>
+              {evidence.status.map((item, index) => (
+                <div key={index} className="border rounded bg-gray-200 text-gray-600 p-2 my-3">
+                  <div className="flex">
+                    <p className="text-black text-lg font-semibold">Revisor:</p>
+                    <p className="text-black text-lg ml-1">{item.user.user_name}</p>
+                  </div>
+                  <p className="text-black text-lg font-semibold">Estado</p>
+                  <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.status_description)}`}>
+                    {item.status_description}
+                  </p>
+                  <p className="text-black text-lg font-semibold">Retroalimentación</p>
+                  <p className="w-full p-2 border rounded mt-2 text-gray-600 bg-gray-50 min-h-[150px]">{item.feedback}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="w-7/10"></div>
+        )}
       </div>
       <AppFooter />
-      {showCriteriaGuide && <CriteriaGuide onClose={() => setShowCriteriaGuide(false)} help={evidence.standard.help} />}
+      {showCriteriaGuide && <CriteriaGuide onClose={() => setShowCriteriaGuide(false)} help={evidence?.standard?.help} />}
     </>
   );
 };
