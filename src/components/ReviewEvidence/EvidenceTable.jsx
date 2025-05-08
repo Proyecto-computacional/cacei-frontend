@@ -146,6 +146,7 @@ export default function EvidenceTable() {
         });
     };*/
     const canReview = (statuses) => {
+        if (!user) return false;
 
         if (user.user_role === "ADMINISTRADOR") {
             return !statuses.some(
@@ -163,7 +164,6 @@ export default function EvidenceTable() {
                     return s.status_description === "APROBADA" && s.user_rpe === user.user_rpe
                 });
         }
-
     };
 
     // Función modificada para manejar cualquier estado
@@ -289,95 +289,101 @@ export default function EvidenceTable() {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto overflow-y-scroll max-h-300">
-                    <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed text-base">
-                        <thead className="sticky top-0 z-0">
-                            <tr className="bg-primary1 text-white">
-                                <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
-                                <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
-                                <HeaderSort column="category_name" text={"Categoría"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%]" />
-                                <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%]" />
-                                <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
-                                <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
-                                <th className="w-[10%] py-2 px-2 text-center text-sm" colSpan={3}>Estatus</th>
-                                <th className="w-[10%] py-2 px-2 text-left text-sm" rowSpan={2}>Revisión</th>
-                            </tr>
-                            <tr className="bg-primary1 text-white">
-                                <th className="py-2 px-2 text-sm">Administrador</th>
-                                <th className="py-2 px-2 text-sm">Jefe de Área</th>
-                                <th className="py-2 px-2 text-sm">Coordinador de Carrera</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredEvidences.length > 0 ? filteredEvidences.map((item) => (
-                                <tr key={item.user_rpe} className="border-b hover:bg-gray-100">
-                                    <td className="py-2 px-2 truncate text-sm">{item.evidence_owner_name}</td>
-                                    <td className="py-2 px-2 truncate text-sm">{item.process_name}</td>
-                                    <td className="py-2 px-2 truncate text-sm">{item.category_name}</td>
-                                    <td className="py-2 px-2 truncate text-sm">{item.section_name}</td>
-                                    <td className="py-2 px-2 truncate text-sm">{item.standard_name}</td>
-                                    <td className="py-2 px-2">
-                                        {item.files.length > 0 ? (
-                                            item.files.map((file, index) => (
-                                                <div key={index} className="truncate">
-                                                    <a
-                                                        href={file.file_url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-blue-500 hover:underline truncate text-sm"
-                                                    >
-                                                        {file.file_name}
-                                                    </a>
+                {!user ? (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">Cargando información del usuario...</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto overflow-y-scroll max-h-300">
+                        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed text-base">
+                            <thead className="sticky top-0 z-0">
+                                <tr className="bg-primary1 text-white">
+                                    <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
+                                    <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
+                                    <HeaderSort column="category_name" text={"Categoría"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%]" />
+                                    <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%]" />
+                                    <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
+                                    <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
+                                    <th className="w-[10%] py-2 px-2 text-center text-sm" colSpan={3}>Estatus</th>
+                                    <th className="w-[10%] py-2 px-2 text-left text-sm" rowSpan={2}>Revisión</th>
+                                </tr>
+                                <tr className="bg-primary1 text-white">
+                                    <th className="py-2 px-2 text-sm">Administrador</th>
+                                    <th className="py-2 px-2 text-sm">Jefe de Área</th>
+                                    <th className="py-2 px-2 text-sm">Coordinador de Carrera</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredEvidences.length > 0 ? filteredEvidences.map((item) => (
+                                    <tr key={item.user_rpe} className="border-b hover:bg-gray-100">
+                                        <td className="py-2 px-2 truncate text-sm">{item.evidence_owner_name}</td>
+                                        <td className="py-2 px-2 truncate text-sm">{item.process_name}</td>
+                                        <td className="py-2 px-2 truncate text-sm">{item.category_name}</td>
+                                        <td className="py-2 px-2 truncate text-sm">{item.section_name}</td>
+                                        <td className="py-2 px-2 truncate text-sm">{item.standard_name}</td>
+                                        <td className="py-2 px-2">
+                                            {item.files.length > 0 ? (
+                                                item.files.map((file, index) => (
+                                                    <div key={index} className="truncate">
+                                                        <a
+                                                            href={file.file_url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-blue-500 hover:underline truncate text-sm"
+                                                        >
+                                                            {file.file_name}
+                                                        </a>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <span className="text-sm">Sin archivo</span>
+                                            )}
+                                        </td>
+                                        {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR"].map((rol) => {
+                                            const statusObj = item.statuses.find(s => s.user_role?.toUpperCase() === rol);
+                                            const status = statusObj ? statusObj.status_description : "PENDIENTE";
+                                            const color = status === "APROBADA" ? "text-green-600"
+                                                : status === "NO APROBADA" ? "text-red-600"
+                                                    : "text-yellow-600";
+
+                                            return (
+                                                <td
+                                                    key={rol}
+                                                    className={`py-2 px-2 font-semibold ${color} cursor-pointer hover:underline text-sm`}
+                                                    onClick={() => handleStatusClick(statusObj)}
+                                                >
+                                                    {status}
+                                                </td>
+                                            );
+                                        })}
+
+                                        <td className="py-2 px-2">
+                                            {canReview(item.statuses) ? (
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true)}>
+                                                        <Check color="green" size={24} strokeWidth={2} />
+                                                    </button>
+                                                    <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}>
+                                                        <X color="red" size={24} strokeWidth={2} />
+                                                    </button>
                                                 </div>
-                                            ))
-                                        ) : (
-                                            <span className="text-sm">Sin archivo</span>
-                                        )}
-                                    </td>
-                                    {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR"].map((rol) => {
-                                        const statusObj = item.statuses.find(s => s.user_role?.toUpperCase() === rol);
-                                        const status = statusObj ? statusObj.status_description : "PENDIENTE";
-                                        const color = status === "APROBADA" ? "text-green-600"
-                                            : status === "NO APROBADA" ? "text-red-600"
-                                                : "text-yellow-600";
-
-                                        return (
-                                            <td
-                                                key={rol}
-                                                className={`py-2 px-2 font-semibold ${color} cursor-pointer hover:underline text-sm`}
-                                                onClick={() => handleStatusClick(statusObj)}
-                                            >
-                                                {status}
-                                            </td>
-                                        );
-                                    })}
-
-                                    <td className="py-2 px-2">
-                                        {canReview(item.statuses) ? (
-                                            <div className="flex gap-2">
-                                                <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true)}>
-                                                    <Check color="green" size={24} strokeWidth={2} />
-                                                </button>
-                                                <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}>
-                                                    <X color="red" size={24} strokeWidth={2} />
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <p className="text-gray-500 italic text-xs">Ya revisado o aun falta aprobacion de otro usuario</p>
-                                        )}
-                                    </td>
-                                </tr>
-                            )) :
-                                <tr>
-                                    <td colSpan="8" className="py-4 text-center text-gray-500 text-sm">
-                                        No se encontraron evidencias con los filtros aplicados
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div >
+                                            ) : (
+                                                <p className="text-gray-500 italic text-xs">Ya revisado o aun falta aprobacion de otro usuario</p>
+                                            )}
+                                        </td>
+                                    </tr>
+                                )) :
+                                    <tr>
+                                        <td colSpan="8" className="py-4 text-center text-gray-500 text-sm">
+                                            No se encontraron evidencias con los filtros aplicados
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
             {showCommentModal && (
                 <CommentViewer
                     comment={currentComment.text}
@@ -385,16 +391,14 @@ export default function EvidenceTable() {
                     date={currentComment.date}
                     onClose={() => setShowCommentModal(false)}
                 />
-            )
-            }
+            )}
             {openFeedback && (
                 <Feedback
                     cerrar={() => setOpenFeedback(false)}
                     enviar={sendFeedback}
-                    statusFeedback={statusFeedback} // Pasamos el estado (aprobación/rechazo)
+                    statusFeedback={statusFeedback}
                 />
-            )
-            }
+            )}
         </>
     );
 }

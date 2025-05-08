@@ -3,38 +3,50 @@ import { Star, Trash, Pin } from "lucide-react";
 
 const NotificationCard = ({ title, description, pinned, starred, deleted, onDeletedClick, onStarClick, onPinClick }) => {
   return (
-    <div className="bg-white p-4 shadow-md rounded-lg flex justify-between items-center">
-      <div>
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="text-gray-600 italic">{description}</p>
-      </div>
-      <div className="flex space-x-3">
-        <Star 
-          className={`cursor-pointer ${
-            starred ? "text-yellow-500" : "text-gray-500" 
-          } hover:text-yellow-500`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onStarClick();
-          }}
-          />
-        <Trash className={`cursor-pointer ${
-          deleted ? "text-red-500" : "text-gray-500"
-        } hover:text-red-500`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onDeletedClick();
-          }}
-          />
-        <Pin
-          className={`cursor-pointer ${
-            pinned ? "text-blue-500" : "text-gray-500"
-          } hover:text-blue-500`}
-          onClick={(e) => {
-            e.stopPropagation(); 
-            onPinClick();
-          }}
-        />
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex justify-between items-start gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            {pinned && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                <Pin className="h-3 w-3 mr-1" />
+                Fijada
+              </span>
+            )}
+            {starred && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <Star className="h-3 w-3 mr-1" />
+                Favorita
+              </span>
+            )}
+          </div>
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">{title}</h2>
+          <p className="text-gray-600 text-sm">{description}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onStarClick}
+            className={`p-2 rounded-lg transition-colors duration-200 ${
+              starred ? "bg-yellow-100 text-yellow-600" : "hover:bg-gray-100 text-gray-400"
+            }`}
+          >
+            <Star className="h-5 w-5" />
+          </button>
+          <button
+            onClick={onPinClick}
+            className={`p-2 rounded-lg transition-colors duration-200 ${
+              pinned ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100 text-gray-400"
+            }`}
+          >
+            <Pin className="h-5 w-5" />
+          </button>
+          <button
+            onClick={onDeletedClick}
+            className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors duration-200"
+          >
+            <Trash className="h-5 w-5" />
+          </button>
+        </div>
       </div>
     </div>
   );

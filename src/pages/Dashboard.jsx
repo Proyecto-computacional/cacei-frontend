@@ -80,13 +80,24 @@ const Dashboard = () => {
       <AppHeader />
       <SubHeading />
       <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
-        <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-6 mb-5">
-          Dashboard proceso: {processId}
-        </h1>
-        <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mb-7">
-          Resumen General
-        </h1>
+        <div className="mb-8">
+          <h1 className="text-[40px] font-bold text-[#004A98] font-['Open_Sans']">
+            Dashboard
+          </h1>
+          <h2 className="text-[28px] font-bold text-gray-700 mt-2">
+            {localStorage.getItem('frameName')}
+          </h2>
+        </div>
         <DashboardWidgets />
+
+        <div className="mt-12 mb-6">
+          <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            Progreso por Categoría
+          </h3>
+        </div>
 
         <div className="mt-6">
           <CategoryProgress title="Categoría 1" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
@@ -94,21 +105,37 @@ const Dashboard = () => {
           <CategoryProgress title="Categoría 3" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
         </div>
 
-
-        <div className="mt-10 mb-10 h-200 flex flex-col items-end text-right">
-          <h1 className="text-[20px] font-semibold text-black font-['Open_Sans'] mt-15 text-right w-150">
-            Compilación de evidencias
-          </h1>
-          <div className="text-sm text-gray-700 mb-3 w-130 text-right">
-            <p>Al dar clic en "Compilar Evidencias", se tomarán todas las evidencias aprobadas para la compilación. Además, podrás finalizar el proceso de acreditación, lo que impedirá que los usuarios suban más evidencias.*</p>
-          </div>
-          <button 
-            onClick={handleClick}
-            className="bg-blue-700 text-white py-1 px-3 rounded-xl text-lg font-semibold text-[14px] h-8"
-          >
-            Compilar Evidencias
-          </button>
+        <div className="mt-12 mb-6">
+          <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+            </svg>
+            Finalización del Proceso
+          </h3>
         </div>
+
+        <div className="mt-8 flex justify-start">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-96">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-[#004A98] p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-800">Compilación Final</h3>
+            </div>
+            <p className="text-gray-600 mb-4 text-sm">
+              Finaliza el proceso de acreditación y genera la compilación de evidencias aprobadas.
+            </p>
+            <button 
+              onClick={handleClick}
+              className="w-full bg-[#004A98] text-white py-2.5 px-4 rounded-lg text-base font-semibold hover:bg-[#003d7a] transition-colors duration-300 flex items-center justify-center gap-2"
+            >
+              Compilar Evidencias
+            </button>
+          </div>
+        </div>
+        <div className="mb-12"></div>
       </div>
       <AppFooter />
     </>

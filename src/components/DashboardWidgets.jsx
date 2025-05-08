@@ -1,109 +1,120 @@
-
-
 import React from "react";
 //import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 //import "react-circular-progressbar/dist/styles.css";
-import { Bell } from "lucide-react";
-
-
-
-
+import { Bell, Upload, ClipboardList } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../services/api";  // Importa la API configurada
-const frameName = localStorage.getItem("frameName");
-const careerName = localStorage.getItem("careerName");
-const userRole = localStorage.getItem("role") || "Usuario";
-
 
 const DashboardWidgets = () => {
   const [estadisticas, setEstadisticas] = useState({
     aprobado: 0,
     desaprobado: 0,
     pendientes: 0,
-    notificaciones: 0,
   });
- 
-  // Obtener el RPE del usuario desde el localStorage
+  const [userRole, setUserRole] = useState("");
+  const navigate = useNavigate();
   const rpe = localStorage.getItem("rpe");
- 
-  // Función para obtener las estadísticas generales desde la API
+  const frameName = localStorage.getItem("frameName");
+  const careerName = localStorage.getItem("careerName");
+
+  const fetchUserRole = async () => {
+    try {
+      const response = await api.get('/api/user');
+      setUserRole(response.data.user_role);
+    } catch (error) {
+      console.error("Error al obtener el rol del usuario:", error);
+    }
+  };
+
   const fetchEstadisticas = async () => {
     try {
       let resumenGeneralPorRPE = {};
-      // Obtener las estadísticas generales de la API
       if (userRole === "ADMINISTRADOR") {
         const res = await api.get(`/estadisticas/${rpe}/${frameName}/${careerName}`);
         resumenGeneralPorRPE = res.data;
-      } else if (userRole === "PROFESOR" || userRol === "DEPARTAMENTO UNIVERSITARIO") {
+      } else if (userRole === "PROFESOR" || userRole === "DEPARTAMENTO UNIVERSITARIO") {
         const res = await api.get(`/estadisticas/por-autor/${rpe}/${frameName}/${careerName}`);
         resumenGeneralPorRPE = res.data;
       }
-
-      // Obtener las notificaciones no vistas
-      const { data: notificacionesData } = await api.get(`/estadisticas/no-vistas/${rpe}`);
-      console.log("Notificaciones: ", notificacionesData); 
-
-      // Obtener la última actualización del CV
-      const { data: ultimaActualizacionCV } = await api.get(`/cv/ultima-actualizacion/${rpe}`);
-      console.log("ultimaActualizacionCV: ", ultimaActualizacionCV); 
 
       setEstadisticas({
         aprobado: resumenGeneralPorRPE[0]?.aprobado || 0,
         desaprobado: resumenGeneralPorRPE[0]?.desaprobado || 0,
         pendientes: resumenGeneralPorRPE[0]?.pendientes || 0,
-        notificaciones: notificacionesData?.no_vistas ,
-        ultimaActualizacionCV: ultimaActualizacionCV?.ultima_actualizacion_cv ,
       });
 
-      console.log("aprobado: ", aprobado);
-      console.log("desaprobado: ", desaprobado);
-      console.log("pendientes: ", pendientes);
-      console.log("notificaciones: ", notificaciones); 
-      
+      console.log("aprobado: ", resumenGeneralPorRPE[0]?.aprobado || 0);
+      console.log("desaprobado: ", resumenGeneralPorRPE[0]?.desaprobado || 0);
+      console.log("pendientes: ", resumenGeneralPorRPE[0]?.pendientes || 0);
     } catch (error) {
       console.error("Error al obtener las estadísticas:", error);
     }
   };
 
   useEffect(() => {
-    fetchEstadisticas();
-  }, []); // Se ejecuta una sola vez al cargar el componente
+    fetchUserRole();
+  }, []);
 
-  const { aprobado, desaprobado, pendientes, notificaciones } = estadisticas;
+  useEffect(() => {
+    if (userRole) {
+      fetchEstadisticas();
+    }
+  }, [userRole]);
+
+  const { aprobado, desaprobado, pendientes } = estadisticas;
   const total = aprobado + desaprobado + pendientes;
 
   const aprobadoPercentage = (aprobado / total) * 100;
   const desaprobadoPercentage = (desaprobado / total) * 100;
   const sinSubirPercentage = (pendientes / total) * 100;
 
+  // Debug log to check user role
+  console.log("Current user role:", userRole);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-21 mr-21 mb-21">
-      {/* CV */}
-      <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between">
+      {/* Upload Evidence Card */}
+      <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
         <div>
-          <h2 className="text-2xl font-bold mb-2">CV</h2>
-          <p className="text-gray-500">Última actualización:</p>
-          <p className="font-semibold">
-            {estadisticas.ultimaActualizacionCV
-              ? new Date(estadisticas.ultimaActualizacionCV).toLocaleDateString()
-              : "No disponible"}
+          <h2 className="text-2xl font-bold mb-2 flex items-center">
+            <Upload className="w-6 h-6 mr-2" />
+            Carga de Evidencias
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Sube y gestiona las evidencias necesarias para el proceso de acreditación.
           </p>
         </div>
-        <button className="bg-blue-700 text-white mt-4 py-2 rounded-xl">
-          <a href="http://localhost:5173/personalInfo">Actualizar</a>
+        <button 
+          onClick={() => navigate('/uploadEvidence')}
+          className="bg-blue-700 text-white mt-4 py-2 rounded-xl hover:bg-blue-800 transition-colors duration-300"
+        >
+          Ir a Carga de Evidencias
         </button>
       </div>
 
-      {/* Notificaciones */}
-      <div className="bg-white shadow-lg rounded-2xl p-6">
-        <h2 className="text-2xl font-bold mb-2 flex justify-between items-center">
-          Notificaciones
-          <Bell className="w-5 h-5 text-black cursor-pointer" />
-        </h2>
-        <p className="text-4xl font-bold">{notificaciones}</p>
-      </div>
+      {/* Task Assignments Card (Admin Only) */}
+      {userRole === "ADMINISTRADOR" && (
+        <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
+          <div>
+            <h2 className="text-2xl font-bold mb-2 flex items-center">
+              <ClipboardList className="w-6 h-6 mr-2" />
+              Asignación de Tareas
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Gestiona y asigna tareas a los miembros del equipo para el proceso de acreditación.
+            </p>
+          </div>
+          <button 
+            onClick={() => navigate('/evidenceManagement')}
+            className="bg-blue-700 text-white mt-4 py-2 rounded-xl hover:bg-blue-800 transition-colors duration-300"
+          >
+            Ir a Asignación de Tareas
+          </button>
+        </div>
+      )}
 
-      {/* Progreso General */}
+      {/* Progress Card */}
       <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-2">Progreso General</h2>
         <div className="relative w-24 h-24">
