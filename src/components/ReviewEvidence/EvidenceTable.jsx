@@ -290,48 +290,48 @@ export default function EvidenceTable() {
                 </div>
 
                 <div className="overflow-x-auto overflow-y-scroll max-h-300">
-                    <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed text-2xl">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed text-base">
                         <thead className="sticky top-0 z-0">
                             <tr className="bg-primary1 text-white">
-                                <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="category_name" text={"Categoría"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <th className="w-3/10 py-3 px-4 text-center" colSpan={3}>Estatus</th>
-                                <th className="w-3/10 py-3 px-4 text-left" rowSpan={2}>Revisión</th>
+                                <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
+                                <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
+                                <HeaderSort column="category_name" text={"Categoría"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%]" />
+                                <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%]" />
+                                <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
+                                <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%]" />
+                                <th className="w-[10%] py-2 px-2 text-center text-sm" colSpan={3}>Estatus</th>
+                                <th className="w-[10%] py-2 px-2 text-left text-sm" rowSpan={2}>Revisión</th>
                             </tr>
                             <tr className="bg-primary1 text-white">
-                                <th className="py-2 px-4">Administrador</th>
-                                <th className="py-2 px-4">Jefe de Área</th>
-                                <th className="py-2 px-4">Coordinador de Carrera</th>
+                                <th className="py-2 px-2 text-sm">Administrador</th>
+                                <th className="py-2 px-2 text-sm">Jefe de Área</th>
+                                <th className="py-2 px-2 text-sm">Coordinador de Carrera</th>
                             </tr>
-
                         </thead>
                         <tbody>
                             {filteredEvidences.length > 0 ? filteredEvidences.map((item) => (
                                 <tr key={item.user_rpe} className="border-b hover:bg-gray-100">
-                                    <td className="py-3 px-4">{item.evidence_owner_name}</td>
-                                    <td className="py-3 px-4">{item.process_name}</td>
-                                    <td className="py-3 px-4">{item.category_name}</td>
-                                    <td className="py-3 px-4">{item.section_name}</td>
-                                    <td className="py-3 px-4">{item.standard_name}</td>
-                                    <td className="py-3 px-4">
+                                    <td className="py-2 px-2 truncate text-sm">{item.evidence_owner_name}</td>
+                                    <td className="py-2 px-2 truncate text-sm">{item.process_name}</td>
+                                    <td className="py-2 px-2 truncate text-sm">{item.category_name}</td>
+                                    <td className="py-2 px-2 truncate text-sm">{item.section_name}</td>
+                                    <td className="py-2 px-2 truncate text-sm">{item.standard_name}</td>
+                                    <td className="py-2 px-2">
                                         {item.files.length > 0 ? (
-                                            item.files.map((file) => (
-                                                <><a
-                                                    href={file.file_url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-500 hover:underline"
-                                                >
-                                                    {file.file_name}
-                                                </a> <br />
-                                                </>
+                                            item.files.map((file, index) => (
+                                                <div key={index} className="truncate">
+                                                    <a
+                                                        href={file.file_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-500 hover:underline truncate text-sm"
+                                                    >
+                                                        {file.file_name}
+                                                    </a>
+                                                </div>
                                             ))
                                         ) : (
-                                            "Sin archivo"
+                                            <span className="text-sm">Sin archivo</span>
                                         )}
                                     </td>
                                     {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR"].map((rol) => {
@@ -344,7 +344,7 @@ export default function EvidenceTable() {
                                         return (
                                             <td
                                                 key={rol}
-                                                className={`py-3 px-4 font-semibold ${color} cursor-pointer hover:underline`}
+                                                className={`py-2 px-2 font-semibold ${color} cursor-pointer hover:underline text-sm`}
                                                 onClick={() => handleStatusClick(statusObj)}
                                             >
                                                 {status}
@@ -352,24 +352,24 @@ export default function EvidenceTable() {
                                         );
                                     })}
 
-                                    <td className="py-3 px-4">
+                                    <td className="py-2 px-2">
                                         {canReview(item.statuses) ? (
                                             <div className="flex gap-2">
                                                 <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true)}>
-                                                    <Check color="green" size={40} strokeWidth={2} />
+                                                    <Check color="green" size={24} strokeWidth={2} />
                                                 </button>
                                                 <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}>
-                                                    <X color="red" size={40} strokeWidth={2} />
+                                                    <X color="red" size={24} strokeWidth={2} />
                                                 </button>
                                             </div>
                                         ) : (
-                                            <p className="text-gray-500 italic">Ya revisado o aun falta aprobacion de otro usuario</p>
+                                            <p className="text-gray-500 italic text-xs">Ya revisado o aun falta aprobacion de otro usuario</p>
                                         )}
                                     </td>
                                 </tr>
                             )) :
                                 <tr>
-                                    <td colSpan="8" className="py-4 text-center text-gray-500">
+                                    <td colSpan="8" className="py-4 text-center text-gray-500 text-sm">
                                         No se encontraron evidencias con los filtros aplicados
                                     </td>
                                 </tr>
