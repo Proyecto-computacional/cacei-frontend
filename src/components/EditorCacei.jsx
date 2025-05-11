@@ -1,6 +1,6 @@
 // MiEditor.jsx
 import { Editor } from '@tinymce/tinymce-react';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 // Importaciones necesarias para funcionar sin CDN
 import 'tinymce/tinymce';
@@ -20,6 +20,18 @@ import 'tinymce/plugins/wordcount';
 export default function EditorCacei({setJustification, value, readOnly}) {
   const editorRef = useRef(null);
 
+  useEffect(() => {
+    if (editorRef.current) {
+      const editor = editorRef.current;
+      if (readOnly) {
+        editor.getBody().setAttribute('contenteditable', false);
+        editor.getBody().style.userSelect = 'none';
+      } else {
+        editor.getBody().setAttribute('contenteditable', true);
+        editor.getBody().style.userSelect = 'auto';
+      }
+    }
+  }, [readOnly]);
 
   return (
     <div className="">
@@ -34,19 +46,18 @@ export default function EditorCacei({setJustification, value, readOnly}) {
           menubar: false,
           plugins: ['link', 'lists', 'table', 'wordcount'],
           toolbar:
-            'undo redo | fontsize bold italic underline | backcolor | bullist numlist | table ',
-            fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
-            setup: (editor) => {
-              editor.on('init', () => {
-                if (readOnly) {
-                  editor.getBody().setAttribute('contenteditable', false);
-                  editor.getBody().style.userSelect = 'none';
-                }
-              });
-            }
+            'fontsize bold italic underline | backcolor | bullist numlist | table ',
+          fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
+          setup: (editor) => {
+            editor.on('init', () => {
+              if (readOnly) {
+                editor.getBody().setAttribute('contenteditable', false);
+                editor.getBody().style.userSelect = 'none';
+              }
+            });
+          }
         }}
       />
-
     </div>
   );
 }
