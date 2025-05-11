@@ -821,7 +821,7 @@ export default function EstructuraMarco() {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Categoría</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Sección</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/3">Criterio</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/6">Acciones</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/6"></th>
                 </tr>
               </thead>
               <tbody>
