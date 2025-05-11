@@ -355,7 +355,9 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [isLoading, setIsLoading] = useState(false);
 
     // Filter sections based on selected category
-    const filteredSections = sections.filter(sec => sec.category_id === selectedCategoryId);
+    const filteredSections = sections.filter(sec => {
+      return String(sec.category_id) === selectedCategoryId;
+    });
 
     const handleSave = async () => {
       if (!selectedCategoryId) {
