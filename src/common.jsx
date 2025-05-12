@@ -9,18 +9,112 @@ import { Mail, Bell, User, Menu } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import api from "./services/api";
 
-
 export function AppHeader() {
+    const [isScrolled, setIsScrolled] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const isLoginPage = location.pathname === '/';
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 100) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
-        <header>
-            
-        </header>
+        <div className="sticky-top">
+            <div className={`header container-fluid ${isScrolled ? 'scrolled' : ''}`}>
+                <div className="container">
+                    <div className="row header">
+                        <div className="col-12 col-md-auto d-flex justify-content-center justify-content-md-start align-items-center">
+                            <a href="https://www.uaslp.mx">
+                                <img src={headerLogo} className={`img-fluid ${isScrolled ? 'd-none' : 'd-block'} logoUASLP`} alt="UASLP Logo" />
+                            </a>
+                            <p className={`textoUASLP ${isScrolled ? 'd-block' : 'd-none'}`}>
+                                <a href="https://www.uaslp.mx">UASLP</a>
+                            </p>
+
+                            <div className={`divisorUASLP-ENTIDAD me-2 ms-2 ${isScrolled ? 'd-none' : 'd-block'}`}></div>
+                            <div className={`divisorUASLP-ENTIDADScroll ${isScrolled ? 'd-block' : 'd-none'} me-2 ms-3`}></div>
+                        </div>
+
+                        {!isLoginPage && (
+                            <div className="col-12 col-md-auto flex-grow-1 justify-content-center justify-content-md-end align-items-center pt-md-0 pt-2 d-none d-md-block d-lg-block d-xl-block">
+                                <div className="h-75 d-flex flex-column flex-sm-row bd-highlight justify-content-end align-items-sm-end pt-sm-0 pt-5 align-items-center">
+                                    <div className="p-1 px-1 bd-highlight">
+                                        <a href="/mainmenu" onClick={(e) => { e.preventDefault(); navigate('/mainmenu'); }}>Inicio</a>
+                                        <span className="text-white"> | </span>
+                                    </div>
+                                    <div className="p-1 px-1 bd-highlight">
+                                        <a href="/personalInfo" onClick={(e) => { e.preventDefault(); navigate('/personalInfo'); }}>Configuración Personal</a>
+                                        <span className="text-white"> | </span>
+                                    </div>
+                                    <div className="p-1 px-1 bd-highlight">
+                                        <a href="/notifications" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>Notificaciones</a>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+            <div className="fondoFooter" style={{ height: '10px' }}></div>
+        </div>
     );
 }
 
 export function AppFooter() {
     return (
-        <div></div>
+        <div className="mt-0">
+            <footer>
+                <div className="fondoFooter" style={{ height: '10px' }}></div>
+                <div className="piePagina text-white">
+                    <div className="container">
+                        <div id="circulos" className="row">
+                            <div className="col-12 col-md-9">
+                                <div className="row">
+                                    <div className="text-start" style={{ width: '30px' }}>
+                                        <a href="https://www.facebook.com/LaUASLP/" target="_blank" rel="noopener noreferrer">
+                                            <span className="fa fa-facebook-square"></span>
+                                        </a>
+                                    </div>
+                                    <div className="text-start" style={{ width: '30px' }}>
+                                        <a href="https://twitter.com/LaUASLP" target="_blank" rel="noopener noreferrer">
+                                            <span className="fa fa-twitter-square"></span>
+                                        </a>
+                                    </div>
+                                    <div className="text-start" style={{ width: '30px' }}>
+                                        <a href="https://www.youtube.com/LaUASLP" target="_blank" rel="noopener noreferrer">
+                                            <span className="fa fa-youtube-play"></span>
+                                        </a>
+                                    </div>
+                                    <div className="text-start" style={{ width: '30px' }}>
+                                        <a href="https://www.instagram.com/lauaslp" target="_blank" rel="noopener noreferrer">
+                                            <span className="fa fa-instagram"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div className="row" id="identidad">
+                                    <span><b>UASLP</b></span><br />
+                                    <span>Universidad Autónoma de San Luis Potosí</span><br />
+                                    <span>Álvaro Obregón 64, Centro. CP 78000</span><br />
+                                    <span>San Luis Potosí, SLP</span><br />
+                                    <span>444 826 23 00</span><br />
+                                    <span>©Todos los derechos reservados</span><br />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
     );
 }
 
