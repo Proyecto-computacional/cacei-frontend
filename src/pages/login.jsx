@@ -4,30 +4,48 @@ import '../app.css'
 import { AppHeader } from "../common";
 import { AppFooter } from "../common";
 import { login } from "../services/api"
-import api from "../services/api"
+
 
 const Login = () => {
     const [rpe, setRpe] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
+    const validateRpe = (value) => {
+        return /^\d+$/.test(value);
+    };
+
+    const sanitizeInput = (input) => {
+        return input.replace(/[<>{}()'"]/g, '');
+    };
+
     const manejarLogin = async (e) => {
         e.preventDefault();
-    
+
+        if (!validateRpe(rpe)) {
+            alert('El RPE debe contener solo números');
+            return;
+        }
+
+        // Sanitizar inputs
+        const sanitizedRpe = sanitizeInput(rpe);
+        const sanitizedPassword = sanitizeInput(password);
+
         try {
-            const userData = await login(rpe, password);
+            const userData = await login(sanitizedRpe, sanitizedPassword);
             if (userData.correct) {
                 const userRpe = userData.rpe;
-                localStorage.setItem('userRpe', userRpe);  
-                navigate("/mainmenu");  
+                localStorage.setItem('userRpe', userRpe);
+                navigate("/mainmenu");
             } else {
                 alert('RPE o contraseña incorrecto');
             }
         } catch (err) {
             console.log(err);
+            alert('Error al intentar iniciar sesión');
         }
-    };    
-    
+    };
+
 
     return (
         <>

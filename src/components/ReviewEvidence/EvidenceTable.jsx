@@ -11,15 +11,12 @@ export default function EvidenceTable() {
 
     const [evidences, setEvidences] = useState([]);
     const [filteredEvidences, setFilteredEvidences] = useState([]);
-    const [nextPage, setNextPage] = useState(null);
-    const [loading, setLoading] = useState(false);
     const [openFeedback, setOpenFeedback] = useState(false);
     const [idEvidenceFeedback, setIdEvidenceFeedback] = useState(null);
     const [statusFeedback, setStatusFeedback] = useState(null)
     const [statusUserRPE, setstatusUserRPE] = useState(null)
     const [sortBy, setSortBy] = useState(null);
     const [order, setOrder] = useState(null);
-    const [searchTerm, setSearchTerm] = useState("");
     const [user, setUser] = useState(null);
     const [refresh, setRefresh] = useState(false);
 
@@ -76,8 +73,7 @@ export default function EvidenceTable() {
         }
     };
 
-    const userRole = 'ADMINISTRADOR'; // Esto debería venir de tu contexto/auth
-    const isAdmin = userRole === 'ADMINISTRADOR';
+
 
     const handleFeedback = (id, userRpe, status, evidence) => {
         setOpenFeedback(true);
@@ -134,16 +130,6 @@ export default function EvidenceTable() {
         });
     };
 
-    /*const loadMore = () => {
-        if (!nextPage) return;
-        setLoading(true);
-
-        api.get(nextPage).then(({ data }) => {
-            setUsers((prev) => [...prev, ...data.evidence.data]);
-            setNextPage(data.evidence.next_page_url);
-            setLoading(false);
-        });
-    };*/
     const canReview = (statuses) => {
         if (!user) return false;
 
@@ -180,33 +166,6 @@ export default function EvidenceTable() {
             date: statusObj?.status_date
         });
         setShowCommentModal(true);
-    };
-
-    /*const hasDecision = (evidence) => {
-        return evidence.statuses?.some(s =>
-            ['Aprobado', 'Desaprobado'].includes(s.status_description)
-        );
-    };*/
-
-    const isFullyApproved = (evidenceId) => {
-        const evidence = evidences.find(ev => ev.evidence_id === evidenceId);
-        if (!evidence) return false;
-
-        const requiredApprovals = [
-            'ADMINISTRADOR',
-            'JEFE DE AREA',
-            'COORDINADOR DE CARRERA',
-            'PROFESOR'
-        ].map(role =>
-            users.find(u => u.user_role === role)?.user_rpe
-        ).filter(Boolean);
-
-        return requiredApprovals.every(rpe =>
-            evidence.statuses?.some(s =>
-                s.user_rpe === rpe &&
-                s.status_description === 'Aprobado'
-            )
-        );
     };
 
     return (
