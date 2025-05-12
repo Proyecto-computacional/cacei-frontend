@@ -38,17 +38,12 @@ const DashboardWidgets = () => {
         resumenGeneralPorRPE = res.data;
       }
 
-      console.log(resumenGeneralPorRPE);
-
       setEstadisticas({
         aprobado: resumenGeneralPorRPE[0]?.aprobado || 0,
         desaprobado: resumenGeneralPorRPE[0]?.desaprobado || 0,
         pendientes: resumenGeneralPorRPE[0]?.pendientes || 0,
       });
 
-      console.log("aprobado: ", resumenGeneralPorRPE[0]?.aprobado || 0);
-      console.log("desaprobado: ", resumenGeneralPorRPE[0]?.desaprobado || 0);
-      console.log("pendientes: ", resumenGeneralPorRPE[0]?.pendientes || 0);
     } catch (error) {
       console.error("Error al obtener las estadísticas:", error);
     }
@@ -70,9 +65,6 @@ const DashboardWidgets = () => {
   const aprobadoPercentage = (aprobado / total) * 100;
   const desaprobadoPercentage = (desaprobado / total) * 100;
   const sinSubirPercentage = (pendientes / total) * 100;
-
-  // Debug log to check user role
-  console.log("Current user role:", userRole);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-21 mr-21 mb-21">

@@ -66,7 +66,6 @@ export default function EvidenceTable() {
                 user_rpe: statusUserRPE,
                 feedback: feedbackText
             });
-            console.log(respuesta);
             if (respuesta.status === 200) {
                 alert(respuesta.data?.message || 'Feedback enviado con éxito');
                 setRefresh(prev => !prev)
@@ -90,7 +89,6 @@ export default function EvidenceTable() {
     useEffect(() => {
         let url = `api/ReviewEvidence?`;
         api.get(url).then(({ data }) => {
-            console.log(data);
             setEvidences(() => [...data.evidencias]);
             //setNextPage(data.evidencias.next_page_url);
             //setLoading(false);

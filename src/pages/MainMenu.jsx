@@ -45,7 +45,6 @@ const MainMenu = () => {
               estRes = await api.get(`/estadisticas/por-autor/${userRpe}/${card.frame_name}/${card.career_name}`);
             }
             
-            console.log(estRes);
             percentagesMap[card.process_id] = estRes?.data[0]?.aprobado ?? 0;
           } catch (error) {
             console.warn(`Error obteniendo porcentaje para ${card.process_id}`, error);

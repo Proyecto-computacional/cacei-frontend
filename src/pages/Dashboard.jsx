@@ -72,7 +72,6 @@ const Dashboard = () => {
   ];
 
   const handleClick = () => {
-    console.log('Navigating to EvidencesCompilation with processId:', processId);
     navigate('/EvidencesCompilation', { state: { processId } }); 
   };
   return (
