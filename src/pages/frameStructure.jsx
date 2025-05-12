@@ -16,9 +16,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       setIsLoading(true);
       try {
         const res = await api.post("/api/category", { category_name: nombre, frame_id: frame_id });
+        alert("Categoría creada exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al guardar: " + err.response?.data?.message);
+        alert("Error al crear la categoría: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -89,9 +90,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           category_id: category.category_id,
           category_name: nombre
         });
+        alert("Categoría actualizada exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al actualizar: " + err.response?.data?.message);
+        alert("Error al actualizar la categoría: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -168,9 +170,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           category_id: selectedCategoryId, 
           section_description: descripcion 
         });
+        alert("Sección creada exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al guardar: " + err.response?.data?.message);
+        alert("Error al crear la sección: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -276,9 +279,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           section_name: nombre,
           section_description: descripcion
         });
+        alert("Sección actualizada exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al actualizar: " + err.response?.data?.message);
+        alert("Error al actualizar la sección: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -382,9 +386,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           is_transversal: is_transversal, 
           help: help 
         });
+        alert("Criterio creado exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al guardar: " + err.response?.data?.message);
+        alert("Error al crear el criterio: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -552,9 +557,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           is_transversal: is_transversal,
           help: help
         });
+        alert("Criterio actualizado exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al actualizar: " + err.response?.data?.message);
+        alert("Error al actualizar el criterio: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -694,7 +700,7 @@ export default function EstructuraMarco() {
         setCriterios(allCriteria);
       } catch (err) {
         console.error("Error fetching data:", err);
-        alert("Error al cargar datos");
+        alert("Error al cargar los datos: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
