@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "../../app.css"
-import { Filter, Check, X } from "lucide-react";
+import { Filter, Check, X, FileText } from "lucide-react";
 import Feedback from "./Feedback";
 import HeaderSort from "./headerSort";
 import CommentViewer from "./CommentViewer";
@@ -63,6 +63,7 @@ export default function EvidenceTable() {
                 user_rpe: statusUserRPE,
                 feedback: feedbackText
             });
+            console.log(respuesta);
             if (respuesta.status === 200) {
                 alert(respuesta.data?.message || 'Feedback enviado con éxito');
                 setRefresh(prev => !prev)
@@ -132,6 +133,7 @@ export default function EvidenceTable() {
     };
 
     const canReview = (statuses) => {
+        if (!user) return false;
 
         if (user.user_role === "ADMINISTRADOR") {
             return !statuses.some(
@@ -149,7 +151,6 @@ export default function EvidenceTable() {
                     return s.status_description === "APROBADA" && s.user_rpe === user.user_rpe
                 });
         }
-
     };
 
     // Función modificada para manejar cualquier estado
@@ -171,28 +172,28 @@ export default function EvidenceTable() {
 
     return (
         <>
-            <div className="container mx-auto p-5 ">
-                <div className="mb-6 p-4 bg-white rounded-lg shadow">
-                    <div className="flex items-center mb-4">
-                        <Filter className="mr-2" size={20} />
-                        <h3 className="text-lg font-medium">Filtros de búsqueda</h3>
+            <div className="container mx-auto p-8 bg-gray-50 min-h-screen">
+                <div className="mb-8 p-6 bg-white rounded-xl shadow-md border border-gray-100">
+                    <div className="flex items-center mb-6">
+                        <Filter className="mr-3 text-primary1" size={24} />
+                        <h3 className="text-xl font-semibold text-gray-800">Filtros de búsqueda</h3>
                         <button
                             onClick={resetFilters}
-                            className="ml-auto flex items-center text-sm text-gray-600 hover:text-gray-900"
+                            className="ml-auto flex items-center text-sm text-gray-600 hover:text-primary1 transition-colors duration-200"
                         >
-                            <X size={16} className="mr-1" />
+                            <X size={18} className="mr-2" />
                             Limpiar filtros
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
                             <select
                                 name="category"
                                 value={filters.category}
                                 onChange={handleFilterChange}
-                                className="w-full p-2 border border-gray-300 rounded"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1 focus:border-primary1 transition-all duration-200"
                             >
                                 <option value="">Todas las categorías</option>
                                 {categories.map((category, index) => (
@@ -202,12 +203,12 @@ export default function EvidenceTable() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Sección</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Sección</label>
                             <select
                                 name="section"
                                 value={filters.section}
                                 onChange={handleFilterChange}
-                                className="w-full p-2 border border-gray-300 rounded"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1 focus:border-primary1 transition-all duration-200"
                             >
                                 <option value="">Todas las secciones</option>
                                 {sections.map((section, index) => (
@@ -217,12 +218,12 @@ export default function EvidenceTable() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Criterio</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Criterio</label>
                             <select
                                 name="standard"
                                 value={filters.standard}
                                 onChange={handleFilterChange}
-                                className="w-full p-2 border border-gray-300 rounded"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1 focus:border-primary1 transition-all duration-200"
                             >
                                 <option value="">Todos los criterios</option>
                                 {standards.map((standard, index) => (
@@ -232,12 +233,12 @@ export default function EvidenceTable() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
                             <select
                                 name="user"
                                 value={filters.user}
                                 onChange={handleFilterChange}
-                                className="w-full p-2 border border-gray-300 rounded"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1 focus:border-primary1 transition-all duration-200"
                             >
                                 <option value="">Todos los usuarios</option>
                                 {users.map((user, index) => (
@@ -248,95 +249,111 @@ export default function EvidenceTable() {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto overflow-y-scroll max-h-300">
-                    <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed text-2xl">
-                        <thead className="sticky top-0 z-0">
-                            <tr className="bg-primary1 text-white">
-                                <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="category_name" text={"Categoría"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} />
-                                <th className="w-3/10 py-3 px-4 text-center" colSpan={3}>Estatus</th>
-                                <th className="w-3/10 py-3 px-4 text-left" rowSpan={2}>Revisión</th>
-                            </tr>
-                            <tr className="bg-primary1 text-white">
-                                <th className="py-2 px-4">Administrador</th>
-                                <th className="py-2 px-4">Jefe de Área</th>
-                                <th className="py-2 px-4">Coordinador de Carrera</th>
-                            </tr>
-
-                        </thead>
-                        <tbody>
-                            {filteredEvidences.length > 0 ? filteredEvidences.map((item) => (
-                                <tr key={item.user_rpe} className="border-b hover:bg-gray-100">
-                                    <td className="py-3 px-4">{item.evidence_owner_name}</td>
-                                    <td className="py-3 px-4">{item.process_name}</td>
-                                    <td className="py-3 px-4">{item.category_name}</td>
-                                    <td className="py-3 px-4">{item.section_name}</td>
-                                    <td className="py-3 px-4">{item.standard_name}</td>
-                                    <td className="py-3 px-4">
-                                        {item.files.length > 0 ? (
-                                            item.files.map((file) => (
-                                                <><a
-                                                    href={file.file_url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-500 hover:underline"
-                                                >
-                                                    {file.file_name}
-                                                </a> <br />
-                                                </>
-                                            ))
-                                        ) : (
-                                            "Sin archivo"
-                                        )}
-                                    </td>
-                                    {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR"].map((rol) => {
-                                        const statusObj = item.statuses.find(s => s.user_role?.toUpperCase() === rol);
-                                        const status = statusObj ? statusObj.status_description : "PENDIENTE";
-                                        const color = status === "APROBADA" ? "text-green-600"
-                                            : status === "NO APROBADA" ? "text-red-600"
-                                                : "text-yellow-600";
-
-                                        return (
-                                            <td
-                                                key={rol}
-                                                className={`py-3 px-4 font-semibold ${color} cursor-pointer hover:underline`}
-                                                onClick={() => handleStatusClick(statusObj)}
-                                            >
-                                                {status}
+                {!user ? (
+                    <div className="text-center py-12 bg-white rounded-xl shadow-md">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary1 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Cargando información del usuario...</p>
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-primary1">
+                                    <tr>
+                                        <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                        <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                        <HeaderSort column="category_name" text={"Categoría"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                        <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                        <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                        <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                        <th className="w-[10%] py-4 px-6 text-center text-sm font-semibold text-white" colSpan={3}>Estatus</th>
+                                        <th className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" rowSpan={2}>Revisión</th>
+                                    </tr>
+                                    <tr className="bg-primary1/90">
+                                        <th className="py-3 px-6 text-sm font-medium text-white">Administrador</th>
+                                        <th className="py-3 px-6 text-sm font-medium text-white">Jefe de Área</th>
+                                        <th className="py-3 px-6 text-sm font-medium text-white">Coordinador de Carrera</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {filteredEvidences.length > 0 ? filteredEvidences.map((item) => (
+                                        <tr key={item.user_rpe} className="hover:bg-gray-50 transition-colors duration-200">
+                                            <td className="py-4 px-6 text-sm text-gray-900">{item.evidence_owner_name}</td>
+                                            <td className="py-4 px-6 text-sm text-gray-900">{item.process_name}</td>
+                                            <td className="py-4 px-6 text-sm text-gray-900">{item.category_name}</td>
+                                            <td className="py-4 px-6 text-sm text-gray-900">{item.section_name}</td>
+                                            <td className="py-4 px-6 text-sm text-gray-900">{item.standard_name}</td>
+                                            <td className="py-4 px-6">
+                                                {item.files.length > 0 ? (
+                                                    item.files.map((file, index) => (
+                                                        <div key={index} className="mb-1">
+                                                            <a
+                                                                href={file.file_url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-primary1 hover:text-primary1/80 hover:underline text-sm flex items-center"
+                                                            >
+                                                                <FileText size={16} className="mr-2" />
+                                                                {file.file_name}
+                                                            </a>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-sm text-gray-500 italic">Sin archivo</span>
+                                                )}
                                             </td>
-                                        );
-                                    })}
+                                            {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR"].map((rol) => {
+                                                const statusObj = item.statuses.find(s => s.user_role?.toUpperCase() === rol);
+                                                const status = statusObj ? statusObj.status_description : "PENDIENTE";
+                                                const color = status === "APROBADA" ? "text-green-600 bg-green-50"
+                                                    : status === "NO APROBADA" ? "text-red-600 bg-red-50"
+                                                        : "text-yellow-600 bg-yellow-50";
 
-                                    <td className="py-3 px-4">
-                                        {canReview(item.statuses) ? (
-                                            <div className="flex gap-2">
-                                                <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true)}>
-                                                    <Check color="green" size={40} strokeWidth={2} />
-                                                </button>
-                                                <button onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}>
-                                                    <X color="red" size={40} strokeWidth={2} />
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <p className="text-gray-500 italic">Ya revisado o aun falta aprobacion de otro usuario</p>
-                                        )}
-                                    </td>
-                                </tr>
-                            )) :
-                                <tr>
-                                    <td colSpan="8" className="py-4 text-center text-gray-500">
-                                        No se encontraron evidencias con los filtros aplicados
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div >
+                                                return (
+                                                    <td
+                                                        key={rol}
+                                                        className={`py-4 px-6 text-sm font-medium ${color} cursor-pointer hover:opacity-80 transition-opacity duration-200 rounded-md`}
+                                                        onClick={() => handleStatusClick(statusObj)}
+                                                    >
+                                                        {status}
+                                                    </td>
+                                                );
+                                            })}
+
+                                            <td className="py-4 px-6">
+                                                {canReview(item.statuses) ? (
+                                                    <div className="flex gap-3">
+                                                        <button 
+                                                            onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true)}
+                                                            className="p-2 rounded-full hover:bg-green-50 transition-colors duration-200"
+                                                        >
+                                                            <Check color="green" size={24} strokeWidth={2} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}
+                                                            className="p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
+                                                        >
+                                                            <X color="red" size={24} strokeWidth={2} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-gray-500 italic text-xs">Ya revisado o aun falta aprobacion de otro usuario</p>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    )) :
+                                        <tr>
+                                            <td colSpan="8" className="py-8 text-center text-gray-500 text-sm">
+                                                No se encontraron evidencias con los filtros aplicados
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+            </div>
             {showCommentModal && (
                 <CommentViewer
                     comment={currentComment.text}
@@ -344,16 +361,14 @@ export default function EvidenceTable() {
                     date={currentComment.date}
                     onClose={() => setShowCommentModal(false)}
                 />
-            )
-            }
+            )}
             {openFeedback && (
                 <Feedback
                     cerrar={() => setOpenFeedback(false)}
                     enviar={sendFeedback}
-                    statusFeedback={statusFeedback} // Pasamos el estado (aprobación/rechazo)
+                    statusFeedback={statusFeedback}
                 />
-            )
-            }
+            )}
         </>
     );
 }

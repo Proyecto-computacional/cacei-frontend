@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import AssignTask from "../components/AssignTask";
-import { Pencil, Trash, Filter, X } from "lucide-react";
+import { Pencil, Trash, Filter, X, Plus } from "lucide-react";
 import '../app.css';
 import api from "../services/api";
 
@@ -83,128 +83,161 @@ const EvidenceManagement = () => {
     <>
       <AppHeader />
       <SubHeading />
-      <div className="min-h-screen p-10 pl-18 bg-gradient-to-b from-gray-200 to-white">
-        <h1 className="text-3xl font-semibold text-black mt-6 mb-5">
-          Asignación de Tareas
-        </h1>
-        
-        {/* Filtros de búsqueda */}
-        <div className="mb-6 p-4 bg-white rounded-lg shadow">
-          <div className="flex items-center mb-4">
-            <Filter className="mr-2" size={20} />
-            <h3 className="text-lg font-medium">Filtros de búsqueda</h3>
-            <button 
-              onClick={resetFilters}
-              className="ml-auto flex items-center text-sm text-gray-600 hover:text-gray-900"
+      <div className="min-h-screen bg-gradient-to-b from-gray-200 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold text-black">
+              Asignación de Tareas
+            </h1>
+            <button
+              onClick={() => setShowAssignTask(true)}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#004A98] transition-colors"
+              style={{ backgroundColor: '#004A98' }}
             >
-              <X size={16} className="mr-1" />
-              Limpiar filtros
+              <Plus className="h-5 w-5 mr-2" />
+              Asignar tarea
             </button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-              <select
-                name="category"
-                value={filters.category}
-                onChange={handleFilterChange}
-                className="w-full p-2 border border-gray-300 rounded"
-              >
-                <option value="">Todas las categorías</option>
-                {categories.map((category, index) => (
-                  <option key={index} value={category}>{category}</option>
-                ))}
-              </select>
+          {/* Filtros de búsqueda */}
+          <div className="bg-white rounded-lg shadow mb-8">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Filter className="h-5 w-5 mr-2" style={{ color: '#004A98' }} />
+                  <h3 className="text-lg font-medium text-black">Filtros de búsqueda</h3>
+                </div>
+                <button 
+                  onClick={resetFilters}
+                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#004A98] transition-colors"
+                >
+                  <X className="h-4 w-4 mr-1.5" />
+                  Limpiar filtros
+                </button>
+              </div>
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sección</label>
-              <select
-                name="section"
-                value={filters.section}
-                onChange={handleFilterChange}
-                className="w-full p-2 border border-gray-300 rounded"
-              >
-                <option value="">Todas las secciones</option>
-                {sections.map((section, index) => (
-                  <option key={index} value={section}>{section}</option>
-                ))}
-              </select>
+            <div className="px-6 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                  <select
+                    name="category"
+                    value={filters.category}
+                    onChange={handleFilterChange}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#004A98] focus:ring-[#004A98] sm:text-sm"
+                  >
+                    <option value="">Todas las categorías</option>
+                    {categories.map((category, index) => (
+                      <option key={index} value={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sección</label>
+                  <select
+                    name="section"
+                    value={filters.section}
+                    onChange={handleFilterChange}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#004A98] focus:ring-[#004A98] sm:text-sm"
+                  >
+                    <option value="">Todas las secciones</option>
+                    {sections.map((section, index) => (
+                      <option key={index} value={section}>{section}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Criterio</label>
+                  <select
+                    name="standard"
+                    value={filters.standard}
+                    onChange={handleFilterChange}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#004A98] focus:ring-[#004A98] sm:text-sm"
+                  >
+                    <option value="">Todos los criterios</option>
+                    {standards.map((standard, index) => (
+                      <option key={index} value={standard}>{standard}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Responsable</label>
+                  <select
+                    name="user"
+                    value={filters.user}
+                    onChange={handleFilterChange}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#004A98] focus:ring-[#004A98] sm:text-sm"
+                  >
+                    <option value="">Todos los responsables</option>
+                    {users.map((user, index) => (
+                      <option key={index} value={user}>{user}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Criterio</label>
-              <select
-                name="standard"
-                value={filters.standard}
-                onChange={handleFilterChange}
-                className="w-full p-2 border border-gray-300 rounded"
-              >
-                <option value="">Todos los criterios</option>
-                {standards.map((standard, index) => (
-                  <option key={index} value={standard}>{standard}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Responsable</label>
-              <select
-                name="user"
-                value={filters.user}
-                onChange={handleFilterChange}
-                className="w-full p-2 border border-gray-300 rounded"
-              >
-                <option value="">Todos los responsables</option>
-                {users.map((user, index) => (
-                  <option key={index} value={user}>{user}</option>
-                ))}
-              </select>
+          </div>
+          
+          {/* Tabla de resultados */}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr style={{ backgroundColor: '#004A98' }} className="text-white">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Categoría
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Sección
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Criterio
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Responsable
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Fecha Límite
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredRevisers.length > 0 ? (
+                    filteredRevisers.map((reviser, index) => (
+                      <tr key={index} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {reviser.category_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {reviser.section_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {reviser.standard_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {reviser.user_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {reviser.due_date}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-8 text-center text-sm text-gray-500">
+                        No se encontraron resultados con los filtros aplicados
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-        
-        {/* Tabla de resultados */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-blue-500 text-white">
-                <th className="p-2 border">Categoría</th>
-                <th className="p-2 border">Sección</th>
-                <th className="p-2 border">Criterio</th>
-                <th className="p-2 border">Responsable</th>
-                <th className="p-2 border">Fecha Límite</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRevisers.length > 0 ? (
-                filteredRevisers.map((reviser, index) => (
-                  <tr key={index} className="border border-gray-300">
-                    <td className="p-2 border">{reviser.category_name}</td>
-                    <td className="p-2 border">{reviser.section_name}</td>
-                    <td className="p-2 border">{reviser.standard_name}</td>
-                    <td className="p-2 border">{reviser.user_name}</td>
-                    <td className="p-2 border">{reviser.due_date}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="p-4 text-center text-gray-500">
-                    No se encontraron resultados con los filtros aplicados
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        
-        <button
-          onClick={() => setShowAssignTask(true)}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-        >
-          + Asignar tarea
-        </button>
       </div>
       <AppFooter />
       {showAssignTask && <AssignTask onClose={() => setShowAssignTask(false)} />}

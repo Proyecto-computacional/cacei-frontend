@@ -1,35 +1,131 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import './app.css';
 import headerLogo from './assets/headerLogo.png';
 import headerImg from './assets/headerImage.png';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Logout from "./components/logout";
 import NotificationsTable from "./components/NotificationTable";
 import { Mail, Bell, User, Menu } from "lucide-react";
 import { useLocation } from "react-router-dom";
-
+import api from "./services/api";
 
 export function AppHeader() {
+    const [isScrolled, setIsScrolled] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const isLoginPage = location.pathname === '/';
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 100) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
-        <header>
-            
-        </header>
+        <div className="sticky-top">
+            <div className={`header container-fluid ${isScrolled ? 'scrolled' : ''}`}>
+                <div className="container">
+                    <div className="row header">
+                        <div className="col-12 col-md-auto d-flex justify-content-center justify-content-md-start align-items-center">
+                            <a href="https://www.uaslp.mx">
+                                <img src={headerLogo} className={`img-fluid ${isScrolled ? 'd-none' : 'd-block'} logoUASLP`} alt="UASLP Logo" />
+                            </a>
+                            <p className={`textoUASLP ${isScrolled ? 'd-block' : 'd-none'}`}>
+                                <a href="https://www.uaslp.mx">UASLP</a>
+                            </p>
+
+                            <div className={`divisorUASLP-ENTIDAD me-2 ms-2 ${isScrolled ? 'd-none' : 'd-block'}`}></div>
+                            <div className={`divisorUASLP-ENTIDADScroll ${isScrolled ? 'd-block' : 'd-none'} me-2 ms-3`}></div>
+                        </div>
+
+                        {!isLoginPage && (
+                            <div className="col-12 col-md-auto flex-grow-1 justify-content-center justify-content-md-end align-items-center pt-md-0 pt-2 d-none d-md-block d-lg-block d-xl-block">
+                                <div className="h-75 d-flex flex-column flex-sm-row bd-highlight justify-content-end align-items-sm-end pt-sm-0 pt-5 align-items-center">
+                                    <div className="p-1 px-1 bd-highlight">
+                                        <a href="/mainmenu" onClick={(e) => { e.preventDefault(); navigate('/mainmenu'); }}>Inicio</a>
+                                        <span className="text-white"> | </span>
+                                    </div>
+                                    <div className="p-1 px-1 bd-highlight">
+                                        <a href="/personalInfo" onClick={(e) => { e.preventDefault(); navigate('/personalInfo'); }}>Configuración Personal</a>
+                                        <span className="text-white"> | </span>
+                                    </div>
+                                    <div className="p-1 px-1 bd-highlight">
+                                        <a href="/notifications" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>Notificaciones</a>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+            <div className="fondoFooter" style={{ height: '10px' }}></div>
+        </div>
     );
 }
 
 export function AppFooter() {
     return (
-        <div></div>
+        <div className="mt-0">
+            <footer>
+                <div className="fondoFooter" style={{ height: '10px' }}></div>
+                <div className="piePagina text-white">
+                    <div className="container">
+                        <div id="circulos" className="row">
+                            <div className="col-12 col-md-9">
+                                <div className="row">
+                                    <div className="text-start" style={{ width: '30px' }}>
+                                        <a href="https://www.facebook.com/LaUASLP/" target="_blank" rel="noopener noreferrer">
+                                            <span className="fa fa-facebook-square"></span>
+                                        </a>
+                                    </div>
+                                    <div className="text-start" style={{ width: '30px' }}>
+                                        <a href="https://twitter.com/LaUASLP" target="_blank" rel="noopener noreferrer">
+                                            <span className="fa fa-twitter-square"></span>
+                                        </a>
+                                    </div>
+                                    <div className="text-start" style={{ width: '30px' }}>
+                                        <a href="https://www.youtube.com/LaUASLP" target="_blank" rel="noopener noreferrer">
+                                            <span className="fa fa-youtube-play"></span>
+                                        </a>
+                                    </div>
+                                    <div className="text-start" style={{ width: '30px' }}>
+                                        <a href="https://www.instagram.com/lauaslp" target="_blank" rel="noopener noreferrer">
+                                            <span className="fa fa-instagram"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div className="row" id="identidad">
+                                    <span><b>UASLP</b></span><br />
+                                    <span>Universidad Autónoma de San Luis Potosí</span><br />
+                                    <span>Álvaro Obregón 64, Centro. CP 78000</span><br />
+                                    <span>San Luis Potosí, SLP</span><br />
+                                    <span>444 826 23 00</span><br />
+                                    <span>©Todos los derechos reservados</span><br />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
     );
 }
 
 export function SubHeading() {
     const navigate = useNavigate();
-    const [open, setOpen] = useState(false); // Estado para controlar el menú
-    const [viewNotifications, setViewNotifications] = useState(false)
+    const [open, setOpen] = useState(false);
+    const [viewNotifications, setViewNotifications] = useState(false);
     const location = useLocation();
-    const userRole = localStorage.getItem("role") || "Usuario";
+    const [userRole, setUserRole] = useState("");
     const pathnames = location.pathname.split("/").filter((x) => x);
+    const { evidence_id } = useParams();
 
     const breadcrumbMap = {
         mainmenu: "Inicio",
@@ -41,6 +137,38 @@ export function SubHeading() {
         evidenceManagement: "Gestión de Evidencias",
         notifications: "Notificaciones"
     };
+
+    const [processName, setProcessName] = useState("");
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const response = await api.get('/api/user');
+                setUserRole(response.data.user_role);
+            } catch (error) {
+                console.error("Error al obtener el rol del usuario:", error);
+            }
+        };
+        fetchUserRole();
+    }, []);
+
+    useEffect(() => {
+        const fetchProcessName = async () => {
+            try {
+                const processId = localStorage.getItem('currentProcessId');
+                if (processId) {
+                    const response = await api.get(`/api/process/${processId}`);
+                    setProcessName(response.data.process_name);
+                }
+            } catch (error) {
+                console.error("Error al obtener el nombre del proceso:", error);
+            }
+        };
+
+        if (pathnames.includes('uploadEvidence') || pathnames.includes('evidenceManagement')) {
+            fetchProcessName();
+        }
+    }, [pathnames]);
 
     return (
         <div className="w-full bg-transparent">
@@ -60,46 +188,112 @@ export function SubHeading() {
                                         onClick={() => { navigate("/uploadEvidence"); setOpen(false); }} >
                                         Carga de evidencias
                                     </li>
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
-                                        Administración de usuarios
-                                    </li>
+                                    {userRole === "ADMINISTRADOR" && (
+                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                            onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
+                                            Administración de usuarios
+                                        </li>
+                                    )}
                                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                         onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
                                         Revisión de evidencias
                                     </li>
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
-                                        Gestión de formato
-                                    </li>
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/evidenceManagement"); setOpen(false); }} >
-                                        Asignación de tareas
-                                    </li>
+                                    {userRole === "ADMINISTRADOR" && (
+                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                            onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
+                                            Gestión de formato
+                                        </li>
+                                    )}
+                                    {userRole === "ADMINISTRADOR" && (
+                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                            onClick={() => { navigate("/evidenceManagement"); setOpen(false); }} >
+                                            Asignación de tareas
+                                        </li>
+                                    )}
                                     
                                 </ul>
                             </div>
                         )}
                     </div>
 
-                    <div className="ml-12 flex items-center space-x-2 text-sm">
-                        <span className="text-[#00B2E3] italic underline cursor-pointer" onClick={() => navigate("/")}>
-                            Inicio
-                        </span>
-                        {pathnames.map((value, index) => {
-                            const to = "/" + pathnames.slice(0, index + 1).join("/");
-                            return (
-                                <span key={to} className="flex items-center space-x-2">
-                                    <span className="mx-1">/</span>
-                                    <span
-                                        className="text-[#00B2E3] italic underline cursor-pointer"
-                                        onClick={() => navigate(to)}
-                                    >
-                                        {breadcrumbMap[value] || value}
-                                    </span>
+                    <div className="ml-12 flex items-center">
+                        {pathnames.includes('mainmenu') ? (
+                            <span className="text-[#00B2E3] text-lg font-medium">Inicio</span>
+                        ) : pathnames.includes('dash') ? (
+                            <>
+                                <span 
+                                    className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
+                                    onClick={() => navigate('/mainmenu')}
+                                >
+                                    Inicio
                                 </span>
-                            );
-                        })}
+                                <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                <span className="text-[#00B2E3] text-lg font-medium">
+                                    Dashboard
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                <span 
+                                    className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
+                                    onClick={() => navigate('/mainmenu')}
+                                >
+                                    Inicio
+                                </span>
+                                {(pathnames.includes('uploadEvidence') || pathnames.includes('evidenceManagement')) && (
+                                    <>
+                                        <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                        <span 
+                                            className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
+                                            onClick={() => {
+                                                const processId = localStorage.getItem('currentProcessId');
+                                                if (processId) {
+                                                    navigate(`/dash/${processId}`);
+                                                }
+                                            }}
+                                        >
+                                            Dashboard
+                                        </span>
+                                    </>
+                                )}
+                                {pathnames.map((value, index) => {
+                                    if (value === 'uploadEvidence' || value === 'evidenceManagement') {
+                                        return (
+                                            <React.Fragment key={index}>
+                                                <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                                <span className="text-[#00B2E3] text-lg font-medium">
+                                                    {breadcrumbMap[value]}
+                                                </span>
+                                                {processName && (
+                                                    <>
+                                                        <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                                        <span className="text-[#00B2E3] text-lg font-medium">
+                                                            {processName}
+                                                        </span>
+                                                    </>
+                                                )}
+                                                {evidence_id && (
+                                                    <>
+                                                        <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                                        <span className="text-[#00B2E3] text-lg font-medium">
+                                                            {evidence_id}
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </React.Fragment>
+                                        );
+                                    }
+                                    return (
+                                        <React.Fragment key={index}>
+                                            {index > 0 && <span className="mx-0.5 text-gray-400 text-lg">/</span>}
+                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                                {breadcrumbMap[value] || value}
+                                            </span>
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </>
+                        )}
                     </div>
 
                 </div>
@@ -122,11 +316,13 @@ export function SubHeading() {
                         )}
                     </div>
 
-                    <button onClick={() => navigate("/personalInfo")} className="flex items-center justify-center bg-yellow-500 text-white shadow w-55 h-7 cursor-pointer">
+                    <div className="flex items-center justify-center bg-[#004A98] text-white shadow w-55 h-7">
                         <User className="w-5 h-5 mr-2 pl-1" />
                         {userRole}
+                    </div>
+                    <button className="flex items-center justify-center bg-[#004A98] text-white shadow w-55 h-7 cursor-pointer">
+                        <Logout></Logout>
                     </button>
-                    <Logout></Logout>
                 </div>
             </div>
         </div>

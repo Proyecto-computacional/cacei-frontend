@@ -23,8 +23,7 @@ const MainMenu = () => {
         const response = await api.get("api/ProcesosUsuario", {
           params: { userRpe },
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem('token')}`,
-            "Authorization": `Bearer ${localStorage.getItem('token')}`,
+            "Authorization": `Bearer ${localStorage.getItem('token')}`
           },
         });
   
@@ -65,7 +64,8 @@ const MainMenu = () => {
 
   const handleCardClick = (processId, frameName, careerName) => {
     localStorage.setItem("frameName", frameName);
-    localStorage.setItem("careerName", careerName)
+    localStorage.setItem("careerName", careerName);
+    localStorage.setItem("currentProcessId", processId);
     navigate(`/dash/${processId}`, { state: { processId } });
   };
 

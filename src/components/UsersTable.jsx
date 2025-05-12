@@ -3,10 +3,10 @@ import SelectRol from "./selectRole";
 import axios from "axios";
 import "../app.css"
 import api from "../services/api";
+import { Search, Users, Shield } from "lucide-react";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UsersTable() {
-
     const [roles] = useState([
         { name: 'Administrador', description: 'Administración y visualización de todos los procesos de todos los procesos de acreditación' },
         { name: 'Directivo', description: 'visualización de todos los procesos de todos los procesos de acreditación' },
@@ -43,10 +43,10 @@ export default function UsersTable() {
                 if (error.response) {
                     if (error.response.status === 403) {
                         alert("No tienes permisos para acceder a esta sección.");
-                        window.location.href = "/PersonalConfig"; // Redirige al dashboard (*pending)
+                        window.location.href = "/PersonalConfig";
                     } else if (error.response.status === 401) {
                         alert("Sesión expirada. Inicia sesión de nuevo.");
-                        window.location.href = "/login"; // Redirige a la página de login
+                        window.location.href = "/";
                     } else {
                         alert("Error desconocido al obtener los usuarios.");
                     }
@@ -71,61 +71,91 @@ export default function UsersTable() {
         });
     };
 
-
     return (
-        <div className="container mx-auto p-5 ">
-            <h2 className="text-2xl font-bold mb-2">Lista de Usuarios</h2>
-            <input type="" placeholder="RPE o Correo" className="bg-backgroundFrom text-2xl w-1/2 mb-3 p-1.5"  
-            onChange={(e) => setSearchTerm(e.target.value)}/>
+        <div className="container mx-auto p-5">
+            <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                    <div className="bg-[#004A98] p-2 rounded-lg">
+                        <Users className="h-6 w-6 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                        Lista de Usuarios
+                    </h2>
+                </div>
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <input 
+                        type="text" 
+                        placeholder="Buscar por RPE, nombre o correo..." 
+                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004A98] focus:border-transparent w-96"
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+            </div>
 
-            <div className="overflow-x-auto overflow-y-scroll max-h-100" onScroll={(e) => {
-                const bottom = e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1;
-                if (bottom && !loading) loadMore();
-            }}>
-                <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md table-fixed">
+            <div className="overflow-x-auto overflow-y-scroll max-h-[600px] rounded-lg shadow-sm border border-gray-200">
+                <table className="min-w-full bg-white">
                     <thead className="sticky top-0 z-0">
-                        <tr className="bg-primary1 text-white">
-                            <th className="w-3/10 py-3 px-4 text-left">RPE</th>
-                            <th className="w-4/10 py-3 px-4 text-left">Correo</th>
-                            <th className="w-3/10 py-3 px-4 text-left">Rol</th>
+                        <tr className="bg-[#004A98] text-white">
+                            <th className="py-4 px-6 text-left font-semibold">RPE</th>
+                            <th className="py-4 px-6 text-left font-semibold">Nombre</th>
+                            <th className="py-4 px-6 text-left font-semibold">Correo</th>
+                            <th className="py-4 px-6 text-left font-semibold">Rol</th>
                         </tr>
                     </thead>
                     <tbody>
                         {users.length > 0 ? users.map((item) => (
-                            <tr key={item.user_rpe} className="border-b hover:bg-gray-100">
-                                <td className="py-3 px-4">{item.user_rpe}</td>
-                                <td className="py-3 px-4">{item.user_mail}</td>
-                                <td className="py-3 px-4">
-                                    <SelectRol userId={item.user_rpe} initialRole={item.user_role} AllRoles={roles}></SelectRol>
+                            <tr key={item.user_rpe} className="border-b hover:bg-gray-50 transition-colors duration-200">
+                                <td className="py-4 px-6">{item.user_rpe}</td>
+                                <td className="py-4 px-6 font-medium">{item.user_name || 'No especificado'}</td>
+                                <td className="py-4 px-6 text-gray-600">{item.user_mail}</td>
+                                <td className="py-4 px-6">
+                                    <SelectRol userId={item.user_rpe} initialRole={item.user_role} AllRoles={roles} />
                                 </td>
                             </tr>
-                        )):
+                        )) :
                         <tr>
-                            <td colSpan="3">
-                                <p className="text-2xl text-neutral-500 text-center width-max my-2">No se encontaron usuarios</p>
+                            <td colSpan="4" className="py-8 text-center">
+                                <div className="flex flex-col items-center text-gray-500">
+                                    <Users className="h-12 w-12 mb-3 text-gray-400" />
+                                    <p className="text-lg font-medium">No se encontraron usuarios</p>
+                                    <p className="text-sm">Intenta con otros términos de búsqueda</p>
+                                </div>
                             </td>
                         </tr>
-                    }
+                        }
                     </tbody>
                 </table>
             </div>
-            <h2 className="text-2xl font-bold mb-1 mt-4">Lista de Roles</h2>
-            <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
-                <thead>
-                    <tr className="bg-primary1 text-white">
-                        <th className="py-3 px-4 text-left">Rol</th>
-                        <th className="py-3 px-4 text-left">Permisos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {roles.map((rol) => (
-                        <tr key={rol.name} className="border-b hover:bg-gray-100">
-                            <td className="py-3 px-4">{rol.name}</td>
-                            <td className="py-3 px-4">{rol.description}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+
+            <div className="mt-8">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-[#004A98] p-2 rounded-lg">
+                        <Shield className="h-6 w-6 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                        Lista de Roles
+                    </h2>
+                </div>
+                <div className="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
+                    <table className="min-w-full bg-white">
+                        <thead>
+                            <tr className="bg-[#004A98] text-white">
+                                <th className="py-4 px-6 text-left font-semibold">Rol</th>
+                                <th className="py-4 px-6 text-left font-semibold">Permisos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {roles.map((rol) => (
+                                <tr key={rol.name} className="border-b hover:bg-gray-50 transition-colors duration-200">
+                                    <td className="py-4 px-6 font-medium">{rol.name}</td>
+                                    <td className="py-4 px-6 text-gray-600">{rol.description}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     );
 }

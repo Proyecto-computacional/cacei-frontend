@@ -2,28 +2,30 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; 
 import api from "../services/api";
 import { AppHeader, AppFooter, SubHeading } from "../common";
-import NotificationCard from "../components/NotificationCard"; 
+import NotificationCard from "../components/NotificationCard";
+import { Bell, Filter, Search } from "lucide-react";
 
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);
-  const location = useLocation();  // Obtener la ubicación para extraer parámetros
-  const userRpe = localStorage.getItem('rpe')  // Obtener el RPE del usuario desde el estado
-  const navigate = useNavigate(); // Usado para navegar a otras rutas
+  const [filter, setFilter] = useState('all'); // 'all', 'unread', 'pinned', 'starred'
+  const [searchQuery, setSearchQuery] = useState('');
+  const location = useLocation();
+  const userRpe = localStorage.getItem('rpe');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         if (!userRpe) {
           console.error("userRpe no está disponible");
-          return;  // Si no está disponible, no hacemos la solicitud
+          return;
         }
 
-        // Hacemos la solicitud a la API pasando el `userRpe` y el token en los headers
         const response = await api.post("/api/Notificaciones", 
           { user_rpe: userRpe },
           {
             headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}` // Obtención del token del localStorage
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
             },
           }
         );
@@ -32,33 +34,29 @@ const Notification = () => {
           throw new Error("Error al obtener las notificaciones");
         }
 
-        // Aquí se almacenan las notificaciones en el estado
-        const data = response.data;
-        setNotifications(data);  
+        setNotifications(response.data);
       } catch (error) {
         console.error("Error al obtener las notificaciones:", error);
       }
     };
 
     fetchNotifications();
-  }, [userRpe]); // Solo se ejecuta cuando `userRpe` cambie
+  }, [userRpe]);
 
-  const handlePin = async (id) => { //pinned
+  const handlePin = async (id) => {
     try {  
-      // Encuentra la notificación actual para obtener su estado actual
       const currentNotif = notifications.find((notif) => notif.notification_id === id);
       if (!currentNotif) return;
   
       const newPinnedState = !currentNotif.pinned;
-
       
       const response = await api.put(
-        "/api/Notificaciones/pinned", // Ruta de la API
-        { notification_id: currentNotif.notification_id },  // Cuerpo de la solicitud con el `notification_id`
+        "/api/Notificaciones/pinned",
+        { notification_id: currentNotif.notification_id },
         {
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`, // Token de autorización
-            "Content-Type": "application/json", // Asegúrate de que el tipo de contenido sea JSON
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -67,7 +65,6 @@ const Notification = () => {
         throw new Error("Error al fijar la notificación");
       }
   
-      // Si la solicitud es exitosa, actualizar el estado en el frontend
       setNotifications((prev) =>
         prev.map((notif) =>
           notif.notification_id === id ? { ...notif, pinned: newPinnedState } : notif
@@ -81,17 +78,16 @@ const Notification = () => {
 
   const handleStarred = async (id) => {
     try {  
-      // Encuentra la notificación actual para obtener su estado actual
       const currentNotif = notifications.find((notif) => notif.notification_id === id);
       if (!currentNotif) return;
       
       const response = await api.put(
-        "/api/Notificaciones/favorite", // Ruta de la API
-        { notification_id: currentNotif.notification_id },  // Cuerpo de la solicitud con el `notification_id`
+        "/api/Notificaciones/favorite",
+        { notification_id: currentNotif.notification_id },
         {
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`, // Token de autorización
-            "Content-Type": "application/json", // Asegúrate de que el tipo de contenido sea JSON
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -100,7 +96,6 @@ const Notification = () => {
         throw new Error("Error al fijar la notificación");
       }
   
-      // Si la solicitud es exitosa, actualizar el estado en el frontend
       setNotifications((prev) =>
         prev.map((notif) =>
           notif.notification_id === id ? { ...notif, starred: !notif.starred } : notif
@@ -114,17 +109,16 @@ const Notification = () => {
 
   const handleDelete = async (id) => {
     try {  
-      // Encuentra la notificación actual para obtener su estado actual
       const currentNotif = notifications.find((notif) => notif.notification_id === id);
       if (!currentNotif) return;
       
       const response = await api.put(
-        "/api/Notificaciones/deleted", // Ruta de la API
-        { notification_id: currentNotif.notification_id },  // Cuerpo de la solicitud con el `notification_id`
+        "/api/Notificaciones/deleted",
+        { notification_id: currentNotif.notification_id },
         {
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`, // Token de autorización
-            "Content-Type": "application/json", // Asegúrate de que el tipo de contenido sea JSON
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -133,18 +127,32 @@ const Notification = () => {
         throw new Error("Error al eliminar la notificación");
       }
   
-      // Si la solicitud es exitosa, actualizar el estado en el frontend
       setNotifications((prev) => prev.filter((notif) => notif.notification_id !== id));
   
     } catch (error) {
       console.error("Error en handleDeleted:", error);
     }
   };
-  
 
   const handleNotificationClick = (id) => {
     navigate(`/notification/${id}`, { state: { notificationId: id } });
   };
+
+  const filteredNotifications = notifications.filter(notif => {
+    const matchesSearch = notif.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         notif.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    switch (filter) {
+      case 'unread':
+        return !notif.seen && matchesSearch;
+      case 'pinned':
+        return notif.pinned && matchesSearch;
+      case 'starred':
+        return notif.starred && matchesSearch;
+      default:
+        return matchesSearch;
+    }
+  });
 
   return (
     <>
@@ -154,15 +162,46 @@ const Notification = () => {
         className="min-h-screen p-10 pl-18"
         style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}
       >
-        <h1 className="text-[34px] font-semibold text-black mt-6 mb-5">
-          Mis Notificaciones
-        </h1>
-        <div className="space-y-4">
-          {notifications.length > 0 ? (
-            // Filtra las notificaciones donde 'seen' sea false
-            notifications
-              .filter((notif) => notif.seen === false)  // Solo notificaciones no vistas
-              .map((notif) => (
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="bg-[#004A98] p-2 rounded-lg">
+                <Bell className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-[34px] font-bold text-gray-800">
+                Mis Notificaciones
+              </h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                  type="text"
+                  placeholder="Buscar notificaciones..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004A98] focus:border-transparent"
+                />
+              </div>
+              <div className="relative">
+                <button
+                  onClick={() => setFilter(filter === 'all' ? 'unread' : filter === 'unread' ? 'pinned' : filter === 'pinned' ? 'starred' : 'all')}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  <Filter className="h-5 w-5 text-gray-600" />
+                  <span className="text-gray-700">
+                    {filter === 'all' ? 'Todas' : 
+                     filter === 'unread' ? 'No leídas' :
+                     filter === 'pinned' ? 'Fijadas' : 'Favoritas'}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {filteredNotifications.length > 0 ? (
+              filteredNotifications.map((notif) => (
                 <NotificationCard
                   key={notif.notification_id}
                   title={notif.title}
@@ -173,18 +212,27 @@ const Notification = () => {
                   onDeletedClick={() => handleDelete(notif.notification_id)}
                   onStarClick={() => handleStarred(notif.notification_id)}
                   onPinClick={() => handlePin(notif.notification_id)}
-                  onClick={() => handleNotificationClick(notif.notification_id)} // Navegar a la página de la notificación
                 />
               ))
-          ) : (
-            <p>No se encontraron notificaciones</p>
-          )}
+            ) : (
+              <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  No hay notificaciones
+                </h3>
+                <p className="text-gray-500">
+                  {searchQuery ? 'No se encontraron notificaciones que coincidan con tu búsqueda.' :
+                   filter !== 'all' ? 'No hay notificaciones en esta categoría.' :
+                   'No tienes notificaciones pendientes.'}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <AppFooter />
     </>
   );
-  
 };
 
 export default Notification;
