@@ -10,7 +10,13 @@ const Feedback = ({ enviar, cerrar, statusFeedback }) => {
     const handleConfirmacion = async () => {
         setLoading(true);
         try {
-            await enviar(feedback);
+            // Sanitizar el feedback eliminando caracteres especiales y scripts
+            const sanitizedFeedback = feedback
+                .replace(/<[^>]*>/g, '') // Elimina etiquetas HTML
+                .replace(/[<>]/g, '') // Elimina < y >
+                .trim(); // Elimina espacios al inicio y final
+
+            await enviar(sanitizedFeedback);
             cerrar();
         } finally {
             setLoading(false);
