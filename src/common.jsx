@@ -160,7 +160,7 @@ export function SubHeading() {
             try {
                 const processId = localStorage.getItem('currentProcessId');
                 if (processId) {
-                    const response = await api.get(`/api/process/${processId}`);
+                    const response = await api.get(`/api/processes/${processId}`);
                     setProcessName(response.data.process_name);
                 }
             } catch (error) {

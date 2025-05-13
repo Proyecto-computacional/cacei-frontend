@@ -24,17 +24,17 @@ const EvidenceManagement = () => {
   const standards = [...new Set(revisers.map(item => item.standard_name))];
   const users = [...new Set(revisers.map(item => item.user_name))];
 
-  useEffect(() => {
-    const fetchRevisers = async () => {
-      try {
-        const response = await api.get("/api/revisers");
-        setRevisers(response.data);
-        setFilteredRevisers(response.data);
-      } catch (error) {
-        console.error("Error al obtener los revisores:", error);
-      }
-    };
+  const fetchRevisers = async () => {
+    try {
+      const response = await api.get("/api/revisers");
+      setRevisers(response.data);
+      setFilteredRevisers(response.data);
+    } catch (error) {
+      console.error("Error al obtener los revisores:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchRevisers();
   }, []);
 
@@ -77,6 +77,11 @@ const EvidenceManagement = () => {
       user: ''
     });
     setFilteredRevisers(revisers);
+  };
+
+  const handleAssignmentComplete = () => {
+    setShowAssignTask(false);
+    fetchRevisers(); // Reload the table data
   };
 
   return (
@@ -240,7 +245,7 @@ const EvidenceManagement = () => {
         </div>
       </div>
       <AppFooter />
-      {showAssignTask && <AssignTask onClose={() => setShowAssignTask(false)} />}
+      {showAssignTask && <AssignTask onClose={handleAssignmentComplete} />}
     </>
   );
 };

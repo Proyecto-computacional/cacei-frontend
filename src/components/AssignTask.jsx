@@ -12,11 +12,24 @@ const AssignTask = ({ onClose }) => {
   const [dueDate, setDueDate] = useState("");
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState("");
+  const [frame_id, setFrameId] = useState(null);
 
   useEffect(() => {
-    api.post("/api/categories", { frame_id: 1 })
-      .then(res => setCategories(res.data));
+    const storedFrameId = localStorage.getItem('frameId');
+    console.log('storedFrameId', storedFrameId);
+    if (storedFrameId) {
+      setFrameId(storedFrameId);
+    }
   }, []);
+
+  useEffect(() => {
+    if (frame_id) {
+      console.log('frame_id', frame_id);
+      const response = api.post("/api/categories", { frame_id })
+        .then(res => setCategories(res.data));
+      console.log('response', response);
+    }
+  }, [frame_id]);
 
   useEffect(() => {
     if (selectedCategory) {

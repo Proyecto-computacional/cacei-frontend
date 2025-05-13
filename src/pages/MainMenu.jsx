@@ -90,10 +90,12 @@ const MainMenu = () => {
     }
   }, [userRole]);
 
-  const handleCardClick = (processId, frameName, careerName) => {
+  const handleCardClick = (processId, frameName, careerName, frameId) => {
     localStorage.setItem("frameName", frameName);
     localStorage.setItem("careerName", careerName);
     localStorage.setItem("currentProcessId", processId);
+    localStorage.setItem("frameId", frameId);
+    console.log('frameId: ', frameId);
     navigate(`/dash/${processId}`, { state: { processId } });
   };
 
@@ -141,7 +143,7 @@ const MainMenu = () => {
                     area={card.area_name}
                     career={card.career_name}
                     percentage={`${percentages[card.process_id] ?? 0}%`}
-                    onClick={() => handleCardClick(card.process_id, card.frame_name, card.career_name)}
+                    onClick={() => handleCardClick(card.process_id, card.frame_name, card.career_name, card.frame_id)}
                   />
                 </div>
               ))}
