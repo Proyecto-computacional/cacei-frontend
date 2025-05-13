@@ -87,9 +87,15 @@ export default function EvidenceTable() {
         let url = `api/ReviewEvidence?`;
         api.get(url).then(({ data }) => {
             console.log(data);
-            setEvidences(() => [...data.evidencias]);
-            //setNextPage(data.evidencias.next_page_url);
-            //setLoading(false);
+            // Process file URLs to ensure they have the correct base URL
+            const processedEvidences = data.evidencias.map(evidence => ({
+                ...evidence,
+                files: evidence.files.map(file => ({
+                    ...file,
+                    file_url: file.file_url.startsWith('http') ? file.file_url : `${window.location.origin}/${file.file_url}`
+                }))
+            }));
+            setEvidences(() => [...processedEvidences]);
         });
     }, [refresh]);
 
@@ -323,13 +329,13 @@ export default function EvidenceTable() {
                                             <td className="py-4 px-6">
                                                 {canReview(item.statuses) ? (
                                                     <div className="flex gap-3">
-                                                        <button 
+                                                        <button
                                                             onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true)}
                                                             className="p-2 rounded-full hover:bg-green-50 transition-colors duration-200"
                                                         >
                                                             <Check color="green" size={24} strokeWidth={2} />
                                                         </button>
-                                                        <button 
+                                                        <button
                                                             onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}
                                                             className="p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
                                                         >
