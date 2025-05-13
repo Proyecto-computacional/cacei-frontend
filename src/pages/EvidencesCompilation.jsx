@@ -30,8 +30,6 @@ const EvidencesCompilation = () => {
   };
 
   const confirmCompilation = () => {
-    console.log("Compilando evidencias...");
-    console.log("Finalizar acreditación:", finalize);
 
     api.get("/api/procesos/1/descargar-evidencias", {
       responseType: "blob",
@@ -40,7 +38,6 @@ const EvidencesCompilation = () => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         setLink(url); 
         setShowModal(false); 
-        console.log("Evidencias compiladas correctamente.");
       })
       .catch((error) => {
         console.error("Error al compilar las evidencias:", error);
