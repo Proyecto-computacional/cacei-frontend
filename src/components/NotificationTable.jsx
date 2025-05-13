@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Trash2, Pin, PinOff } from "lucide-react";
+import { Trash2, Pin, PinOff, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import '../app.css';
 
 const NotificationsTable = () => {
     const [notifications, setNotifications] = useState([]);
     const navigate = useNavigate();
-    const userRpe = localStorage.getItem('rpe')
+    const userRpe = localStorage.getItem('rpe');
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -40,7 +39,7 @@ const NotificationsTable = () => {
         };
 
         fetchNotifications();
-    }, [userRpe]);  // Se ejecuta cuando cambia userRpe
+    }, [userRpe]);
 
     const pinNoti = (id) => {
         setNotifications((prev) => {
@@ -57,52 +56,76 @@ const NotificationsTable = () => {
         setNotifications((prev) => prev.filter((noti) => noti.id !== id));
     };
 
-    return (
-        <div className="overflow-x-auto overflow-y-scroll max-h-75 w-120 text-center bg-neutral-400 p-2">
-            <p className="my-3 text-2xl inline-block text-white">Notificaciones</p>
-            <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
-            <tbody>
-                {notifications.length > 0 ? (
-                    notifications
-                    .filter((notif) => notif.seen === false)
-                    .map((noti) => (
-                        <tr key={noti.id} className="border-b hover:bg-gray-100">
-                            {/* Contenedor de título y descripción */}
-                            <td className="py-2 px-2 text-left">
-                                <div className="flex flex-col">
-                                    <span className="font-semibold">{noti.title}</span>
-                                    <span className="text-gray-500 text-sm">
-                                        {noti.description.length > 20 
-                                            ? `${noti.description.slice(0, 20)}...`
-                                            : noti.description}
-                                    </span>
-                                </div>
-                            </td>
+    const unreadNotifications = notifications.filter(notif => !notif.seen);
 
-                            {/* Acciones */}
-                            <td className="py-2 px-2 flex gap-4 justify-center items-center">
-                                <button onClick={() => pinNoti(noti.id)}>
-                                    {noti.pin ? <PinOff className="text-blue-500"/> : <Pin className="text-gray-500"/>}
-                                </button>
-                                <button onClick={() => deleteNoti(noti.id)}>
-                                    <Trash2 className="text-red-500" />
-                                </button>
-                            </td>
-                        </tr>
+    return (
+        <div className="w-96 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="p-4 border-b border-gray-200 bg-gray-50">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-gray-800">Notificaciones</h3>
+                </div>
+            </div>
+
+            <div className="max-h-96 overflow-y-auto">
+                {unreadNotifications.length > 0 ? (
+                    unreadNotifications.map((noti) => (
+                        <div 
+                            key={noti.id} 
+                            className="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                        >
+                            <div className="flex justify-between items-start gap-3">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        {noti.pin && (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                <Pin className="h-3 w-3 mr-1" />
+                                                Fijada
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h4 className="font-medium text-gray-900 mb-1">{noti.title}</h4>
+                                    <p className="text-sm text-gray-600 line-clamp-2">
+                                        {noti.description}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button 
+                                        onClick={() => pinNoti(noti.id)}
+                                        className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                                    >
+                                        {noti.pin ? (
+                                            <PinOff className="w-4 h-4 text-blue-500" />
+                                        ) : (
+                                            <Pin className="w-4 h-4 text-gray-400" />
+                                        )}
+                                    </button>
+                                    <button 
+                                        onClick={() => deleteNoti(noti.id)}
+                                        className="p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                                    >
+                                        <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     ))
                 ) : (
-                    <tr>
-                        <td colSpan="4" className="py-4 text-gray-500">No hay notificaciones disponibles</td>
-                    </tr>
+                    <div className="p-8 text-center">
+                        <p className="text-gray-500">No hay notificaciones nuevas</p>
+                    </div>
                 )}
-            </tbody>
-            </table>
-            <button className="w-full bg-primary1 text-white px-4 text-2xl sticky bottom-0"
-                onClick={() => navigate("/notifications")}>
-                Ver todo
-            </button>
+            </div>
+
+            <div className="p-3 bg-gray-50 border-t border-gray-200">
+                <button 
+                    onClick={() => navigate("/notifications")}
+                    className="w-full py-2 px-4 bg-[#004A98] text-white rounded-lg hover:bg-[#003d7a] transition-colors text-sm font-medium"
+                >
+                    Ver todas las notificaciones
+                </button>
+            </div>
         </div>
     );
-}
+};
 
 export default NotificationsTable;
