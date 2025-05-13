@@ -102,19 +102,16 @@ const CV = () => {
     
         const fetchInitialData = async () => {
             try {
-                // 1. Obtener CV para extraer cv_id
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
-    
-                // 2. Cargar datos de la sección activa
+        
                 if (cvResponse.data.cv_id) {
                     const sectionData = await fetchSectionData(cvResponse.data.cv_id, activeSection);
                     
-                    // Mapeo genérico de datos (adaptar por sección si es necesario)
                     setData(prev => ({
                         ...prev,
-                        [activeSection]: sectionData.map(item => ({
-                            id: item.id, // Usar el ID del campo primario de cada modelo
+                        [activeSection]: sectionData.map((item, index) => ({
+                            id: `${activeSection}_${item.id}_${index}`, // Añade sectionId al key
                             values: mapApiDataToFormFields(activeSection, item)
                         }))
                     }));
@@ -325,7 +322,13 @@ const CV = () => {
     const addRow = (sectionId) => {
         setData((prev) => ({
             ...prev,
-            [sectionId]: [...(prev[sectionId] || []), { id: Date.now(), values: {} }],
+            [sectionId]: [
+                ...(prev[sectionId] || []), 
+                { 
+                    id: `new_${sectionId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    values: {} 
+                }
+            ],
         }));
     };
 
@@ -341,12 +344,25 @@ const CV = () => {
     };
 
     const updateRow = (sectionId, rowId, field, value) => {
-        setData((prev) => ({
-            ...prev,
-            [sectionId]: prev[sectionId].map((row) =>
-                row.id === rowId ? { ...row, values: { ...row.values, [field]: value } } : row
-            ),
-        }));
+        setData((prev) => {
+            // Verifica que la sección exista
+            if (!prev[sectionId]) return prev;
+            
+            return {
+                ...prev,
+                [sectionId]: prev[sectionId].map((row) =>
+                    row.id === rowId 
+                        ? { 
+                            ...row, 
+                            values: { 
+                                ...row.values, 
+                                [field]: value 
+                            } 
+                        } 
+                        : row
+                ),
+            };
+        });
     };
     
     return (
@@ -385,7 +401,7 @@ const CV = () => {
                                             {(data[section.id] || []).map((row) => (
                                                 <tr key={row.id}>
                                                     {section.campos.map((campo) => (
-                                                        <td key={campo.name} className="border px-4 py-2">
+                                                        <td key={`${row.id}_${campo.name}`} className="border px-4 py-2">
                                                             {campo.type === "select" ? (
                                                                 <select
                                                                     value={row.values[campo.name] || ""}
