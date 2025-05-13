@@ -30,17 +30,30 @@ const EvidencesCompilation = () => {
   };
 
   const confirmCompilation = () => {
-
-    api.get("/api/procesos/1/descargar-evidencias", {
+    const processId = parseInt(localStorage.getItem("currentProcessId"), 10);
+    console.log('processId', processId);
+    api.get(`/api/procesos/${processId}/descargar-evidencias`, {
       responseType: "blob",
     })
       .then((response) => {
+        // Check if the response is empty or has no content
+        if (response.data.size === 0) {
+          alert("No hay evidencias para compilar en este proceso.");
+          setShowModal(false);
+          return;
+        }
         const url = window.URL.createObjectURL(new Blob([response.data]));
         setLink(url); 
         setShowModal(false); 
       })
       .catch((error) => {
         console.error("Error al compilar las evidencias:", error);
+        if (error.response && error.response.status === 404) {
+          alert("No se encontraron evidencias para compilar en este proceso.");
+        } else {
+          alert("Error al compilar las evidencias. Por favor, intente nuevamente.");
+        }
+        setShowModal(false);
       });
   };
 
