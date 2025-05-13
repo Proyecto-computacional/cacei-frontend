@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import { useLocation } from "react-router-dom";
 import DashboardWidgets from "../components/DashboardWidgets";
@@ -11,14 +11,30 @@ const ProgressBar = ({ approved, rejected, pending, notUploaded }) => {
     <div className="relative w-full h-6 rounded-full bg-gray-300 overflow-hidden">
       <div className="absolute h-full bg-green-500" style={{ width: `${approved}%` }}></div>
       <div className="absolute h-full bg-red-500" style={{ left: `${approved}%`, width: `${rejected}%` }}></div>
-      <div className="absolute h-full bg-yellow-500" style={{ left: `${approved + rejected}%`, width: `${pending}%` }}></div>
+      <div className="absolute h-full bg-yellow-400" style={{ left: `${approved + rejected}%`, width: `${pending}%` }}></div>
       <div className="absolute h-full bg-gray-600" style={{ left: `${approved + rejected + pending}%`, width: `${notUploaded}%` }}></div>
     </div>
   );
 };
 
-const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evidences }) => {
+const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evidences = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  // Ensure evidences is always an array
+  const safeEvidences = Array.isArray(evidences) ? evidences : [];
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'APROBADA':
+        return 'text-green-600';
+      case 'NO APROBADA':
+        return 'text-red-600';
+      case 'PENDIENTE':
+        return 'text-yellow-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
 
   return (
     <div className="bg-gray-100 p-4 rounded-lg mb-2">
@@ -35,22 +51,28 @@ const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evi
                 <th className="p-2">Nombre evidencia</th>
                 <th className="p-2">Responsable</th>
                 <th className="p-2">Info. Básica</th>
-                <th className="p-2">Ver</th>
                 <th className="p-2">Verificado</th>
-                <th className="p-2">Evaluado</th>
               </tr>
             </thead>
             <tbody>
-              {evidences.map((evidence, index) => (
-                <tr key={index} className="border-t">
-                  <td className="p-2">{evidence.name}</td>
-                  <td className="p-2">{evidence.responsible}</td>
-                  <td className="p-2">{evidence.info}</td>
-                  <td className="p-2">{evidence.file}</td>
-                  <td className="p-2">{evidence.verified}</td>
-                  <td className="p-2">{evidence.evaluated}</td>
+              {safeEvidences.length > 0 ? (
+                safeEvidences.map((evidence, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="p-2">{evidence.name || '-'}</td>
+                    <td className="p-2">{evidence.responsible || '-'}</td>
+                    <td className="p-2">{evidence.info || '-'}</td>
+                    <td className={`p-2 font-medium ${getStatusColor(evidence.verified)}`}>
+                      {evidence.verified || '-'}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="p-2 text-center text-gray-500">
+                    No hay evidencias disponibles
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -63,17 +85,133 @@ const Dashboard = () => {
   const location = useLocation();
   const processId = location.state?.processId;
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [processInfo, setProcessInfo] = useState({
+    frameName: '',
+    area: '',
+    career: ''
+  });
 
-  const sampleEvidences = [
-    { name: "Evidencia 0239..", responsible: "Ernesto Lopez", info: "Sección 2.1.3", file: "Apuntes.Pdf", verified: "(X)", evaluated: "Marco Alcaraz" },
-    { name: "Evidencia 0240..", responsible: "Felipe Bravo", info: "Sección 4.1.2", file: "Examen.Pdf", verified: "(V)", evaluated: "Enrique Alcala" },
-    { name: "Evidencia 0241....", responsible: "Enrique Alcala", info: "Sección 3.1.2", file: "NomArchivo.Pdf", verified: "(X)", evaluated: "Felipe Bravo" },
-    { name: "Evidencia 0242..", responsible: "Marco Alcaraz", info: "Sección 1.1.3", file: "NomArchivo.Pdf", verified: "(X)", evaluated: "Ernesto Lopez" }
-  ];
+  useEffect(() => {
+    const fetchProcessInfo = async () => {
+      try {
+        const processId = localStorage.getItem("currentProcessId");
+        if (!processId) {
+          throw new Error("No process ID found");
+        }
+        const response = await api.get(`/api/processes/${processId}`);
+        console.log('response.data', response.data);
+        setProcessInfo({
+          frameName: response.data.frame_name || '',
+          area: response.data.area_name || '',
+          career: response.data.career_name || ''
+        });
+      } catch (error) {
+        console.error("Error fetching process info:", error);
+      }
+    };
+
+    fetchProcessInfo();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const processId = localStorage.getItem("currentProcessId");
+        if (!processId) {
+          throw new Error("No process ID found");
+        }
+        console.log('Fetching data for processId:', processId);
+        const response = await api.get(`/api/categories/progress/${processId}`);
+        console.log('API Response:', response.data);
+        
+        // Validate the response data
+        if (!Array.isArray(response.data)) {
+          throw new Error("Invalid response format");
+        }
+
+        // Ensure each category has the required properties
+        const validatedCategories = response.data.map(category => {
+          console.log('Processing category:', category);
+          
+          // Handle evidences that might be a string or already an object
+          let evidencesArray = [];
+          if (typeof category.evidences === 'string') {
+            try {
+              evidencesArray = JSON.parse(category.evidences);
+            } catch (e) {
+              console.error('Error parsing evidences string:', e);
+            }
+          } else if (Array.isArray(category.evidences)) {
+            evidencesArray = category.evidences;
+          } else if (typeof category.evidences === 'object' && category.evidences !== null) {
+            evidencesArray = [category.evidences];
+          }
+
+          return {
+            category_name: category.category_name || 'Sin nombre',
+            approved: Number(category.approved) || 0,
+            rejected: Number(category.rejected) || 0,
+            pending: Number(category.pending) || 0,
+            not_uploaded: Number(category.not_uploaded) || 0,
+            evidences: evidencesArray
+          };
+        });
+        console.log('Validated Categories:', validatedCategories);
+
+        setCategories(validatedCategories);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleClick = () => {
     navigate('/EvidencesCompilation', { state: { processId } }); 
   };
+
+  if (loading) {
+    return (
+      <>
+        <AppHeader />
+        <SubHeading />
+        <div className="min-h-screen p-10 pl-18 flex items-center justify-center" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#004A98] mx-auto mb-4"></div>
+            <p className="text-gray-600">Cargando datos...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <AppHeader />
+        <SubHeading />
+        <div className="min-h-screen p-10 pl-18 flex items-center justify-center" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
+          <div className="text-center">
+            <p className="text-red-600 mb-4">Error al cargar los datos: {error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-[#004A98] text-white px-4 py-2 rounded-lg hover:bg-[#003d7a] transition-colors"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <AppHeader />
@@ -83,9 +221,25 @@ const Dashboard = () => {
           <h1 className="text-[40px] font-bold text-[#004A98] font-['Open_Sans']">
             Dashboard
           </h1>
-          <h2 className="text-[28px] font-bold text-gray-700 mt-2">
-            {localStorage.getItem('frameName')}
-          </h2>
+          <div className="mt-2 space-y-2">
+            <h2 className="text-[28px] font-bold text-gray-700">
+              {processInfo.frameName}
+            </h2>
+            <div className="flex gap-4 text-lg text-gray-600">
+              <div className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0h8v12H6V4z" clipRule="evenodd" />
+                </svg>
+                <span>{processInfo.area}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                </svg>
+                <span>{processInfo.career}</span>
+              </div>
+            </div>
+          </div>
         </div>
         <DashboardWidgets />
 
@@ -99,9 +253,23 @@ const Dashboard = () => {
         </div>
 
         <div className="mt-6">
-          <CategoryProgress title="Categoría 1" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
-          <CategoryProgress title="Categoría 2" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
-          <CategoryProgress title="Categoría 3" approved={50} rejected={20} pending={10} notUploaded={20} evidences={sampleEvidences} />
+          {categories.length > 0 ? (
+            categories.map((category, index) => (
+              <CategoryProgress 
+                key={index}
+                title={category.category_name}
+                approved={category.approved}
+                rejected={category.rejected}
+                pending={category.pending}
+                notUploaded={category.not_uploaded}
+                evidences={category.evidences}
+              />
+            ))
+          ) : (
+            <div className="text-center text-gray-500 py-4">
+              No hay categorías disponibles
+            </div>
+          )}
         </div>
 
         <div className="mt-12 mb-6">
