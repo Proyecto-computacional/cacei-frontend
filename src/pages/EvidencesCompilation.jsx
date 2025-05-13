@@ -38,14 +38,23 @@ const EvidencesCompilation = () => {
     })
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
-        setLink(url); 
-        setShowModal(false); 
+        setLink(url); // Guardar la URL para el botón de descarga
+        setShowModal(false);
         console.log("Evidencias compiladas correctamente.");
       })
       .catch((error) => {
         console.error("Error al compilar las evidencias:", error);
       });
   };
+
+  // Función para limpiar la URL cuando se desmonte el componente
+  useEffect(() => {
+    return () => {
+      if (link) {
+        window.URL.revokeObjectURL(link);
+      }
+    };
+  }, [link]);
 
   useEffect(() => {
     const fetchStructure = async () => {
@@ -58,7 +67,7 @@ const EvidencesCompilation = () => {
         const categories = categoriesRes.data;
 
         // Fetch sections for each category
-        const sectionsPromises = categories.map(cat => 
+        const sectionsPromises = categories.map(cat =>
           api.post('/api/sections', { category_id: cat.category_id })
         );
         const sectionsRes = await Promise.all(sectionsPromises);
@@ -69,7 +78,7 @@ const EvidencesCompilation = () => {
             console.warn('Invalid section response:', res);
             return [];
           }
-          return res.data.map(sec => 
+          return res.data.map(sec =>
             api.post('/api/standards', { section_id: sec.section_id })
           );
         });
@@ -79,7 +88,7 @@ const EvidencesCompilation = () => {
         const structure = categories.map((cat, i) => {
           const sectionData = sectionsRes[i]?.data || [];
           const standardData = standardsRes[i]?.data || [];
-          
+
           return {
             section: cat.category_name,
             categories: sectionData.map((sec, j) => ({
@@ -115,6 +124,19 @@ const EvidencesCompilation = () => {
           Compilación de evidencias
         </h1>
 
+        {/* Si hay un enlace para descargar las evidencias, mostrar un botón para la descarga */}
+        {link && (
+          <div className="bg-white p-4 rounded-xl shadow-lg mb-10">
+            <a
+              href={link}
+              download="evidencias_compiladas.zip"
+              className="bg-green-600 text-center text-white py-3 px-6 rounded-xl text-lg font-semibold hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+            >
+              Descargar Evidencias Compiladas
+            </a>
+          </div>
+        )}
+
         <div className="flex gap-10">
           <div className="w-2/3 bg-white p-6 rounded-xl shadow-md">
             <ul className="space-y-4">
@@ -149,8 +171,8 @@ const EvidencesCompilation = () => {
                             {openCategories[catKey] && (
                               <ul className="ml-6 mt-2 space-y-2">
                                 {cat.criteria.map((crit, k) => (
-                                  <li 
-                                    key={k} 
+                                  <li
+                                    key={k}
                                     className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
                                   >
                                     <span className="text-blue-400">•</span>
@@ -222,16 +244,6 @@ const EvidencesCompilation = () => {
         </div>
       )}
 
-      {/* Si hay un enlace para descargar las evidencias, mostrar un botón para la descarga */}
-      {link && (
-        <div className="flex justify-center mt-6">
-          <a href={link} download="evidencias_compiladas.zip">
-            <button className="bg-green-600 text-white py-2 px-6 rounded-xl text-lg font-semibold">
-              Descargar Evidencias Compiladas
-            </button>
-          </a>
-        </div>
-      )}
 
       <AppFooter />
     </>
