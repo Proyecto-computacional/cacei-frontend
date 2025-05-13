@@ -30,10 +30,10 @@ const DashboardWidgets = () => {
   const fetchEstadisticas = async () => {
     try {
       let resumenGeneralPorRPE = {};
-      if (userRole === "Administrador") {
+      if (userRole === "ADMINISTRADOR") {
         const res = await api.get(`/estadisticas/${rpe}/${frameName}/${careerName}`);
         resumenGeneralPorRPE = res.data;
-      } else if (userRole === "Profesor" || userRole === "Departamento Universitario") {
+      } else if (userRole === "PROFESOR" || userRole === "DEPARTAMENTO UNIVERSITARIO") {
         const res = await api.get(`/estadisticas/por-autor/${rpe}/${frameName}/${careerName}`);
         resumenGeneralPorRPE = res.data;
       }
@@ -44,9 +44,6 @@ const DashboardWidgets = () => {
         pendientes: resumenGeneralPorRPE[0]?.pendientes || 0,
       });
 
-      console.log("aprobado: ", resumenGeneralPorRPE[0]?.aprobado || 0);
-      console.log("desaprobado: ", resumenGeneralPorRPE[0]?.desaprobado || 0);
-      console.log("pendientes: ", resumenGeneralPorRPE[0]?.pendientes || 0);
     } catch (error) {
       console.error("Error al obtener las estadísticas:", error);
     }
@@ -68,9 +65,6 @@ const DashboardWidgets = () => {
   const aprobadoPercentage = (aprobado / total) * 100;
   const desaprobadoPercentage = (desaprobado / total) * 100;
   const sinSubirPercentage = (pendientes / total) * 100;
-
-  // Debug log to check user role
-  console.log("Current user role:", userRole);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-21 mr-21 mb-21">
@@ -117,18 +111,18 @@ const DashboardWidgets = () => {
       {/* Progress Card */}
       <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-2">Progreso General</h2>
-        <div className="relative w-24 h-24">
+        <div className="relative w-32 h-32">
           <svg width="100%" height="100%" viewBox="0 0 36 36" className="circular-chart">
-            {/* Fondo del círculo */}
+            {/* Background circle */}
             <circle
               cx="18"
               cy="18"
               r="15.91549431"
               fill="none"
-              stroke="#d6d6d6"
+              stroke="#e5e7eb"
               strokeWidth="3"
             />
-            {/* Procesado (Aprobado) */}
+            {/* Approved section */}
             <circle
               cx="18"
               cy="18"
@@ -136,10 +130,11 @@ const DashboardWidgets = () => {
               fill="none"
               stroke="#004A98"
               strokeWidth="3"
-              strokeDasharray={`${aprobadoPercentage} ${100 - aprobadoPercentage}`}
-              strokeDashoffset="25"
+              strokeDasharray={`${aprobadoPercentage} 100`}
+              strokeDashoffset="0"
+              transform="rotate(-90 18 18)"
             />
-            {/* Pendiente */}
+            {/* Rejected section */}
             <circle
               cx="18"
               cy="18"
@@ -147,10 +142,11 @@ const DashboardWidgets = () => {
               fill="none"
               stroke="#5B7897"
               strokeWidth="3"
-              strokeDasharray={`${desaprobadoPercentage} ${100 - desaprobadoPercentage}`}
-              strokeDashoffset={25 + aprobadoPercentage}
+              strokeDasharray={`${desaprobadoPercentage} 100`}
+              strokeDashoffset={`-${aprobadoPercentage}`}
+              transform="rotate(-90 18 18)"
             />
-            {/* Pendiente */}
+            {/* Pending section */}
             <circle
               cx="18"
               cy="18"
@@ -158,36 +154,43 @@ const DashboardWidgets = () => {
               fill="none"
               stroke="#FFC600"
               strokeWidth="3"
-              strokeDasharray={`${sinSubirPercentage} ${100 - sinSubirPercentage}`}
-              strokeDashoffset={25 + aprobadoPercentage + desaprobadoPercentage}
+              strokeDasharray={`${sinSubirPercentage} 100`}
+              strokeDashoffset={`-${aprobadoPercentage + desaprobadoPercentage}`}
+              transform="rotate(-90 18 18)"
             />
-            {/* Texto en el centro del círculo */}
-            <text x="18" y="18" textAnchor="middle" dy=".3em" fontSize="4" fill="black">
+            {/* Center text */}
+            <text 
+              x="18" 
+              y="18" 
+              textAnchor="middle" 
+              dy=".3em" 
+              className="text-xs font-bold fill-gray-800"
+            >
               {aprobadoPercentage.toFixed(0)}%
             </text>
           </svg>
         </div>
-        <div className="mt-4 text-left text-sm">
-          <div className="flex items-center">
-            <div
-              className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: "#004A98" }}
-            ></div>
-            <p className="ml-2">{aprobadoPercentage.toFixed(0)}% Aprobado</p>
+        <div className="mt-6 w-full space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="w-4 h-4 rounded-full bg-[#004A98]"></div>
+              <p className="ml-2 text-sm font-medium">Aprobado</p>
+            </div>
+            <p className="text-sm font-semibold">{aprobadoPercentage.toFixed(0)}%</p>
           </div>
-          <div className="flex items-center">
-            <div
-              className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: "#5B7897" }}
-            ></div>
-            <p className="ml-2">{desaprobadoPercentage.toFixed(0)}% Desaprobado</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="w-4 h-4 rounded-full bg-[#5B7897]"></div>
+              <p className="ml-2 text-sm font-medium">Desaprobado</p>
+            </div>
+            <p className="text-sm font-semibold">{desaprobadoPercentage.toFixed(0)}%</p>
           </div>
-          <div className="flex items-center">
-            <div
-              className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: "#FFC600" }}
-            ></div>
-            <p className="ml-2">{sinSubirPercentage.toFixed(0)}% Pendiente</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="w-4 h-4 rounded-full bg-[#FFC600]"></div>
+              <p className="ml-2 text-sm font-medium">Pendiente</p>
+            </div>
+            <p className="text-sm font-semibold">{sinSubirPercentage.toFixed(0)}%</p>
           </div>
         </div>
       </div>

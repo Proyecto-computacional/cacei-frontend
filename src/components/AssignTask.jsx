@@ -12,11 +12,26 @@ const AssignTask = ({ onClose }) => {
   const [dueDate, setDueDate] = useState("");
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState("");
+  const [frame_id, setFrameId] = useState(null);
+  const [process_id, setProcessId] = useState(null);
+  const storedFrameId = localStorage.getItem('frameId');
+  const storedProcessId = localStorage.getItem('currentProcessId');
 
   useEffect(() => {
-    api.post("/api/categories", { frame_id: 1 })
-      .then(res => setCategories(res.data));
+    if (storedFrameId) {
+      setFrameId(storedFrameId);
+    }
+    if (storedProcessId) {
+      setProcessId(storedProcessId);
+    }
   }, []);
+
+  useEffect(() => {
+    if (frame_id) {
+      const response = api.post("/api/categories", { frame_id })
+        .then(res => setCategories(res.data));
+    }
+  }, [frame_id]);
 
   useEffect(() => {
     if (selectedCategory) {
@@ -59,6 +74,11 @@ const AssignTask = ({ onClose }) => {
       return;
     }
 
+    if (!storedProcessId) {
+      setValidationError("No se encontró el ID del proceso");
+      return;
+    }
+
     // Validar el RPE primero
     const isValid = await validateUser(userRpe);
     if (!isValid) return;
@@ -68,7 +88,7 @@ const AssignTask = ({ onClose }) => {
       const evidenceResponse = await api.post("/api/evidence", {
         standard_id: selectedStandard,
         user_rpe: userRpe,
-        process_id: 1,
+        process_id: storedProcessId,
         due_date: dueDate
       });
 

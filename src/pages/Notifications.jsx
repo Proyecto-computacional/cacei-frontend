@@ -7,7 +7,7 @@ import { Bell, Filter, Search } from "lucide-react";
 
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);
-  const [filter, setFilter] = useState('all'); // 'all', 'unread', 'pinned', 'starred'
+  const [filter, setFilter] = useState('all'); // 'all', 'pinned', 'starred'
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
   const userRpe = localStorage.getItem('rpe');
@@ -143,8 +143,6 @@ const Notification = () => {
                          notif.description.toLowerCase().includes(searchQuery.toLowerCase());
     
     switch (filter) {
-      case 'unread':
-        return !notif.seen && matchesSearch;
       case 'pinned':
         return notif.pinned && matchesSearch;
       case 'starred':
@@ -185,13 +183,12 @@ const Notification = () => {
               </div>
               <div className="relative">
                 <button
-                  onClick={() => setFilter(filter === 'all' ? 'unread' : filter === 'unread' ? 'pinned' : filter === 'pinned' ? 'starred' : 'all')}
+                  onClick={() => setFilter(filter === 'all' ? 'pinned' : filter === 'pinned' ? 'starred' : 'all')}
                   className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   <Filter className="h-5 w-5 text-gray-600" />
                   <span className="text-gray-700">
                     {filter === 'all' ? 'Todas' : 
-                     filter === 'unread' ? 'No leídas' :
                      filter === 'pinned' ? 'Fijadas' : 'Favoritas'}
                   </span>
                 </button>

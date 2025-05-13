@@ -134,11 +134,14 @@ export function SubHeading() {
         usersAdmin: "Administración de Usuarios",
         ReviewEvidence: "Revisión de Evidencias",
         framesAdmin: "Gestión de Formato",
-        evidenceManagement: "Gestión de Evidencias",
-        notifications: "Notificaciones"
+        evidenceManagement: "Asignación de tareas",
+        notifications: "Notificaciones",
+        dash: "Dashboard",
+        EvidencesCompilation: "Compilación de Evidencias"
     };
 
     const [processName, setProcessName] = useState("");
+    const [evidenceName, setEvidenceName] = useState("");
 
     useEffect(() => {
         const fetchUserRole = async () => {
@@ -157,7 +160,7 @@ export function SubHeading() {
             try {
                 const processId = localStorage.getItem('currentProcessId');
                 if (processId) {
-                    const response = await api.get(`/api/process/${processId}`);
+                    const response = await api.get(`/api/processes/${processId}`);
                     setProcessName(response.data.process_name);
                 }
             } catch (error) {
@@ -170,159 +173,157 @@ export function SubHeading() {
         }
     }, [pathnames]);
 
-    return (
-        <div className="w-full bg-transparent">
-            <div className="flex justify-between items-center p-3  space-x-4 border-b-3 bg-[#e1e5eb]">
-                <div className="flex">
-                    <div className="relative">
-                        <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black">
-                            <Menu />
-                        </button>
-                        {/* obtener el id del usuario activo (local storage?) y pasarlo al main menu como prop*/}
-                        {open && (
-                            <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                                <ul className="py-2">
-                                    
-                                    
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/uploadEvidence"); setOpen(false); }} >
-                                        Carga de evidencias
-                                    </li>
-                                    {userRole === "ADMINISTRADOR" && (
-                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                            onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
-                                            Administración de usuarios
-                                        </li>
-                                    )}
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
-                                        Revisión de evidencias
-                                    </li>
-                                    {userRole === "ADMINISTRADOR" && (
-                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                            onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
-                                            Gestión de formato
-                                        </li>
-                                    )}
-                                    {userRole === "ADMINISTRADOR" && (
-                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                            onClick={() => { navigate("/evidenceManagement"); setOpen(false); }} >
-                                            Asignación de tareas
-                                        </li>
-                                    )}
-                                    
-                                </ul>
-                            </div>
-                        )}
-                    </div>
+    useEffect(() => {
+        const fetchEvidenceName = async () => {
+            try {
+                if (evidence_id) {
+                    const response = await api.get(`/api/evidence/${evidence_id}`);
+                    setEvidenceName(response.data.evidence_name);
+                }
+            } catch (error) {
+                console.error("Error al obtener el nombre de la evidencia:", error);
+            }
+        };
 
-                    <div className="ml-12 flex items-center">
-                        {pathnames.includes('mainmenu') ? (
-                            <span className="text-[#00B2E3] text-lg font-medium">Inicio</span>
-                        ) : pathnames.includes('dash') ? (
-                            <>
-                                <span 
-                                    className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
-                                    onClick={() => navigate('/mainmenu')}
-                                >
-                                    Inicio
-                                </span>
-                                <span className="mx-0.5 text-gray-400 text-lg">/</span>
-                                <span className="text-[#00B2E3] text-lg font-medium">
-                                    Dashboard
-                                </span>
-                            </>
-                        ) : (
-                            <>
-                                <span 
-                                    className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
-                                    onClick={() => navigate('/mainmenu')}
-                                >
-                                    Inicio
-                                </span>
-                                {(pathnames.includes('uploadEvidence') || pathnames.includes('evidenceManagement')) && (
-                                    <>
-                                        <span className="mx-0.5 text-gray-400 text-lg">/</span>
-                                        <span 
-                                            className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
-                                            onClick={() => {
-                                                const processId = localStorage.getItem('currentProcessId');
-                                                if (processId) {
-                                                    navigate(`/dash/${processId}`);
-                                                }
-                                            }}
-                                        >
-                                            Dashboard
-                                        </span>
-                                    </>
-                                )}
-                                {pathnames.map((value, index) => {
-                                    if (value === 'uploadEvidence' || value === 'evidenceManagement') {
+        if (evidence_id) {
+            fetchEvidenceName();
+        }
+    }, [evidence_id]);
+
+    return (
+        <div className="bg-white border-b border-gray-200">
+            <div className="container mx-auto px-4 py-3">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                        <div className="relative">
+                            <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black">
+                                <Menu />
+                            </button>
+                            {open && (
+                                <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                                    <ul className="py-2">
+                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                            onClick={() => { navigate("/uploadEvidence"); setOpen(false); }} >
+                                            Carga de evidencias
+                                        </li>
+                                        {userRole === "ADMINISTRADOR" && (
+                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
+                                                Administración de usuarios
+                                            </li>
+                                        )}
+                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                            onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
+                                            Revisión de evidencias
+                                        </li>
+                                        {userRole === "ADMINISTRADOR" && (
+                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
+                                                Gestión de formato
+                                            </li>
+                                        )}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="ml-12 flex items-center">
+                            {pathnames.includes('mainmenu') ? (
+                                <span className="text-[#00B2E3] text-lg font-medium">Inicio</span>
+                            ) : pathnames.includes('dash') ? (
+                                <>
+                                    <span 
+                                        className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
+                                        onClick={() => navigate('/mainmenu')}
+                                    >
+                                        Inicio
+                                    </span>
+                                    <span className="mx-2 text-gray-400 text-lg">/</span>
+                                    <span className="text-[#00B2E3] text-lg font-medium">
+                                        Dashboard
+                                    </span>
+                                    {processName && (
+                                        <>
+                                            <span className="mx-2 text-gray-400 text-lg">/</span>
+                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                                {processName}
+                                            </span>
+                                        </>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    <span 
+                                        className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
+                                        onClick={() => navigate('/mainmenu')}
+                                    >
+                                        Inicio
+                                    </span>
+                                    {pathnames.map((value, index) => {
+                                        if (value === 'uploadEvidence' || value === 'evidenceManagement') {
+                                            return (
+                                                <React.Fragment key={index}>
+                                                    <span className="mx-2 text-gray-400 text-lg">/</span>
+                                                    <span className="text-[#00B2E3] text-lg font-medium">
+                                                        {breadcrumbMap[value]}
+                                                    </span>
+                                                    {processName && (
+                                                        <>
+                                                            <span className="mx-2 text-gray-400 text-lg">/</span>
+                                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                                                {processName}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                    {evidenceName && (
+                                                        <>
+                                                            <span className="mx-2 text-gray-400 text-lg">/</span>
+                                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                                                {evidenceName}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </React.Fragment>
+                                            );
+                                        }
                                         return (
                                             <React.Fragment key={index}>
-                                                <span className="mx-0.5 text-gray-400 text-lg">/</span>
+                                                <span className="mx-2 text-gray-400 text-lg">/</span>
                                                 <span className="text-[#00B2E3] text-lg font-medium">
-                                                    {breadcrumbMap[value]}
+                                                    {breadcrumbMap[value] || value}
                                                 </span>
-                                                {processName && (
-                                                    <>
-                                                        <span className="mx-0.5 text-gray-400 text-lg">/</span>
-                                                        <span className="text-[#00B2E3] text-lg font-medium">
-                                                            {processName}
-                                                        </span>
-                                                    </>
-                                                )}
-                                                {evidence_id && (
-                                                    <>
-                                                        <span className="mx-0.5 text-gray-400 text-lg">/</span>
-                                                        <span className="text-[#00B2E3] text-lg font-medium">
-                                                            {evidence_id}
-                                                        </span>
-                                                    </>
-                                                )}
                                             </React.Fragment>
                                         );
-                                    }
-                                    return (
-                                        <React.Fragment key={index}>
-                                            {index > 0 && <span className="mx-0.5 text-gray-400 text-lg">/</span>}
-                                            <span className="text-[#00B2E3] text-lg font-medium">
-                                                {breadcrumbMap[value] || value}
-                                            </span>
-                                        </React.Fragment>
-                                    );
-                                })}
-                            </>
-                        )}
+                                    })}
+                                </>
+                            )}
+                        </div>
                     </div>
 
-                </div>
-
-
-                <div className="flex items-center space-x-4">
-                    <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
-                        <Mail className="w-5 h-5 text-black cursor-pointer" />
-                    </a>
-                    <div className="relative inline-block">
-                        <button onClick={() => navigate("/notifications")} onMouseEnter={() => setViewNotifications(true)}>
-                            <Bell className="w-5 h-5 text-black cursor-pointer" ></Bell>
+                    <div className="flex items-center space-x-4">
+                        <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
+                            <Mail className="w-5 h-5 text-black cursor-pointer" />
+                        </a>
+                        <div className="relative inline-block">
+                            <button onClick={() => navigate("/notifications")} onMouseEnter={() => setViewNotifications(true)}>
+                                <Bell className="w-5 h-5 text-black cursor-pointer" ></Bell>
+                            </button>
+                            {viewNotifications && (
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-fit bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                                    onMouseEnter={() => setViewNotifications(true)}
+                                    onMouseLeave={() => setViewNotifications(false)}>
+                                    <NotificationsTable />
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex items-center justify-center bg-[#004A98] text-white shadow w-55 h-7">
+                            <User className="w-5 h-5 mr-2 pl-1" />
+                            {userRole}
+                        </div>
+                        <button className="flex items-center justify-center bg-[#004A98] text-white shadow w-55 h-7 cursor-pointer">
+                            <Logout></Logout>
                         </button>
-                        {viewNotifications && (
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-fit bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-                                onMouseEnter={() => setViewNotifications(true)}
-                                onMouseLeave={() => setViewNotifications(false)}>
-                                <NotificationsTable />
-                            </div>
-                        )}
                     </div>
-
-                    <div className="flex items-center justify-center bg-[#004A98] text-white shadow w-55 h-7">
-                        <User className="w-5 h-5 mr-2 pl-1" />
-                        {userRole}
-                    </div>
-                    <button className="flex items-center justify-center bg-[#004A98] text-white shadow w-55 h-7 cursor-pointer">
-                        <Logout></Logout>
-                    </button>
                 </div>
             </div>
         </div>

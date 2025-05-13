@@ -63,7 +63,6 @@ export default function EvidenceTable() {
                 user_rpe: statusUserRPE,
                 feedback: feedbackText
             });
-            console.log(respuesta);
             if (respuesta.status === 200) {
                 alert(respuesta.data?.message || 'Feedback enviado con éxito');
                 setRefresh(prev => !prev)
