@@ -7,12 +7,19 @@ import api from "../services/api";
 import { Link } from "lucide-react";
 
 const ProgressBar = ({ approved, rejected, pending, notUploaded }) => {
+  // Calculate total for percentage normalization (excluding notUploaded)
+  const total = approved + rejected + pending;
+  
+  // Calculate percentages
+  const approvedPercent = (approved / total) * 100;
+  const rejectedPercent = (rejected / total) * 100;
+  const pendingPercent = (pending / total) * 100;
+
   return (
     <div className="relative w-full h-6 rounded-full bg-gray-300 overflow-hidden">
-      <div className="absolute h-full bg-green-500" style={{ width: `${approved}%` }}></div>
-      <div className="absolute h-full bg-red-500" style={{ left: `${approved}%`, width: `${rejected}%` }}></div>
-      <div className="absolute h-full bg-yellow-400" style={{ left: `${approved + rejected}%`, width: `${pending}%` }}></div>
-      <div className="absolute h-full bg-gray-600" style={{ left: `${approved + rejected + pending}%`, width: `${notUploaded}%` }}></div>
+      <div className="absolute h-full bg-green-500" style={{ width: `${approvedPercent}%` }}></div>
+      <div className="absolute h-full bg-red-500" style={{ left: `${approvedPercent}%`, width: `${rejectedPercent}%` }}></div>
+      <div className="absolute h-full bg-yellow-400" style={{ left: `${approvedPercent + rejectedPercent}%`, width: `${pendingPercent}%` }}></div>
     </div>
   );
 };
