@@ -18,54 +18,72 @@ export default function UsersTable() {
         { name: 'Personal de apoyo', description: 'Subir y visualizar las evidencias que se les asigne' },
     ]);
 
-    const [users, setUsers] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]);
     const [nextPage, setNextPage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            const url = searchTerm
-            ? `${API_URL}/api/usersadmin?search=${searchTerm}`
-            : `${API_URL}/api/usersadmin`;
-    
-            try {
-                const response = await api.get(url, {
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem('token')}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-    
-                setUsers(response.data.usuarios.data);
-                setNextPage(response.data.usuarios.next_page_url);
-            } catch (error) {
-                if (error.response) {
-                    if (error.response.status === 403) {
-                        alert("No tienes permisos para acceder a esta sección.");
-                        window.location.href = "/PersonalConfig";
-                    } else if (error.response.status === 401) {
-                        alert("Sesión expirada. Inicia sesión de nuevo.");
-                        window.location.href = "/";
-                    } else {
-                        alert("Error desconocido al obtener los usuarios.");
-                    }
+    const fetchUsers = async () => {
+        try {
+            const response = await api.get("/api/usersadmin", {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem('token')}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            setAllUsers(response.data.usuarios.data);
+            setFilteredUsers(response.data.usuarios.data);
+            setNextPage(response.data.usuarios.next_page_url);
+        } catch (error) {
+            if (error.response) {
+                if (error.response.status === 403) {
+                    alert("No tienes permisos para acceder a esta sección.");
+                    window.location.href = "/PersonalConfig";
+                } else if (error.response.status === 401) {
+                    alert("Sesión expirada. Inicia sesión de nuevo.");
+                    window.location.href = "/";
                 } else {
-                    alert("Error de conexión con el servidor.");
+                    alert("Error desconocido al obtener los usuarios.");
                 }
-                console.error("Error al obtener los usuarios:", error);
+            } else {
+                alert("Error de conexión con el servidor.");
             }
-        };
-    
-        fetchUsers(); 
-    }, [searchTerm]);    
+            console.error("Error al obtener los usuarios:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const handleSearch = (value) => {
+        setSearchTerm(value);
+        
+        if (!value.trim()) {
+            setFilteredUsers(allUsers);
+            return;
+        }
+
+        const searchLower = value.toLowerCase();
+        const filtered = allUsers.filter(user => 
+            user.user_rpe.toLowerCase().includes(searchLower) ||
+            (user.user_name && user.user_name.toLowerCase().includes(searchLower)) ||
+            (user.user_mail && user.user_mail.toLowerCase().includes(searchLower))
+        );
+        
+        setFilteredUsers(filtered);
+    };
 
     const loadMore = () => {
         if (!nextPage) return;
         setLoading(true);
 
         axios.get(nextPage).then(({ data }) => {
-            setUsers((prev) => [...prev, ...data.usuarios.data]);
+            const newUsers = data.usuarios.data;
+            setAllUsers(prev => [...prev, ...newUsers]);
+            setFilteredUsers(prev => [...prev, ...newUsers]);
             setNextPage(data.usuarios.next_page_url);
             setLoading(false);
         });
@@ -88,7 +106,8 @@ export default function UsersTable() {
                         type="text" 
                         placeholder="Buscar por RPE, nombre o correo..." 
                         className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004A98] focus:border-transparent w-96"
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        value={searchTerm}
+                        onChange={(e) => handleSearch(e.target.value)}
                     />
                 </div>
             </div>
@@ -104,7 +123,7 @@ export default function UsersTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.length > 0 ? users.map((item) => (
+                        {filteredUsers.length > 0 ? filteredUsers.map((item) => (
                             <tr key={item.user_rpe} className="border-b hover:bg-gray-50 transition-colors duration-200">
                                 <td className="py-4 px-6">{item.user_rpe}</td>
                                 <td className="py-4 px-6 font-medium">{item.user_name || 'No especificado'}</td>

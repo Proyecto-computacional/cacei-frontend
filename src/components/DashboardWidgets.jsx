@@ -62,9 +62,9 @@ const DashboardWidgets = () => {
   const { aprobado, desaprobado, pendientes } = estadisticas;
   const total = aprobado + desaprobado + pendientes;
 
-  const aprobadoPercentage = (aprobado / total) * 100;
-  const desaprobadoPercentage = (desaprobado / total) * 100;
-  const sinSubirPercentage = (pendientes / total) * 100;
+  const aprobadoPercentage = total > 0 ? (aprobado / total) * 100 : 0;
+  const desaprobadoPercentage = total > 0 ? (desaprobado / total) * 100 : 0;
+  const pendientesPercentage = total > 0 ? (pendientes / total) * 100 : 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-21 mr-21 mb-21">
@@ -154,7 +154,7 @@ const DashboardWidgets = () => {
               fill="none"
               stroke="#FFC600"
               strokeWidth="3"
-              strokeDasharray={`${sinSubirPercentage} 100`}
+              strokeDasharray={`${pendientesPercentage} 100`}
               strokeDashoffset={`-${aprobadoPercentage + desaprobadoPercentage}`}
               transform="rotate(-90 18 18)"
             />
@@ -190,7 +190,7 @@ const DashboardWidgets = () => {
               <div className="w-4 h-4 rounded-full bg-[#FFC600]"></div>
               <p className="ml-2 text-sm font-medium">Pendiente</p>
             </div>
-            <p className="text-sm font-semibold">{sinSubirPercentage.toFixed(0)}%</p>
+            <p className="text-sm font-semibold">{pendientesPercentage.toFixed(0)}%</p>
           </div>
         </div>
       </div>
