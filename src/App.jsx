@@ -26,7 +26,7 @@ function App() {
         <Route path="/ReviewEvidence" element={
           <ProtectedRoute allowedRoles={["ADMINISTRADOR",
             "COORDINADOR",
-            "JEFE DE ÁREA"]}>
+            "JEFE DE AREA"]}>
             <ReviewEvidence />
           </ProtectedRoute>
         } />
