@@ -36,14 +36,8 @@ const EvidencesCompilation = () => {
     })
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
-<<<<<<< HEAD
-        setLink(url); // Guardar la URL para el botón de descarga
-        setShowModal(false);
-        console.log("Evidencias compiladas correctamente.");
-=======
         setLink(url); 
         setShowModal(false); 
->>>>>>> a1fa93dc514d9207053387d4c313f55dc1ff3d1b
       })
       .catch((error) => {
         console.error("Error al compilar las evidencias:", error);
