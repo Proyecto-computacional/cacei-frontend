@@ -4,6 +4,7 @@ import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import Card from "../components/Card";
 import { Plus } from "lucide-react";
+import CreateProcessModal from "../components/CreateProcessModal";
 
 const MainMenu = () => {
   const [cards, setCards] = useState([]);
@@ -12,6 +13,7 @@ const MainMenu = () => {
   const location = useLocation();
   const userRpe = localStorage.getItem('rpe');
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -34,12 +36,23 @@ const MainMenu = () => {
           return;
         }
 
-        const response = await api.get("api/ProcesosUsuario", {
-          params: { userRpe },
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem('token')}`
-          },
-        });
+        let response;
+        if (userRole === "ADMINISTRADOR") {
+          // Fetch all processes for administrators
+          response = await api.get("api/processes", {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem('token')}`
+            },
+          });
+        } else {
+          // Fetch only related processes for other roles
+          response = await api.get("api/ProcesosUsuario", {
+            params: { userRpe },
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem('token')}`
+            },
+          });
+        }
   
         if (response.status !== 200) {
           throw new Error("Error al obtener los datos");
@@ -48,7 +61,7 @@ const MainMenu = () => {
         const data = response.data;
         setCards(data);
 
-        // Ahora cargamos los porcentajes
+        // Load percentages for each process
         const percentagesMap = {};
         for (const card of data) {
           let estRes = {};
@@ -84,6 +97,15 @@ const MainMenu = () => {
     navigate(`/dash/${processId}`, { state: { processId } });
   };
 
+  const handleCreateProcess = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleProcessCreated = () => {
+    // Refresh the page or update the process list
+    window.location.reload();
+  };
+
   return (
     <>
       <AppHeader />
@@ -98,10 +120,10 @@ const MainMenu = () => {
             </div>
             {userRole === "ADMINISTRADOR" && (
               <button
-                onClick={() => navigate('/createProcess')}
-                className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
+                onClick={handleCreateProcess}
+                className="bg-[#00b2e3] text-white px-4 py-2 rounded-lg hover:bg-[#003d7a] transition-colors duration-300 flex items-center gap-2 shadow-sm hover:shadow-md text-sm"
               >
-                <Plus className="h-5 w-5" />
+                <Plus className="h-4 w-4" />
                 Crear Nuevo Proceso
               </button>
             )}
@@ -137,6 +159,12 @@ const MainMenu = () => {
         </div>
       </div>
       <AppFooter />
+
+      <CreateProcessModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleProcessCreated}
+      />
     </>
   );
 };
