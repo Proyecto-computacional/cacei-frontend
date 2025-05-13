@@ -92,7 +92,7 @@ export default function EvidenceTable() {
                 ...evidence,
                 files: evidence.files.map(file => ({
                     ...file,
-                    file_url: file.file_url.startsWith('http') ? file.file_url : `${window.location.origin}/${file.file_url}`
+                    file_url: file.file_url.startsWith('http') ? file.file_url : `${window.location.origin}/storage/${file.file_url}`
                 }))
             }));
             setEvidences(() => [...processedEvidences]);
