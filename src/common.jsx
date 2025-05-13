@@ -222,12 +222,6 @@ export function SubHeading() {
                                                 Gestión de formato
                                             </li>
                                         )}
-                                        {userRole === "ADMINISTRADOR" && (
-                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                onClick={() => { navigate("/evidenceManagement"); setOpen(false); }} >
-                                                Asignación de tareas
-                                            </li>
-                                        )}
                                     </ul>
                                 </div>
                             )}

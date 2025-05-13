@@ -26,7 +26,9 @@ const EvidenceManagement = () => {
 
   const fetchRevisers = async () => {
     try {
-      const response = await api.get("/api/revisers");
+      const processId = localStorage.getItem("currentProcessId");
+      console.log('processId', processId);
+      const response = await api.get("/api/revisers", { params: { process_id: processId } });
       setRevisers(response.data);
       setFilteredRevisers(response.data);
     } catch (error) {
