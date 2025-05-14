@@ -24,11 +24,31 @@ const ProgressBar = ({ approved, rejected, pending, notUploaded }) => {
   );
 };
 
+function toNormalCase(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function capitalize(word) {
+  if (!word) return '';
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
+function capitalizeEachWord(str) {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map(word => capitalize(word))
+    .join(' ');
+}
+
 const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evidences = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Ensure evidences is always an array
   const safeEvidences = Array.isArray(evidences) ? evidences : [];
+  console.log('safeEvidences', safeEvidences);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -55,27 +75,27 @@ const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evi
           <table className="w-full border-collapse border border-gray-200">
             <thead>
               <tr className="bg-blue-500 text-white">
-                <th className="p-2">Nombre evidencia</th>
+                <th className="p-2">Sección</th>
+                <th className="p-2">Criterio</th>
                 <th className="p-2">Responsable</th>
-                <th className="p-2">Info. Básica</th>
-                <th className="p-2">Verificado</th>
+                <th className="p-2">Estado</th>
               </tr>
             </thead>
             <tbody>
               {safeEvidences.length > 0 ? (
                 safeEvidences.map((evidence, index) => (
                   <tr key={index} className="border-t">
-                    <td className="p-2">{evidence.name || '-'}</td>
-                    <td className="p-2">{evidence.responsible || '-'}</td>
-                    <td className="p-2">{evidence.info || '-'}</td>
-                    <td className={`p-2 font-medium ${getStatusColor(evidence.verified)}`}>
-                      {evidence.verified || '-'}
+                    <td className="p-2">{evidence.section_name || '-'}</td>
+                    <td className="p-2">{evidence.standard_name || '-'}</td>
+                    <td className="p-2">{capitalizeEachWord(evidence.responsible || '-')}</td>
+                    <td className={`p-2 font-medium normal-case ${evidence.responsible ? getStatusColor(evidence.verified) : 'text-gray-500 italic'}`}>
+                      {evidence.responsible ? toNormalCase(evidence.verified || '-') : 'No asignado'}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="p-2 text-center text-gray-500">
+                  <td colSpan="5" className="p-2 text-center text-gray-500">
                     No hay evidencias disponibles
                   </td>
                 </tr>
@@ -130,6 +150,7 @@ const Dashboard = () => {
           throw new Error("No process ID found");
         }
         const response = await api.get(`/api/categories/progress/${processId}`);
+        console.log('response', response.data);
         
         // Validate the response data
         if (!Array.isArray(response.data)) {
