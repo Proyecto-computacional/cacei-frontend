@@ -37,17 +37,19 @@ export default function EvidenceTable() {
     const [currentComment, setCurrentComment] = useState("");
 
     const [filters, setFilters] = useState({
+        process: '',
         category: '',
         section: '',
         standard: '',
         user: ''
     });
 
+    const process = [...new Set(evidences.map(item => item.process_name))].filter(Boolean);
     const categories = [...new Set(evidences.map(item => item.category_name))].filter(Boolean);
     const sections = [...new Set(evidences.map(item => item.section_name))].filter(Boolean);
     const standards = [...new Set(evidences.map(item => item.standard_name))].filter(Boolean);
     const users = [...new Set(evidences.map(item => item.evidence_owner_name))].filter(Boolean);
-
+    console.log(filters, evidences[0]);
     const handleSort = (column) => {
         const newOrder = sortBy === column && order === "asc" ? "desc" : "asc";
         setSortBy(column);
@@ -101,6 +103,10 @@ export default function EvidenceTable() {
     useEffect(() => {
         let result = evidences;
 
+        if (filters.process) {
+            result = result.filter(item => item.process_name === filters.process);
+        }
+
         if (filters.category) {
             result = result.filter(item => item.category_name === filters.category);
         }
@@ -130,6 +136,7 @@ export default function EvidenceTable() {
 
     const resetFilters = () => {
         setFilters({
+            process: '',
             category: '',
             section: '',
             standard: '',
@@ -190,6 +197,24 @@ export default function EvidenceTable() {
                             Limpiar filtros
                         </button>
                     </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Proceso</label>
+                        <select
+                            name="process"
+                            value={filters.process}
+                            onChange={handleFilterChange}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1 focus:border-primary1 transition-all duration-200"
+                        >
+                            <option value="">Todos los Procesos</option>
+                            {process.map((process, index) => (
+                                <option key={`sec-${index}`} value={process}>{process}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <tr>
+                        <td colSpan="8" className="h-6"></td>
+                    </tr>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div>
