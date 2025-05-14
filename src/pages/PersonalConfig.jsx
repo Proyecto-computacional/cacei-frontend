@@ -51,7 +51,12 @@ const PersonalConfig = () => {
               {/* Ejemplo con estructura común de CV - ajusta según tu API */}
               <div>
                 <p className="font-semibold">Nombre:</p>
-                <p>{cvData.professor_name || "No especificado"}</p>
+                <p>{cvData.professor_name 
+                    ? cvData.professor_name
+                        .split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ')
+                    : "No especificado"}</p>
               </div>
               <div>
                 <p className="font-semibold">Edad:</p>

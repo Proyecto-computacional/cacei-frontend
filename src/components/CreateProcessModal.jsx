@@ -70,14 +70,10 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
     }
 
     try {
-        console.log('formData', formData);
-        console.log('frame_id', formData.frame_id);
       const response = await api.post("/api/accreditation-processes", {
         ...formData,
         frame_id: formData.frame_id || null // Convert empty string to null
       });
-
-      console.log('response', response);
       
       if (response.status === 201) {
         onSuccess();

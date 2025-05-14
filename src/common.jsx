@@ -124,6 +124,7 @@ export function SubHeading() {
     const [viewNotifications, setViewNotifications] = useState(false);
     const location = useLocation();
     const [userRole, setUserRole] = useState("");
+    const [userName, setUserName] = useState("");
     const pathnames = location.pathname.split("/").filter((x) => x);
     const { evidence_id } = useParams();
 
@@ -144,15 +145,28 @@ export function SubHeading() {
     const [evidenceName, setEvidenceName] = useState("");
 
     useEffect(() => {
-        const fetchUserRole = async () => {
+        const fetchUserInfo = async () => {
             try {
                 const response = await api.get('/api/user');
-                setUserRole(response.data.user_role);
+                const formattedRole = response.data.user_role
+                    ? response.data.user_role
+                        .split('_')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ')
+                    : '';
+                setUserRole(formattedRole);
+                const formattedName = response.data.user_name
+                    ? response.data.user_name
+                        .split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ')
+                    : '';
+                setUserName(formattedName);
             } catch (error) {
-                console.error("Error al obtener el rol del usuario:", error);
+                console.error("Error al obtener la información del usuario:", error);
             }
         };
-        fetchUserRole();
+        fetchUserInfo();
     }, []);
 
     useEffect(() => {
@@ -316,9 +330,12 @@ export function SubHeading() {
                                 </div>
                             )}
                         </div>
-                        <div className="flex items-center justify-center bg-[#004A98] text-white shadow w-55 h-7">
-                            <User className="w-5 h-5 mr-2 pl-1" />
-                            {userRole}
+                        <div className="relative group">
+                            <div className="flex items-center justify-center bg-[#004A98] text-white shadow w-85 h-7">
+                                <User className="w-5 h-5 mr-2 pl-1" />
+                                <span className="hidden group-hover:inline">{userName}</span>
+                                <span className="group-hover:hidden">{userRole}</span>
+                            </div>
                         </div>
                         <button className="flex items-center justify-center bg-[#004A98] text-white shadow w-55 h-7 cursor-pointer">
                             <Logout></Logout>
