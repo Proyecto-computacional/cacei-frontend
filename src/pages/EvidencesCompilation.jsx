@@ -277,15 +277,6 @@ const EvidencesCompilation = () => {
             <p className="mb-4 text-sm text-gray-600">
               Esta acción tomará todas las evidencias aprobadas. Una vez compiladas, no se podrán editar.
             </p>
-            <label className="flex items-center mb-6 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                className="mr-2 rounded border-gray-300 text-[#004A98] focus:ring-[#004A98]"
-                checked={finalize}
-                onChange={(e) => setFinalize(e.target.checked)}
-              />
-              Finalizar proceso de acreditación (impide subir más evidencias)
-            </label>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowModal(false)}
