@@ -104,7 +104,6 @@ const MainMenu = () => {
     localStorage.setItem("careerName", careerName);
     localStorage.setItem("currentProcessId", processId);
     localStorage.setItem("frameId", frameId);
-    console.log('frameId: ', frameId);
     navigate(`/dash/${processId}`, { state: { processId } });
   };
 

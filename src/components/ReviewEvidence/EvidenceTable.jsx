@@ -85,7 +85,6 @@ export default function EvidenceTable() {
     useEffect(() => {
         let url = `api/ReviewEvidence?`;
         api.get(url).then(({ data }) => {
-            console.log(data);
             // Process file URLs to ensure they have the correct base URL
             const processedEvidences = data.evidencias.map(evidence => ({
                 ...evidence,

@@ -32,7 +32,6 @@ const EvidencesCompilation = () => {
 
   const confirmCompilation = () => {
     const processId = parseInt(localStorage.getItem("currentProcessId"), 10);
-    console.log('processId', processId);
     api.get(`/api/procesos/${processId}/descargar-evidencias`, {
       responseType: "blob",
     })
@@ -121,7 +120,6 @@ const EvidencesCompilation = () => {
           };
         });
 
-        console.log('Structure built:', structure);
         setEvidencesStructure(structure);
         setLoading(false);
       } catch (error) {
