@@ -138,19 +138,29 @@ const Notification = () => {
     navigate(`/notification/${id}`, { state: { notificationId: id } });
   };
 
-  const filteredNotifications = notifications.filter(notif => {
-    const matchesSearch = notif.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         notif.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    switch (filter) {
-      case 'pinned':
-        return notif.pinned && matchesSearch;
-      case 'starred':
-        return notif.starred && matchesSearch;
-      default:
-        return matchesSearch;
-    }
-  });
+  const filteredNotifications = notifications
+    .filter((notif) => {
+      const matchesSearch =
+        notif.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        notif.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+      switch (filter) {
+        case 'pinned':
+          return notif.pinned && matchesSearch;
+        case 'starred':
+          return notif.starred && matchesSearch;
+        default:
+          return matchesSearch;
+      }
+    })
+    .sort((a, b) => {
+      // Ordenar primero por si están fijadas
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+
+      // Luego por fecha (más recientes primero)
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
 
   return (
     <>
