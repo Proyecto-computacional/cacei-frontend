@@ -97,7 +97,7 @@ const UploadEvidence = () => {
   }, []);
 
   const handleFileChange = (event) => {
-    const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf'];
+    const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf', 'doc', 'docx', 'csv'];
     const maxFileSize = 50 * 1024 * 1024;
 
     const selectedFiles = Array.from(event.target.files);
@@ -109,10 +109,12 @@ const UploadEvidence = () => {
       const sizeOk = file.size <= maxFileSize;
       const typeOk = allowedExtensions.includes(ext);
 
-      if (sizeOk && typeOk) {
-        validFiles.push(file);
+      if (!typeOk) {
+        alert(`Archivo rechazado: ${file.name}. Solo se permiten archivos RAR, ZIP, Excel, PDF y Word.`);
+      } else if (!sizeOk) {
+        alert(`Archivo rechazado: ${file.name}. El tamaño máximo permitido es 50 MB.`);
       } else {
-        alert(`Archivo rechazado: ${file.name}`);
+        validFiles.push(file);
       }
     });
 
@@ -129,24 +131,31 @@ const UploadEvidence = () => {
 
   const handleUpload = async () => {
     setIsLocked(true);
-    if (!files) {
-      alert("Por favor, selecciona un archivo.");
+
+    // Solo requerir archivos nuevos si no hay archivos existentes
+    if (!files.length && (!uploadedFiles || uploadedFiles.length === 0)) {
+      alert("Por favor, selecciona al menos un archivo.");
+      setIsLocked(false);
       return;
     }
 
     const formData = new FormData();
-    files.forEach((file) => {
-      formData.append("files[]", file);
-    });
+    
+    // Solo adjuntar archivos si hay nuevos
+    if (files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files[]', files[i]);
+      }
+    }
 
-    formData.append("evidence_id", evidence.evidence_id); // Reemplaza con el ID correcto
+    formData.append("evidence_id", evidence.evidence_id);
     formData.append("justification", justification);
 
     try {
       const response = await api.post("/api/file",
-        formData, { //Ajusta la URL
+        formData, {
         headers: {
-          "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
+          "Authorization": `Bearer ${localStorage.getItem('token')}`,
           "Content-Type": "multipart/form-data",
         },
       });
