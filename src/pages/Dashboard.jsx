@@ -109,7 +109,6 @@ const Dashboard = () => {
           throw new Error("No process ID found");
         }
         const response = await api.get(`/api/processes/${processId}`);
-        console.log('response.data', response.data);
         setProcessInfo({
           frameName: response.data.frame_name || '',
           area: response.data.area_name || '',
@@ -130,9 +129,7 @@ const Dashboard = () => {
         if (!processId) {
           throw new Error("No process ID found");
         }
-        console.log('Fetching data for processId:', processId);
         const response = await api.get(`/api/categories/progress/${processId}`);
-        console.log('API Response:', response.data);
         
         // Validate the response data
         if (!Array.isArray(response.data)) {
@@ -141,7 +138,6 @@ const Dashboard = () => {
 
         // Ensure each category has the required properties
         const validatedCategories = response.data.map(category => {
-          console.log('Processing category:', category);
           
           // Handle evidences that might be a string or already an object
           let evidencesArray = [];
@@ -166,7 +162,6 @@ const Dashboard = () => {
             evidences: evidencesArray
           };
         });
-        console.log('Validated Categories:', validatedCategories);
 
         setCategories(validatedCategories);
         setLoading(false);
