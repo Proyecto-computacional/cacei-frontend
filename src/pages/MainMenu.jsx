@@ -71,7 +71,7 @@ const MainMenu = () => {
         for (const card of data) {
           let estRes = {};
           try {
-            if (userRole === "ADMINISTRADOR") {
+            if (userRole === "ADMINISTRADOR" || userRole === "JEFE DE AREA" || userRole === "COORDINADOR" || userRole === "DIRECTIVO") {
               estRes = await api.get(`/estadisticas/${userRpe}/${card.frame_name}/${card.career_name}`);
             } else if (userRole === "PROFESOR" || userRole === "DEPARTAMENTO UNIVERSITARIO") {
               estRes = await api.get(`/estadisticas/por-autor/${userRpe}/${card.frame_name}/${card.career_name}`);

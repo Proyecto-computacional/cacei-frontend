@@ -24,6 +24,25 @@ const ProgressBar = ({ approved, rejected, pending, notUploaded }) => {
   );
 };
 
+function toNormalCase(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function capitalize(word) {
+  if (!word) return '';
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
+function capitalizeEachWord(str) {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map(word => capitalize(word))
+    .join(' ');
+}
+
 const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evidences = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -55,27 +74,27 @@ const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evi
           <table className="w-full border-collapse border border-gray-200">
             <thead>
               <tr className="bg-blue-500 text-white">
-                <th className="p-2">Nombre evidencia</th>
+                <th className="pl-10 pb-2 pt-2">Sección</th>
+                <th className="p-2">Criterio</th>
                 <th className="p-2">Responsable</th>
-                <th className="p-2">Info. Básica</th>
-                <th className="p-2">Verificado</th>
+                <th className="p-2">Estado</th>
               </tr>
             </thead>
             <tbody>
               {safeEvidences.length > 0 ? (
                 safeEvidences.map((evidence, index) => (
                   <tr key={index} className="border-t">
-                    <td className="p-2">{evidence.name || '-'}</td>
-                    <td className="p-2">{evidence.responsible || '-'}</td>
-                    <td className="p-2">{evidence.info || '-'}</td>
-                    <td className={`p-2 font-medium ${getStatusColor(evidence.verified)}`}>
-                      {evidence.verified || '-'}
+                    <td className="pl-10 pb-2 pt-2">{evidence.section_name || '-'}</td>
+                    <td className="p-2">{evidence.standard_name || '-'}</td>
+                    <td className="p-2">{capitalizeEachWord(evidence.responsible || '-')}</td>
+                    <td className={`p-2 font-medium normal-case ${evidence.responsible ? getStatusColor(evidence.verified) : 'text-gray-500 italic'}`}>
+                      {evidence.responsible ? toNormalCase(evidence.verified || '-') : 'No asignada'}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="p-2 text-center text-gray-500">
+                  <td colSpan="5" className="p-2 text-center text-gray-500">
                     No hay evidencias disponibles
                   </td>
                 </tr>
@@ -95,6 +114,7 @@ const Dashboard = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userRole, setUserRole] = useState("");
   const [processInfo, setProcessInfo] = useState({
     frameName: '',
     area: '',
@@ -102,6 +122,19 @@ const Dashboard = () => {
   });
   const [isFinished, setIsFinished] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await api.get('/api/user');
+        setUserRole(response.data.user_role);
+      } catch (error) {
+        console.error("Error al obtener el rol del usuario:", error);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchProcessInfo = async () => {
@@ -314,7 +347,7 @@ const Dashboard = () => {
           </h3>
         </div>
 
-        <div className="mt-8 flex justify-start">
+        <div className="mt-8 flex justify-start gap-4">
           <div className="bg-white rounded-xl shadow-lg p-6 w-96">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-[#004A98] p-2 rounded-lg">
@@ -334,67 +367,68 @@ const Dashboard = () => {
               Compilar Evidencias
             </button>
           </div>
-        </div>
-        <div className="mt-8 flex justify-start gap-4">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-96">
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`p-2 rounded-lg ${isFinished ? 'bg-green-500' : 'bg-gray-500'}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-800">
-                {isFinished ? 'Proceso Finalizado' : 'Proceso en Curso'}
-              </h3>
-            </div>
-            <p className="text-gray-600 mb-4 text-sm">
-              {isFinished 
-                ? 'Este proceso ha sido marcado como finalizado.' 
-                : 'Marca este proceso como finalizado cuando hayas completado todas las evidencias.'}
-            </p>
-            <button 
-              onClick={() => setShowConfirmation(true)}
-              className={`w-full py-2.5 px-4 rounded-lg text-base font-semibold transition-colors duration-300 flex items-center justify-center gap-2 ${
-                isFinished 
-                  ? 'bg-green-500 hover:bg-green-600 text-white' 
-                  : 'bg-[#004A98] hover:bg-[#003d7a] text-white'
-              }`}
-            >
-              {isFinished ? 'Reabrir Proceso' : 'Finalizar Proceso'}
-            </button>
-          </div>
 
-          {showConfirmation && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-xl p-6 w-96">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">
-                  {isFinished ? 'Reabrir Proceso' : 'Finalizar Proceso'}
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  {isFinished 
-                    ? '¿Estás seguro que deseas reabrir este proceso? Esto permitirá realizar cambios adicionales.' 
-                    : '¿Estás seguro que deseas finalizar este proceso? No podrás realizar cambios después.'}
-                </p>
-                <div className="flex justify-end gap-3">
-                  <button 
-                    onClick={() => setShowConfirmation(false)}
-                    className="px-4 py-2 text-gray-600 rounded-lg border border-gray-300 hover:bg-gray-100"
-                  >
-                    Cancelar
-                  </button>
-                  <button 
-                    onClick={toggleProcessFinished}
-                    className={`px-4 py-2 text-white rounded-lg ${
-                      isFinished ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
-                    }`}
-                  >
-                    {isFinished ? 'Reabrir' : 'Finalizar'}
-                  </button>
+          {userRole === "ADMINISTRADOR" && (
+            <div className="bg-white rounded-xl shadow-lg p-6 w-96">
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`p-2 rounded-lg ${isFinished ? 'bg-green-500' : 'bg-gray-500'}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
                 </div>
+                <h3 className="text-xl font-bold text-gray-800">
+                  {isFinished ? 'Proceso Finalizado' : 'Proceso en Curso'}
+                </h3>
               </div>
+              <p className="text-gray-600 mb-4 text-sm">
+                {isFinished 
+                  ? 'Este proceso ha sido marcado como finalizado.' 
+                  : 'Marca este proceso como finalizado cuando hayas completado todas las evidencias.'}
+              </p>
+              <button
+                onClick={() => setShowConfirmation(true)}
+                className={`w-full py-2.5 px-4 rounded-lg text-base font-semibold transition-colors duration-300 flex items-center justify-center gap-2 ${
+                  isFinished 
+                    ? 'bg-green-500 hover:bg-green-600 text-white' 
+                    : 'bg-[#004A98] hover:bg-[#003d7a] text-white'
+                }`}
+              >
+                {isFinished ? 'Reabrir Proceso' : 'Finalizar Proceso'}
+              </button>
             </div>
           )}
         </div>
+
+        {showConfirmation && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-96">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                {isFinished ? 'Reabrir Proceso' : 'Finalizar Proceso'}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {isFinished 
+                  ? '¿Estás seguro que deseas reabrir este proceso? Esto permitirá realizar cambios adicionales.' 
+                  : '¿Estás seguro que deseas finalizar este proceso? No podrás realizar cambios después.'}
+              </p>
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setShowConfirmation(false)}
+                  className="px-4 py-2 text-gray-600 rounded-lg border border-gray-300 hover:bg-gray-100"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={toggleProcessFinished}
+                  className={`px-4 py-2 text-white rounded-lg ${
+                    isFinished ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
+                  }`}
+                >
+                  {isFinished ? 'Reabrir' : 'Finalizar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="mb-12"></div>
       </div>
       <AppFooter />
