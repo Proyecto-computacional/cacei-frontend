@@ -48,7 +48,6 @@ const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evi
 
   // Ensure evidences is always an array
   const safeEvidences = Array.isArray(evidences) ? evidences : [];
-  console.log('safeEvidences', safeEvidences);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -75,7 +74,7 @@ const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evi
           <table className="w-full border-collapse border border-gray-200">
             <thead>
               <tr className="bg-blue-500 text-white">
-                <th className="p-2">Sección</th>
+                <th className="pl-10 pb-2 pt-2">Sección</th>
                 <th className="p-2">Criterio</th>
                 <th className="p-2">Responsable</th>
                 <th className="p-2">Estado</th>
@@ -85,11 +84,11 @@ const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evi
               {safeEvidences.length > 0 ? (
                 safeEvidences.map((evidence, index) => (
                   <tr key={index} className="border-t">
-                    <td className="p-2">{evidence.section_name || '-'}</td>
+                    <td className="pl-10 pb-2 pt-2">{evidence.section_name || '-'}</td>
                     <td className="p-2">{evidence.standard_name || '-'}</td>
                     <td className="p-2">{capitalizeEachWord(evidence.responsible || '-')}</td>
                     <td className={`p-2 font-medium normal-case ${evidence.responsible ? getStatusColor(evidence.verified) : 'text-gray-500 italic'}`}>
-                      {evidence.responsible ? toNormalCase(evidence.verified || '-') : 'No asignado'}
+                      {evidence.responsible ? toNormalCase(evidence.verified || '-') : 'No asignada'}
                     </td>
                   </tr>
                 ))
@@ -150,7 +149,6 @@ const Dashboard = () => {
           throw new Error("No process ID found");
         }
         const response = await api.get(`/api/categories/progress/${processId}`);
-        console.log('response', response.data);
         
         // Validate the response data
         if (!Array.isArray(response.data)) {
