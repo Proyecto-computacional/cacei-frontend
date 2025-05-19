@@ -20,6 +20,8 @@ const UploadEvidence = () => {
   const [user, setUser] = useState(null);
   const [isLocked, setIsLocked] = useState(false);
   const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
+  const Finished = localStorage.getItem('finished');
+  const [isFinished, setIsFinished] = useState(false);
 
   const navigate = useNavigate();
 
@@ -130,6 +132,10 @@ const UploadEvidence = () => {
   };
 
   const handleUpload = async () => {
+    if (isFinished) {
+      alert("No se pueden subir archivos porque el proceso ha finalizado");
+      return;
+    }
     setIsLocked(true);
 
     // Solo requerir archivos nuevos si no hay archivos existentes
@@ -258,6 +264,12 @@ const UploadEvidence = () => {
     }
   }, [user, evidence]);
 
+  useEffect(() => {
+    if (Finished == 'true'){
+      setIsFinished(true);
+    }
+  })
+
   return (
     <>
       <AppHeader />
@@ -298,6 +310,12 @@ const UploadEvidence = () => {
               <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
                 Subir Evidencia
               </h1>
+              {isFinished && (
+                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                  <p className="font-bold">Proceso finalizado</p>
+                  <p>No se pueden subir más evidencias porque el proceso de evaluación ha concluido.</p>
+                </div>
+              )}
               <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
                 Proceso: {evidence.process.process_name}
               </h2>
@@ -318,7 +336,7 @@ const UploadEvidence = () => {
                       multiple
                       onChange={handleFileChange}
                       ref={refInputFiles}
-                      disabled={isLocked}
+                      disabled={isLocked || isFinished}
                     />
                   </label>
                   <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
@@ -328,7 +346,7 @@ const UploadEvidence = () => {
                 <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
                   <span className="text-2xl">{getIcon(file.name)}</span>
                   <p className="font-semibold text-left flex-grow">{file.name}</p>
-                  {!isLocked && (<X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />)}
+                  {!isLocked && !isFinished && (<X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />)}
                 </div>
               ))}
               {uploadedFiles && uploadedFiles.map((file) => (
@@ -336,10 +354,10 @@ const UploadEvidence = () => {
                   <span className="text-2xl">{getIcon(file.file_name)}</span>
                   <p className="font-semibold text-left flex-grow">{file.file_name}</p>
                   <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
-                  {!isLocked && (<X className="cursor-pointer" onClick={() => { handleDeleteUploadedFile(file.file_id) }} />)}
+                  {!isLocked && !isFinished && (<X className="cursor-pointer" onClick={() => { handleDeleteUploadedFile(file.file_id) }} />)}
                 </div>
               ))}
-              {user?.user_rpe === evidence.user_rpe && !isLocked && (
+              {user?.user_rpe === evidence.user_rpe && !isLocked && !isFinished && (
                 <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={isLocked}>Guardar</button>
               )}
             </div>
