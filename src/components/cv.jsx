@@ -218,6 +218,37 @@ const CV = () => {
         }
     };
 
+    
+    // Add download function
+    const handleDownload = async () => {
+        try {
+            const response = await api.get(`/api/cv/word/${rpe}`, {
+                responseType: 'blob'
+            });
+            
+            // Create a blob from the response data
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+            
+            // Create a URL for the blob
+            const url = window.URL.createObjectURL(blob);
+            
+            // Create a temporary link element
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `CV_${rpe}.docx`);
+            
+            // Append to body, click and remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up the URL
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading CV:', error);
+            alert('Error al descargar el CV. Por favor intente nuevamente.');
+        }
+    };
 
     const secciones = [
         {
@@ -460,15 +491,15 @@ const CV = () => {
                     )}
                 </main>
             </div>
-            <div className="flex justify-end p-6 border-t">
-                <button 
-                    className="bg-[#004A98] text-white px-6 py-3 rounded hover:bg-[#003d7a] transition-colors duration-200 flex items-center gap-2 text-lg" 
-                    onClick={() => alert('La funcionalidad de descarga estará disponible próximamente')}
-                >
-                    <Download className="h-6 w-6" />
-                    Descargar CV
-                </button>
-            </div>
+            
+            {/* Fixed download button */}
+            <button 
+                onClick={handleDownload}
+                className="fixed bottom-15 right-15 bg-primary1 text-white px-6 py-3 hover:bg-[#003d7a] transition-colors duration-200 flex items-center gap-2 shadow-lg"
+            >
+                <Download className="h-6 w-6" />
+                Descargar CV
+            </button>
         </div>
     );
 };
