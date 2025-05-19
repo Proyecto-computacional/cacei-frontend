@@ -10,6 +10,7 @@ const EvidencesCompilation = () => {
   const [link, setLink] = useState(null);
   const [evidencesStructure, setEvidencesStructure] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processData, setProcessData] = useState(null);
 
   const toggleSection = (sectionIndex) => {
     setOpenSections((prev) => ({
@@ -57,84 +58,56 @@ const EvidencesCompilation = () => {
       });
   };
 
-  // Función para limpiar la URL cuando se desmonte el componente
+  // Obtiene toda la información relativa al proceso
   useEffect(() => {
-    return () => {
-      if (link) {
-        window.URL.revokeObjectURL(link);
-      }
-    };
-  }, [link]);
+  const fetchAll = async () => {
+    try {
+      const processId = localStorage.getItem("currentProcessId");
+      if (!processId) throw new Error('No process ID found');
 
-  useEffect(() => {
-    const fetchStructure = async () => {
-      try {
-        const processId = localStorage.getItem("currentProcessId");
-        if (!processId) {
-          throw new Error('No process ID found');
-        }
+      // Obtiene metadatos del proceso
+      const { data: proc } = await api.get(`/api/processes/${processId}`);
+      setProcessData(proc);
 
-        // First get the process details to get the frame_id
-        const processRes = await api.get(`/api/processes/${processId}`);
-        if (!processRes || !processRes.data) {
-          throw new Error('No process data received');
-        }
-        const frameId = processRes.data.frame_id;
+      // Obten el marco/categoría/sección/criterio
+      const frameId = proc.frame_id;
+      const { data: categories } = await api.post('/api/categories', { frame_id: frameId });
+      const sectionsRes = await Promise.all(
+        categories.map(cat => api.post('/api/sections',  { category_id: cat.category_id }))
+      );
+      const standardsRes = await Promise.all(
+        sectionsRes.flatMap(res => res.data.map(sec => api.post('/api/standards', { section_id: sec.section_id })))
+      );
 
-        // Fetch categories with the correct frame_id
-        const categoriesRes = await api.post('/api/categories', { frame_id: frameId });
-        if (!categoriesRes || !categoriesRes.data) {
-          throw new Error('No categories data received');
-        }
-        const categories = categoriesRes.data;
-
-        // Fetch sections for each category
-        const sectionsPromises = categories.map(cat =>
-          api.post('/api/sections', { category_id: cat.category_id })
+      // Ordena la estructura
+      const structure = categories.map((cat, i) => {
+        const secs = sectionsRes[i].data;
+        // match each section to its own standards:
+        const stds = secs.map(sec =>
+          standardsRes
+            .filter(r => r.config.data.section_id === sec.section_id)
+            .flatMap(r => r.data)
         );
-        const sectionsRes = await Promise.all(sectionsPromises);
+        return {
+          section: cat.category_name,
+          categories: secs.map((sec, j) => ({
+            name: sec.section_name,
+            criteria: stds[j].map(std => std.standard_name)
+          }))
+        };
+      });
 
-        // Fetch standards for each section
-        const standardsPromises = sectionsRes.flatMap(res => {
-          if (!res || !res.data) {
-            console.warn('Invalid section response:', res);
-            return [];
-          }
-          return res.data.map(sec =>
-            api.post('/api/standards', { section_id: sec.section_id })
-          );
-        });
-        const standardsRes = await Promise.all(standardsPromises);
+      setEvidencesStructure(structure);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        // Build the structure
-        const structure = categories.map((cat, i) => {
-          const sectionData = sectionsRes[i]?.data || [];
-          const standardData = standardsRes[i]?.data || [];
+  fetchAll();
+}, []);
 
-          return {
-            section: cat.category_name,
-            categories: sectionData.map((sec, j) => ({
-              name: sec.section_name,
-              criteria: standardData.map(std => std.standard_name)
-            }))
-          };
-        });
-
-        setEvidencesStructure(structure);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching structure:", error);
-        console.error("Error details:", {
-          message: error.message,
-          response: error.response,
-          stack: error.stack
-        });
-        setLoading(false);
-      }
-    };
-
-    fetchStructure();
-  }, []);
 
   return (
     <>
@@ -169,6 +142,33 @@ const EvidencesCompilation = () => {
               </div>
             )}
           </div>
+
+          /* Info del proceso renderizado*/
+          {processData && (
+            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                {processData.process_name}
+              </h2>
+              <p className="text-gray-600">
+                Fechas:{" "}
+                {new Date(processData.start_date).toLocaleDateString()} –{" "}
+                {new Date(processData.end_date).toLocaleDateString()}
+                {" | "}
+                Vence: {new Date(processData.due_date).toLocaleDateString()}
+              </p>
+              <p className="mt-2 text-gray-700">
+                Carrera: {processData.career_name} (<em>{processData.career_owner}</em>)<br/>
+                Área:    {processData.area_name}   (<em>{processData.area_owner}</em>)<br/>
+                Marco:   {processData.frame_name || "—"}{" "}
+                {processData.finished ? (
+                  <span className="text-green-600 font-medium">[Finalizado]</span>
+                ) : (
+                  <span className="text-yellow-600 font-medium">[En curso]</span>
+                )}
+              </p>
+            </div>
+          )}
+
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
