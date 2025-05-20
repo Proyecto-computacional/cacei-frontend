@@ -220,7 +220,7 @@ export function SubHeading() {
                                             onClick={() => { navigate("/uploadEvidence"); setOpen(false); }} >
                                             Carga de evidencias
                                         </li>
-                                        {userRole === "ADMINISTRADOR" && (
+                                        {(
                                             <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                                 onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
                                                 Administración de usuarios
@@ -230,7 +230,7 @@ export function SubHeading() {
                                             onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
                                             Revisión de evidencias
                                         </li>
-                                        {userRole === "ADMINISTRADOR" && (
+                                        {(
                                             <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                                 onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
                                                 Gestión de formato

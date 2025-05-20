@@ -139,21 +139,30 @@ export default function EvidenceTable() {
     const canReview = (statuses) => {
         if (!user) return false;
 
+        // Get the most recent status for each role
+        const getMostRecentStatus = (role) => {
+            return statuses
+                .filter(s => s.user_role?.toUpperCase() === role)
+                .sort((a, b) => {
+                    const dateA = new Date(a.status_date).getTime();
+                    const dateB = new Date(b.status_date).getTime();
+                    if (dateA === dateB) {
+                        const indexA = statuses.findIndex(s => s === a);
+                        const indexB = statuses.findIndex(s => s === b);
+                        return indexB - indexA;
+                    }
+                    return dateB - dateA;
+                })[0];
+        };
+
         if (user.user_role === "ADMINISTRADOR") {
-            return !statuses.some(
-                (s) => {
-                    return s.status_description === "APROBADA" && s.user_rpe === user.user_rpe
-                }
-            );
+            const adminStatus = getMostRecentStatus("ADMINISTRADOR");
+            return !adminStatus || adminStatus.status_description !== "APROBADA" || adminStatus.user_rpe !== user.user_rpe;
         } else {
-            return statuses.some(
-                (s) => {
-                    return s.status_description === "PENDIENTE" && s.user_rpe === user.user_rpe
-                }
-            ) && !statuses.some(
-                (s) => {
-                    return s.status_description === "APROBADA" && s.user_rpe === user.user_rpe
-                });
+            const userRoleStatus = getMostRecentStatus(user.user_role);
+            return userRoleStatus && 
+                   userRoleStatus.status_description === "PENDIENTE" && 
+                   userRoleStatus.user_rpe === user.user_rpe;
         }
     };
 
@@ -281,7 +290,7 @@ export default function EvidenceTable() {
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {filteredEvidences.length > 0 ? filteredEvidences.map((item) => (
-                                        <tr key={item.user_rpe} className="hover:bg-gray-50 transition-colors duration-200">
+                                        <tr key={`${item.evidence_id}-${item.statuses[0]?.status_date}`} className="hover:bg-gray-50 transition-colors duration-200">
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.evidence_owner_name}</td>
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.process_name}</td>
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.category_name}</td>
@@ -307,7 +316,40 @@ export default function EvidenceTable() {
                                                 )}
                                             </td>
                                             {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR"].map((rol) => {
-                                                const statusObj = item.statuses.find(s => s.user_role?.toUpperCase() === rol);
+                                                // Get all statuses for this role, sorted by date and preserving original order
+                                                const roleStatuses = item.statuses
+                                                    .filter(s => s.user_role?.toUpperCase() === rol)
+                                                    .sort((a, b) => {
+                                                        // First try to sort by date
+                                                        const dateA = new Date(a.status_date).getTime();
+                                                        const dateB = new Date(b.status_date).getTime();
+                                                        
+                                                        // If dates are the same, use the original array order
+                                                        if (dateA === dateB) {
+                                                            // Find the original indices in the full statuses array
+                                                            const indexA = item.statuses.findIndex(s => s === a);
+                                                            const indexB = item.statuses.findIndex(s => s === b);
+                                                            return indexB - indexA; // Later in array = more recent
+                                                        }
+                                                        
+                                                        return dateB - dateA;
+                                                    });
+                                                
+                                                // Count only final statuses (APROBADA or NO APROBADA)
+                                                const finalStatuses = roleStatuses.filter(s => 
+                                                    s.status_description === "APROBADA" || 
+                                                    s.status_description === "NO APROBADA"
+                                                );
+                                                
+                                                // Debug logging
+                                                console.log(`Statuses for ${rol}:`, roleStatuses.map((s, idx) => ({
+                                                    status: s.status_description,
+                                                    date: s.status_date,
+                                                    timestamp: new Date(s.status_date).getTime()
+                                                })));
+                                                
+                                                // Get the most recent status
+                                                const statusObj = roleStatuses[0];
                                                 const status = statusObj ? statusObj.status_description : "PENDIENTE";
                                                 const color = status === "APROBADA" ? "text-green-600 bg-green-50"
                                                     : status === "NO APROBADA" ? "text-red-600 bg-red-50"

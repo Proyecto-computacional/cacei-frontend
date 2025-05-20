@@ -44,21 +44,33 @@ const UploadEvidence = () => {
           setUploadedFiles(response.data.evidence.files);
           setJustification(response.data.evidence.files[0]?.justification || "");
 
+          // Sort statuses by date and time
+          if (response.data.evidence.status && response.data.evidence.status.length > 0) {
+            response.data.evidence.status.sort((a, b) => {
+              const dateA = new Date(a.created_at);
+              const dateB = new Date(b.created_at);
+              return dateB - dateA; // Sort in descending order (newest first)
+            });
+          }
+
           if (response.data.evidence.status && response.data.evidence.status.length > 0) {
             const firstStatus = response.data.evidence.status[0];
             const adminStatus = response.data.evidence.status.find(
               (s) => s.user.user_role === "ADMINISTRADOR"
             );
 
+            // Lock the evidence if it has been approved or is pending
             if (adminStatus) {
               if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "PENDIENTE") {
                 setIsLocked(true);
               } else if (adminStatus.status_description === "NO APROBADA") {
-                setIsLocked(false);
+                // Only allow editing if the user is the evidence owner
+                setIsLocked(user?.user_rpe !== response.data.evidence.user_rpe);
               }
             } else {
               if (firstStatus.status_description === "NO APROBADA") {
-                setIsLocked(false);
+                // Only allow editing if the user is the evidence owner
+                setIsLocked(user?.user_rpe !== response.data.evidence.user_rpe);
               } else if (
                 firstStatus.status_description === "APROBADA" ||
                 firstStatus.status_description === "PENDIENTE"
@@ -79,7 +91,7 @@ const UploadEvidence = () => {
           }
         });
     }
-  }, [evidence_id]);
+  }, [evidence_id, user]);
 
   useEffect(() => {
     async function fetchData() {
@@ -352,6 +364,9 @@ const UploadEvidence = () => {
                   <div className="flex">
                     <p className="text-black text-lg font-semibold">Revisor:</p>
                     <p className="text-black text-lg ml-1">{item.user.user_name}</p>
+                    <p className="text-black text-sm ml-2">
+                      ({item.status_date})
+                    </p>
                   </div>
                   <p className="text-black text-lg font-semibold">Estado</p>
                   <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.status_description)}`}>
