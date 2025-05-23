@@ -19,7 +19,7 @@ const AdminDashboard = () => {
 
     return (
         <div>
-            <h2>Dashboard de Administrador</h2>
+            <h2>Dashboard de administrador</h2>
             {data ? <p>{data}</p> : <p>Cargando...</p>}
             {error && <p>{error}</p>}
         </div>

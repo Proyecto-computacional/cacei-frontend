@@ -6,7 +6,7 @@ const CommentViewer = ({ comment, userData, date, onClose }) => {
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-[1000]">
             <div className="bg-white p-6 rounded-lg w-full max-w-md">
-                <h2 className="text-xl font-bold mb-4">Comentarios del Estado</h2>
+                <h2 className="text-xl font-bold mb-4">Comentarios del estado</h2>
                 
                 {/* Sección de metadatos */}
                 <div className="grid grid-cols-2 gap-4 mb-4">

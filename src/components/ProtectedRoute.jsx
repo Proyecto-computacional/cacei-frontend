@@ -29,7 +29,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
     // Show loading state while fetching user data
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div>Cargando...</div>;
     }
 
     // If user data is not available, redirect to login

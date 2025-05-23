@@ -73,7 +73,7 @@ const DashboardWidgets = () => {
         <div>
           <h2 className="text-2xl font-bold mb-2 flex items-center">
             <Upload className="w-6 h-6 mr-2" />
-            Carga de Evidencias
+            Carga de evidencias
           </h2>
           <p className="text-gray-600 mb-4">
             Sube y gestiona las evidencias necesarias para el proceso de acreditación.
@@ -83,7 +83,7 @@ const DashboardWidgets = () => {
           onClick={() => navigate('/uploadEvidence')}
           className="bg-blue-700 text-white mt-4 py-2 rounded-xl hover:bg-blue-800 transition-colors duration-300"
         >
-          Ir a Carga de Evidencias
+          Ir a carga de Evidencias
         </button>
       </div>
 
@@ -93,7 +93,7 @@ const DashboardWidgets = () => {
           <div>
             <h2 className="text-2xl font-bold mb-2 flex items-center">
               <ClipboardList className="w-6 h-6 mr-2" />
-              Asignación de Tareas
+              Asignación de tareas
             </h2>
             <p className="text-gray-600 mb-4">
               Gestiona y asigna tareas a los miembros del equipo para el proceso de acreditación.
@@ -103,14 +103,14 @@ const DashboardWidgets = () => {
             onClick={() => navigate('/evidenceManagement')}
             className="bg-blue-700 text-white mt-4 py-2 rounded-xl hover:bg-blue-800 transition-colors duration-300"
           >
-            Ir a Asignación de Tareas
+            Ir a asignación de tareas
           </button>
         </div>
       )}
 
       {/* Progress Card */}
       <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center">
-        <h2 className="text-2xl font-bold mb-2">Progreso General</h2>
+        <h2 className="text-2xl font-bold mb-2">Progreso general</h2>
         <div className="relative w-32 h-32">
           <svg width="100%" height="100%" viewBox="0 0 36 36" className="circular-chart">
             {/* Background circle */}

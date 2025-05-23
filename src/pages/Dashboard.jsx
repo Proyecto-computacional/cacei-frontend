@@ -314,7 +314,7 @@ const Dashboard = () => {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            Progreso por Categoría
+            Progreso por categoría
           </h3>
         </div>
 
@@ -343,7 +343,7 @@ const Dashboard = () => {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
             </svg>
-            Finalización del Proceso
+            Finalización del proceso
           </h3>
         </div>
 
@@ -355,7 +355,7 @@ const Dashboard = () => {
                   <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-800">Compilación Final</h3>
+              <h3 className="text-xl font-bold text-gray-800">Compilación final</h3>
             </div>
             <p className="text-gray-600 mb-4 text-sm">
               Finaliza el proceso de acreditación y genera la compilación de evidencias aprobadas.
@@ -364,7 +364,7 @@ const Dashboard = () => {
               onClick={handleClick}
               className="w-full bg-[#004A98] text-white py-2.5 px-4 rounded-lg text-base font-semibold hover:bg-[#003d7a] transition-colors duration-300 flex items-center justify-center gap-2"
             >
-              Compilar Evidencias
+              Compilar evidencias
             </button>
           </div>
 

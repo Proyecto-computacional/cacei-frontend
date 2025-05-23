@@ -30,7 +30,7 @@ function CrearMarcoForm({ onCancel, onSaved }) {
   
     return (
       <div className="border p-6 mb-6 rounded-lg shadow-lg bg-white max-w-2xl mx-auto">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Crear Marco</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Crear marco</h2>
         <input
           type="text"
           className="border border-gray-300 p-3 w-full mb-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -91,7 +91,7 @@ function ModificarMarcoForm({ frame, onCancel, onSaved }) {
   
     return (
       <div className="border p-6 mb-6 rounded-lg shadow-lg bg-white max-w-2xl mx-auto">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Modificar Marco</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Modificar marco</h2>
         <input
           type="text"
           className="border border-gray-300 p-3 w-full mb-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -181,14 +181,14 @@ export default function FrameOfReferenceView() {
         <SubHeading />
         <div className="p-6 max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">Marcos de Referencia</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Marcos de referencia</h1>
             <div className="flex gap-3">
               <button 
                 className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
                 onClick={handleOpenCreate}
               >
                 <Plus className="w-5 h-5" />
-                Crear Marco
+                Crear marco
               </button>
               <button
                 className={`px-6 py-2 rounded-md flex items-center gap-2 transition-colors ${
@@ -200,7 +200,7 @@ export default function FrameOfReferenceView() {
                 disabled={!selectedFrame}
               >
                 <Edit2 className="w-5 h-5" />
-                Modificar Marco
+                Modificar marco
               </button>
             </div>
           </div>

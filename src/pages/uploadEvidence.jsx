@@ -134,7 +134,7 @@ const UploadEvidence = () => {
 
     // Solo requerir archivos nuevos si no hay archivos existentes
     if (!files.length && (!uploadedFiles || uploadedFiles.length === 0)) {
-      alert("Por favor, selecciona al menos un archivo.");
+      alert("Por favor, seleccione al menos un archivo.");
       setIsLocked(false);
       return;
     }
@@ -296,7 +296,7 @@ const UploadEvidence = () => {
           <div className="bg-white p-6 rounded-xl shadow-md flex flex-wrap flex-row w-3/4 min-h-[500px]">
             <div className="flex flex-col flex-1 mr-10 w-1/2">
               <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
-                Subir Evidencia
+                Subir evidencia
               </h1>
               <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
                 Proceso: {evidence.process.process_name}

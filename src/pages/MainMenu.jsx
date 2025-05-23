@@ -81,7 +81,7 @@ const MainMenu = () => {
             const processRes = await api.get(`/api/processes/${card.process_id}`);
             newFinishedStatus[card.process_id] = processRes.data.finished || false;
           } catch (error) {
-            console.warn(`Error obteniendo porcentaje para ${card.process_id}`, error);
+            console.warn(`Error al obtener porcentaje para ${card.process_id}`, error);
             percentagesMap[card.process_id] = 0;
             newFinishedStatus[card.process_id] = false;
           }
@@ -125,7 +125,7 @@ const MainMenu = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-[34px] font-semibold text-gray-800 font-['Open_Sans']">
-                Menú Principal
+                Menú principal
               </h1>
             </div>
             {userRole === "ADMINISTRADOR" && (

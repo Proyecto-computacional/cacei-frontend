@@ -107,7 +107,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Crear Nuevo Proceso</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Crear nuevo proceso</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -145,7 +145,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Marco de Referencia
+              Marco de referencia
             </label>
             <select
               name="frame_id"
@@ -164,7 +164,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre del Proceso *
+              Nombre del proceso *
             </label>
             <input
               type="text"
@@ -179,7 +179,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha de Inicio *
+              Fecha de inicio *
             </label>
             <input
               type="date"
@@ -193,7 +193,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha de Fin *
+              Fecha de fin *
             </label>
             <input
               type="date"
@@ -208,7 +208,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha Límite *
+              Fecha límite *
             </label>
             <input
               type="date"

@@ -164,7 +164,7 @@ const EvidencesCompilation = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
-                  Descargar Evidencias
+                  Descargar evidencias
                 </a>
               </div>
             )}
@@ -174,7 +174,7 @@ const EvidencesCompilation = () => {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-xl font-semibold text-gray-800">Estructura de Evidencias</h2>
+                  <h2 className="text-xl font-semibold text-gray-800">Estructura de evidencias</h2>
                   <p className="text-gray-600 mt-1">Explora la estructura completa de evidencias del proceso</p>
                 </div>
                 <div className="p-6">
@@ -247,7 +247,7 @@ const EvidencesCompilation = () => {
                       <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800">Compilación Final</h3>
+                  <h3 className="text-xl font-bold text-gray-800">Compilación final</h3>
                 </div>
                 <p className="text-gray-600 mb-6">
                   Al compilar las evidencias, se agruparán todas las que ya fueron aprobadas en un archivo ZIP.
@@ -259,7 +259,7 @@ const EvidencesCompilation = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                   </svg>
-                  Compilar Evidencias
+                  Compilar evidencias
                 </button>
               </div>
             </div>

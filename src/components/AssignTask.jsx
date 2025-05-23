@@ -141,7 +141,7 @@ const AssignTask = ({ onClose }) => {
         </div>
   
         <div className="mb-4">
-          <label className="block mb-1 font-medium">Fecha Límite:</label>
+          <label className="block mb-1 font-medium">Fecha límite:</label>
           <input
             type="date"
             className="w-full p-2 border rounded"

@@ -29,7 +29,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Categoría</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear categoría</h2>
             <div className="space-y-4">
               <div>
         <label htmlFor="nombreCategoria" className="block text-sm font-medium text-gray-700 mb-1">
@@ -103,7 +103,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Categoría</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar categoría</h2>
             <div className="space-y-4">
               <div>
         <label htmlFor="nombreCategoria" className="block text-sm font-medium text-gray-700 mb-1">
@@ -183,7 +183,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Sección</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear sección</h2>
             <div className="space-y-4">
               <div>
                 <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
@@ -292,7 +292,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Sección</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar sección</h2>
             <div className="space-y-4">
               <div>
         <label htmlFor="nombreSeccion" className="block text-sm font-medium text-gray-700 mb-1">
@@ -405,7 +405,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Criterio</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear criterio</h2>
             <div className="space-y-4">
               <div>
                 <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
@@ -570,7 +570,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Criterio</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar criterio</h2>
             <div className="space-y-4">
               <div>
         <label htmlFor="nombreCriterio" className="block text-sm font-medium text-gray-700 mb-1">
@@ -772,19 +772,19 @@ export default function EstructuraMarco() {
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
               onClick={handleOpenCreateCategoria}
             >
-              Crear Categoría
+              Crear categoría
             </button>
             <button 
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
               onClick={handleOpenCreateSeccion}
             >
-              Crear Sección
+              Crear sección
             </button>
             <button 
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
               onClick={handleOpenCreateCriterio}
             >
-              Crear Criterio
+              Crear criterio
             </button>
           </div>
         </div>

@@ -222,7 +222,7 @@ const CV = () => {
     const secciones = [
         {
             id: 1,
-            sectionName: "Formación Académica",
+            sectionName: "Formación académica",
             campos: [
                 { name: "grado", type: "select", options: ["Licenciatura", "Especialidad", "Maestría", "Doctorado"], label: "Grado" },
                 { name: "titulo", type: "text", label: "Nombre del título", placeholder: "Título (Incluir especialidad)" },
@@ -233,7 +233,7 @@ const CV = () => {
         },
         {
             id: 2,
-            sectionName: "Capacitación Docente",
+            sectionName: "Capacitación docente",
             campos: [
                 { name: "tipodecapacitacion", type: "text", label: "Tipo de capacitación", placeholder: "Nombre de la capacitación" },
                 { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del páis" },
@@ -243,7 +243,7 @@ const CV = () => {
         },
         {
             id: 3,
-            sectionName: "Actualización Disciplinar",
+            sectionName: "Actualización disciplinar",
             campos: [
                 { name: "tipodeactualizacion", type: "text", label: "Tipo de actualización", placeholder: "Nombre de la actualización" },
                 { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del páis" },
@@ -270,7 +270,7 @@ const CV = () => {
         },
         {
             id: 6,
-            sectionName: "Experiencia Laboral",
+            sectionName: "Experiencia laboral",
             campos: [
                 { name: "empresa", type: "text", label: "Empresa", placeholder: "Nombre de la empresa" },
                 { name: "cargo", type: "text", label: "Cargo", placeholder: "Cargo desempeñado" },
@@ -280,7 +280,7 @@ const CV = () => {
         },
         {
             id: 7,
-            sectionName: "Experiencia en diseño igenieril",
+            sectionName: "Experiencia en diseño ingenieril",
             campos: [
                 {name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo"},
                 {name: "periodo", type: "text", label: "Periodo (años)", placeholder: "Número de años"},
@@ -289,7 +289,7 @@ const CV = () => {
         },
         {
             id: 8,
-            sectionName: "Logros Profesionales",
+            sectionName: "Logros profesionales",
             campos: [
                 { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Premio Nacional de Innovación en Tecnología 2020" },
             ],
@@ -305,14 +305,14 @@ const CV = () => {
         },
         {
             id: 10,
-            sectionName: "Premios y Reconocimientos",
+            sectionName: "Premios y reconocimientos",
             campos: [
                 { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Premio Nacional de Innovación en Tecnología 2020" },
             ],
         },
         {
             id: 11,
-            sectionName: "Aportaciones a la Mejora del PE",
+            sectionName: "Aportaciones a la mejora del PE",
             campos: [
                 { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Desarrollo de un nuevo modelo de enseñanza híbrida" },
             ],

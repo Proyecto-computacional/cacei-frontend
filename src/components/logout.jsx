@@ -11,7 +11,7 @@ const Logout = () => {
         navigate('/');
     };
 
-    return <button className="flex items-center justify-center bg-[#004A98] text-white shadow w-40 h-7 cursor-pointer" onClick={handleLogout}>Cerrar Sesión</button>;
+    return <button className="flex items-center justify-center bg-[#004A98] text-white shadow w-40 h-7 cursor-pointer" onClick={handleLogout}>Cerrar sesión</button>;
 };
 
 export default Logout;

@@ -53,7 +53,7 @@ export function AppHeader() {
                                         <span className="text-white"> | </span>
                                     </div>
                                     <div className="p-1 px-1 bd-highlight">
-                                        <a href="/personalInfo" onClick={(e) => { e.preventDefault(); navigate('/personalInfo'); }}>Configuración Personal</a>
+                                        <a href="/personalInfo" onClick={(e) => { e.preventDefault(); navigate('/personalInfo'); }}>Configuración personal</a>
                                         <span className="text-white"> | </span>
                                     </div>
                                     <div className="p-1 px-1 bd-highlight">
@@ -104,10 +104,10 @@ export function AppFooter() {
                                 <div className="row" id="identidad">
                                     <span><b>UASLP</b></span><br />
                                     <span>Universidad Autónoma de San Luis Potosí</span><br />
-                                    <span>Álvaro Obregón 64, Centro. CP 78000</span><br />
-                                    <span>San Luis Potosí, SLP</span><br />
+                                    <span>Álvaro Obregón 64, Centro, C.P. 78000</span><br />
+                                    <span>San Luis Potosí, S.L.P.</span><br />
                                     <span>444 826 23 00</span><br />
-                                    <span>©Todos los derechos reservados</span><br />
+                                    <span>© Todos los derechos reservados</span><br />
                                 </div>
                             </div>
                         </div>
@@ -130,15 +130,15 @@ export function SubHeading() {
 
     const breadcrumbMap = {
         mainmenu: "Inicio",
-        personalInfo: "Configuración Personal",
-        uploadEvidence: "Carga de Evidencias",
-        usersAdmin: "Administración de Usuarios",
-        ReviewEvidence: "Revisión de Evidencias",
+        personalInfo: "Configuración personal",
+        uploadEvidence: "Carga de evidencias",
+        usersAdmin: "Administración de usuarios",
+        ReviewEvidence: "Revisión de evidencias",
         framesAdmin: "Gestión de Formato",
         evidenceManagement: "Asignación de tareas",
         notifications: "Notificaciones",
         dash: "Dashboard",
-        EvidencesCompilation: "Compilación de Evidencias"
+        EvidencesCompilation: "Compilación de evidencias"
     };
 
     const [processName, setProcessName] = useState("");
