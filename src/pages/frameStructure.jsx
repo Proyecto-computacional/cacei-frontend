@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [nombre, setNombre] = useState("");
@@ -816,10 +817,7 @@ export default function EstructuraMarco() {
   
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {isLoading ? (
-            <div className="p-8 text-center">
-              <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <p className="mt-2 text-gray-600">Cargando datos...</p>
-            </div>
+            <LoadingSpinner />
           ) : (
             <table className="w-full">
               <thead>

@@ -5,6 +5,7 @@ import Feedback from "./Feedback";
 import HeaderSort from "./headerSort";
 import CommentViewer from "./CommentViewer";
 import api from "../../services/api";
+import LoadingSpinner from "../LoadingSpinner";
 
 export default function EvidenceTable() {
 
@@ -19,6 +20,7 @@ export default function EvidenceTable() {
     const [order, setOrder] = useState(null);
     const [user, setUser] = useState(null);
     const [refresh, setRefresh] = useState(false);
+    const [loading, setLoading] = useState(true);
 
 
     useEffect(() => {
@@ -28,6 +30,8 @@ export default function EvidenceTable() {
                 setUser(response.data);
             } catch (error) {
                 console.error(error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchUser();
@@ -185,7 +189,8 @@ export default function EvidenceTable() {
 
     return (
         <>
-            <div className="container mx-auto p-8 bg-gray-50 min-h-screen">
+            <div className="container mx-auto p-8 bg-gray-50 min-h-screen relative">
+                {loading && <LoadingSpinner />}
                 <div className="mb-8 p-6 bg-white rounded-xl shadow-md border border-gray-100">
                     <div className="flex items-center mb-6">
                         <Filter className="mr-3 text-primary1" size={24} />
@@ -264,8 +269,7 @@ export default function EvidenceTable() {
 
                 {!user ? (
                     <div className="text-center py-12 bg-white rounded-xl shadow-md">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary1 mx-auto mb-4"></div>
-                        <p className="text-gray-600">Cargando información del usuario...</p>
+                        <LoadingSpinner />
                     </div>
                 ) : (
                     <div className="bg-white rounded-xl shadow-md overflow-hidden">

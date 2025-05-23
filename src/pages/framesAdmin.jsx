@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import { Plus, Edit2, Check, X, ArrowRight } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function CrearMarcoForm({ onCancel, onSaved }) {
     const [nombre, setNombre] = useState("");
@@ -176,10 +177,11 @@ export default function FrameOfReferenceView() {
     };
   
     return (
-      <>
+      <div className="min-h-screen bg-gray-50">
         <AppHeader />
         <SubHeading />
-        <div className="p-6 max-w-7xl mx-auto">
+        <div className="container mx-auto px-4 py-8">
+          {isLoading && <LoadingSpinner />}
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-gray-800">Marcos de Referencia</h1>
             <div className="flex gap-3">
@@ -223,15 +225,7 @@ export default function FrameOfReferenceView() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan="3" className="px-6 py-8 text-center">
-                      <div className="flex justify-center">
-                        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                      </div>
-                    </td>
-                  </tr>
-                ) : frames.length === 0 ? (
+                {frames.length === 0 ? (
                   <tr>
                     <td colSpan="3" className="px-6 py-8 text-center text-gray-500">
                       No hay marcos de referencia disponibles
@@ -264,6 +258,6 @@ export default function FrameOfReferenceView() {
           </div>
         </div>
         <AppFooter />
-      </>
+      </div>
     );
 }
