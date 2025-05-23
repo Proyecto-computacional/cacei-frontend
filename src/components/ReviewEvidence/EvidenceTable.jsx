@@ -23,6 +23,7 @@ export default function EvidenceTable() {
     const [showJustificationModal, setShowJustificationModal] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
 
+
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -145,11 +146,11 @@ export default function EvidenceTable() {
         });
     };
 
-  
 
-    
 
-    
+
+
+
 
     const canReview = (statuses) => {
         if (!user) return false;
@@ -188,7 +189,7 @@ export default function EvidenceTable() {
         });
         setShowCommentModal(true);
 
-        
+
     };
 
     const handleJustificationClick = (justification) => {
@@ -196,7 +197,7 @@ export default function EvidenceTable() {
             text: justification || "Sin justificación"
         });
         setShowJustificationModal(true);
-    }   
+    }
     const handleJustificationClose = () => {
         setShowJustificationModal(false);
     };
@@ -315,29 +316,40 @@ export default function EvidenceTable() {
                                         <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
-                                       <HeaderSort column="Justificacion" text={"Justificacion de evidencia"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-center text-sm font-semibold text-white" />
+                                        <HeaderSort column="Justificacion" text={"Justificacion de evidencia"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-center text-sm font-semibold text-white" />
 
                                         <th className="w-[10%] py-4 px-6 text-center text-sm font-semibold text-white" colSpan={3}>Estatus</th>
                                         <th className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" rowSpan={2}>Revisión</th>
-                                        
+
 
                                     </tr>
                                     <tr className="bg-primary1/90">
                                         <th className="py-3 px-6 text-sm font-medium text-white">Administrador</th>
                                         <th className="py-3 px-6 text-sm font-medium text-white">Jefe de área</th>
                                         <th className="py-3 px-6 text-sm font-medium text-white">Coordinador de Carrera</th>
-                                      
+
                                     </tr>
-                                    
+
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {filteredEvidences.length > 0 ? filteredEvidences.map((item) => (
+
                                         <tr key={item.user_rpe} className="hover:bg-gray-50 transition-colors duration-200">
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.evidence_owner_name}</td>
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.process_name}</td>
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.category_name}</td>
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.section_name}</td>
-                                            <td className="py-4 px-6 text-sm text-gray-900">{item.standard_name}</td>
+                                            <td className="py-4 px-6 text-sm text-gray-900">
+                                                <div className="flex flex-col items-center justify-center gap-1">  {/* Centrado vertical y horizontal */}
+                                                    <span>{item.standard_name}</span>
+                                                    {item.is_transversal && (
+                                                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-fit">
+                                                            Transversal
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+
                                             <td className="py-4 px-6">
                                                 {item.files.length > 0 ? (
                                                     item.files.map((file, index) => (
@@ -362,13 +374,13 @@ export default function EvidenceTable() {
                                                     item.files.map((file, index) => (
                                                         <div key={index} className="mb-2">
                                                             {file.justification ? (
-                                                               
+
                                                                 <button
-  onClick={() => handleJustificationClick(file.justification)}
-  className="text-blue-500 hover:underline"
->
-  Ver justificación
-</button>
+                                                                    onClick={() => handleJustificationClick(file.justification)}
+                                                                    className="text-blue-500 hover:underline"
+                                                                >
+                                                                    Ver justificación
+                                                                </button>
                                                             ) : (
                                                                 <span className="text-sm text-gray-500 italic">Sin justificación</span>
                                                             )}
@@ -419,9 +431,9 @@ export default function EvidenceTable() {
 
                                         </tr>
                                     )) :
-                                            <tr>
-                                                <td colSpan="8" className="py-8 text-center text-gray-500 text-sm">
-                                                    No se encontraron evidencias con los filtros aplicados
+                                        <tr>
+                                            <td colSpan="8" className="py-8 text-center text-gray-500 text-sm">
+                                                No se encontraron evidencias con los filtros aplicados
                                             </td>
                                         </tr>
                                     }
@@ -446,12 +458,12 @@ export default function EvidenceTable() {
                     statusFeedback={statusFeedback}
                 />
             )}
-           {showJustificationModal && (
-  <JustificationViewer
-    file={selectedFile}
-    onClose={handleJustificationClose}
-  />
-)}
+            {showJustificationModal && (
+                <JustificationViewer
+                    file={selectedFile}
+                    onClose={handleJustificationClose}
+                />
+            )}
 
         </>
     );
