@@ -45,7 +45,6 @@ const MainMenu = () => {
               "Authorization": `Bearer ${localStorage.getItem('token')}`
             },
           });
-          console.log("Respuesta ", response);
         } else {
           // Fetch only related processes for other roles
           response = await api.get("api/ProcesosUsuario", {
@@ -54,7 +53,6 @@ const MainMenu = () => {
               "Authorization": `Bearer ${localStorage.getItem('token')}`
             },
           });
-          console.log("Respuesta ", response);
         }
   
         if (response.status !== 200) {
@@ -99,11 +97,12 @@ const MainMenu = () => {
     }
   }, [userRole]);
 
-  const handleCardClick = (processId, frameName, careerName, frameId) => {
+  const handleCardClick = (processId, frameName, careerName, frameId, finished) => {
     localStorage.setItem("frameName", frameName);
     localStorage.setItem("careerName", careerName);
     localStorage.setItem("currentProcessId", processId);
     localStorage.setItem("frameId", frameId);
+    localStorage.setItem("finished", finished);
     navigate(`/dash/${processId}`, { state: { processId } });
   };
 
@@ -152,7 +151,7 @@ const MainMenu = () => {
                     career={card.career_name}
                     percentage={`${percentages[card.process_id] ?? 0}%`}
                     finished={finishedStatus[card.process_id] || false}
-                    onClick={() => handleCardClick(card.process_id, card.frame_name, card.career_name, card.frame_id)}
+                    onClick={() => handleCardClick(card.process_id, card.frame_name, card.career_name, card.frame_id, finishedStatus[card.process_id])}
                   />
                 </div>
               ))}
