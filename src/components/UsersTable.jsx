@@ -4,6 +4,7 @@ import axios from "axios";
 import "../app.css"
 import api from "../services/api";
 import { Search, Users, Shield } from "lucide-react";
+import LoadingSpinner from "./LoadingSpinner";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UsersTable() {
@@ -21,11 +22,12 @@ export default function UsersTable() {
     const [allUsers, setAllUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [nextPage, setNextPage] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
     const fetchUsers = async () => {
         try {
+            setLoading(true);
             const response = await api.get("/api/usersadmin", {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem('token')}`,
@@ -51,6 +53,8 @@ export default function UsersTable() {
                 alert("Error de conexión con el servidor.");
             }
             console.error("Error al obtener los usuarios:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -123,7 +127,15 @@ export default function UsersTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredUsers.length > 0 ? filteredUsers.map((item) => (
+                        {loading ? (
+                            <tr>
+                                <td colSpan="4" className="py-8">
+                                    <div className="flex justify-center">
+                                        <LoadingSpinner />
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : filteredUsers.length > 0 ? filteredUsers.map((item) => (
                             <tr key={item.user_rpe} className="border-b hover:bg-gray-50 transition-colors duration-200">
                                 <td className="py-4 px-6">{item.user_rpe}</td>
                                 <td className="py-4 px-6 font-medium">{item.user_name || 'No especificado'}</td>

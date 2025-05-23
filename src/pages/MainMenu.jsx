@@ -5,6 +5,7 @@ import { AppHeader, AppFooter, SubHeading } from "../common";
 import Card from "../components/Card";
 import { Plus } from "lucide-react";
 import CreateProcessModal from "../components/CreateProcessModal";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const MainMenu = () => {
   const [cards, setCards] = useState([]);
@@ -15,6 +16,7 @@ const MainMenu = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [finishedStatus, setFinishedStatus] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -89,6 +91,8 @@ const MainMenu = () => {
 
       } catch (error) {
         console.error("Error al obtener los datos:", error);
+      } finally {
+        setLoading(false);
       }
     };
   
@@ -138,7 +142,11 @@ const MainMenu = () => {
             )}
           </div>
 
-          {cards.length > 0 ? (
+          {loading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <LoadingSpinner />
+            </div>
+          ) : cards.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {cards.map((card) => (
                 <div

@@ -181,7 +181,7 @@ export default function FrameOfReferenceView() {
         <AppHeader />
         <SubHeading />
         <div className="container mx-auto px-4 py-8">
-          {isLoading && <LoadingSpinner />}
+          {isLoading}
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-gray-800">Marcos de Referencia</h1>
             <div className="flex gap-3">
@@ -225,7 +225,15 @@ export default function FrameOfReferenceView() {
                 </tr>
               </thead>
               <tbody>
-                {frames.length === 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan="3" className="py-8">
+                      <div className="flex justify-center">
+                        <LoadingSpinner />
+                      </div>
+                    </td>
+                  </tr>
+                ) : frames.length === 0 ? (
                   <tr>
                     <td colSpan="3" className="px-6 py-8 text-center text-gray-500">
                       No hay marcos de referencia disponibles
