@@ -6,8 +6,14 @@ const Feedback = ({ enviar, cerrar, statusFeedback }) => {
     const [feedback, setFeedback] = useState("");
     const [confirmacionAbierta, setConfirmacionAbierta] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const handleConfirmacion = async () => {
+        if (!feedback.trim()) {
+            alert("La justificación no puede estar en blanco");
+            return;
+        }
+        setError("");
         setLoading(true);
         try {
             // Sanitizar el feedback eliminando caracteres especiales y scripts
@@ -39,10 +45,14 @@ const Feedback = ({ enviar, cerrar, statusFeedback }) => {
 
                     <textarea
                         value={feedback}
-                        onChange={(e) => setFeedback(e.target.value)}
+                        onChange={(e) => {
+                            setFeedback(e.target.value);
+                            setError("");
+                        }}
                         placeholder="Escribe tus comentarios..."
-                        className="w-full p-3 border rounded mb-4 min-h-[120px]"
+                        className={`w-full p-3 border rounded mb-2 min-h-[120px] ${error ? 'border-red-500' : ''}`}
                     />
+                    {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
                     <div className="flex justify-end gap-2">
                         <button
