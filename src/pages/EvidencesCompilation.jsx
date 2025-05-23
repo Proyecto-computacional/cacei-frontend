@@ -10,6 +10,7 @@ const EvidencesCompilation = () => {
   const [link, setLink] = useState(null);
   const [evidencesStructure, setEvidencesStructure] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processData, setProcessData] = useState(null);
 
   const toggleSection = (sectionIndex) => {
     setOpenSections((prev) => ({
@@ -66,6 +67,7 @@ const EvidencesCompilation = () => {
     };
   }, [link]);
 
+  // Obtiene toda la información relativa al proceso
   useEffect(() => {
     const fetchStructure = async () => {
       try {
@@ -79,6 +81,7 @@ const EvidencesCompilation = () => {
         if (!processRes || !processRes.data) {
           throw new Error('No process data received');
         }
+        setProcessData(processRes.data);  
         const frameId = processRes.data.frame_id;
 
         // Fetch categories with the correct frame_id
@@ -154,6 +157,7 @@ const EvidencesCompilation = () => {
                 Genera una compilación de todas las evidencias aprobadas en el proceso
               </p>
             </div>
+
             {link && (
               <div className="bg-white p-4 rounded-xl shadow-lg">
                 <a
@@ -169,6 +173,32 @@ const EvidencesCompilation = () => {
               </div>
             )}
           </div>
+
+           {processData && (
+            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                {processData.process_name}
+              </h2>
+              <p className="text-gray-600">
+                Periodo de duración:{" "}
+                {new Date(processData.start_date).toLocaleDateString()} –{" "}
+                {new Date(processData.end_date).toLocaleDateString()}
+                {" | "}
+                Límite para subir evidencias: {new Date(processData.due_date).toLocaleDateString()}
+              </p>
+              <p className="mt-2 text-gray-700">
+                Carrera: {processData.career_name} (<em>{processData.career_owner}</em>)<br/>
+                Área:    {processData.area_name}   (<em>{processData.area_owner}</em>)<br/>
+                Marco de referencia:   {processData.frame_name || "—"}{" "}
+                {processData.finished ? (
+                  <span className="text-green-600 font-medium">[Finalizado]</span>
+                ) : (
+                  <span className="text-yellow-600 font-medium">[En curso]</span>
+                )}
+              </p>
+            </div>
+          )}
+
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
