@@ -151,6 +151,9 @@ const MainMenu = () => {
                     career={card.career_name}
                     percentage={`${percentages[card.process_id] ?? 0}%`}
                     finished={finishedStatus[card.process_id] || false}
+                    startDate={card.start_date}
+                    endDate={card.end_date}
+                    dueDate={card.due_date}
                     onClick={() => handleCardClick(card.process_id, card.frame_name, card.career_name, card.frame_id, finishedStatus[card.process_id])}
                   />
                 </div>

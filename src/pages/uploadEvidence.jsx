@@ -391,20 +391,42 @@ const UploadEvidence = () => {
                 Revisión
               </h1>
               {evidence.status.map((item, index) => (
-                <div key={index} className="border rounded bg-gray-200 text-gray-600 p-2 my-3">
-                  <div className="flex">
-                    <p className="text-black text-lg font-semibold">Revisor:</p>
-                    <p className="text-black text-lg ml-1">{item.user.user_name}</p>
-                    <p className="text-black text-sm ml-2">
-                      ({item.status_date})
-                    </p>
+                <div key={index} className="border rounded-lg bg-white shadow-sm p-4 my-4">
+                  <div className="border-b pb-3 mb-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-sm text-gray-500">Revisor:</p>
+                      <p className="text-gray-800 font-semibold">{item.user.user_name}</p>
+                      <span className="px-2 py-0.5 text-xs font-medium bg-primary1/10 text-primary1 rounded-full">
+                        {item.user.user_role}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-gray-500">Fecha y hora de revisión:</p>
+                      <p className="text-gray-800">
+                        {new Date(item.status_date).toLocaleDateString('es-MX', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-black text-lg font-semibold">Estado</p>
-                  <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.status_description)}`}>
-                    {item.status_description}
-                  </p>
-                  <p className="text-black text-lg font-semibold">Retroalimentación</p>
-                  <p className="w-full p-2 border rounded mt-2 text-gray-600 bg-gray-50 min-h-[150px]">{item.feedback}</p>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-1">Estado de la revisión</p>
+                      <p className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium ${getEstadoClass(item.status_description)}`}>
+                        {item.status_description}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-1">Retroalimentación</p>
+                      <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <p className="text-gray-700 whitespace-pre-wrap">{item.feedback || "Sin retroalimentación"}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
