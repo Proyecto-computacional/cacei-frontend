@@ -377,7 +377,7 @@ const Dashboard = () => {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-gray-800">
-                  {isFinished ? 'Proceso Finalizado' : 'Proceso en Curso'}
+                  {isFinished ? 'Proceso Finalizado' : 'Proceso en curso'}
                 </h3>
               </div>
               <p className="text-gray-600 mb-4 text-sm">
