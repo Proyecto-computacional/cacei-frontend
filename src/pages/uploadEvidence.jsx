@@ -7,6 +7,7 @@ import '../app.css';
 import api from "../services/api";
 import { FileQuestion, Sheet, FileText, FolderArchive, X } from "lucide-react";
 import EditorCacei from "../components/EditorCacei";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const UploadEvidence = () => {
   const [files, setFiles] = useState([]);
@@ -15,6 +16,7 @@ const UploadEvidence = () => {
   const [evidence, setEvidence] = useState(null);
   const [firstRevisor, setFirstRevisor] = useState(null);
   const [asignaciones, setAsignaciones] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const refInputFiles = useRef(null);
   const { evidence_id } = useParams();
   const [user, setUser] = useState(null);
@@ -98,13 +100,15 @@ const UploadEvidence = () => {
   useEffect(() => {
     async function fetchData() {
       try {
+        setIsLoading(true);
         const assignmentsResponse = await api.get('/api/my-assignments');
         setAsignaciones(assignmentsResponse.data);
-
       } catch (error) {
         if (error.response && error.response.status === 401) {
           navigate("/mainmenu");
         }
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchData();
@@ -304,30 +308,43 @@ const UploadEvidence = () => {
           <div className="bg-primary1 p-3">
             <h2 className="text-lg font-semibold text-white text-center">Mis asignaciones</h2>
           </div>
-          <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
-            {asignaciones.map((item, index) => (
-              <Link
-                key={index}
-                to={`/uploadEvidence/${item.evidence_id}`}
-                className={`block p-3 transition-colors duration-200 ${
-                  evidence_id === item.evidence_id.toString()
-                    ? 'bg-primary1/10 border-l-4 border-primary1'
-                    : 'hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <p className={`font-medium text-base flex-1 truncate ${
+          {isLoading ? (
+            <div className="relative min-h-[200px]" style={{ paddingTop: "10px" }}>
+              <LoadingSpinner />
+            </div>
+          ) : asignaciones.length > 0 ? (
+            <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+              {asignaciones.map((item, index) => (
+                <Link
+                  key={index}
+                  to={`/uploadEvidence/${item.evidence_id}`}
+                  className={`block p-3 transition-colors duration-200 ${
                     evidence_id === item.evidence_id.toString()
-                      ? 'text-primary1'
-                      : 'text-gray-800'
-                  }`}>{item.criterio}</p>
-                  <span className={`px-2 py-0.5 rounded-full text-sm font-medium whitespace-nowrap ${getEstadoClass(item.estado)}`}>
-                    {item.estado}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
+                      ? 'bg-primary1/10 border-l-4 border-primary1'
+                      : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className={`font-medium text-base flex-1 truncate ${
+                      evidence_id === item.evidence_id.toString()
+                        ? 'text-primary1'
+                        : 'text-gray-800'
+                    }`}>{item.criterio}</p>
+                    <span className={`px-2 py-0.5 rounded-full text-sm font-medium whitespace-nowrap ${getEstadoClass(item.estado)}`}>
+                      {item.estado}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="p-6 text-center">
+              <p className="text-gray-500 text-lg mb-2">No tienes asignaciones</p>
+              <p className="text-gray-400 text-sm">
+                No hay evidencias asignadas para revisar en este momento.
+              </p>
+            </div>
+          )}
         </div>
         {evidence_id && evidence ? (
           <div className="bg-white p-6 rounded-xl shadow-md flex flex-wrap flex-row w-3/4 min-h-[500px]">
