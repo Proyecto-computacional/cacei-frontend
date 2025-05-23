@@ -50,7 +50,7 @@ const Login = () => {
     return (
         <>
             <AppHeader></AppHeader>
-            <div className="flex justify-center w-full min-h-screen items-start bg-gradient-to-b from-backgroundFrom to-backgroundTo to-40% pt-15">
+            <div className="flex justify-center w-full min-h-[calc(100vh-200px)] items-start bg-gradient-to-b from-backgroundFrom to-backgroundTo to-40% pt-15 pb-2">
                 <div className=" p-10 w-5/9" id="info">
                     <h1 className=" font-bold text-4xl">Bienvenido</h1>
                     <p className="mt-5 mb-10">Esta plataforma facilita la integración, organización y respaldo de evidencias digitales en los procesos de autoevaluación alineados a los Marcos de Referencia establecidos por los organismos acreditadores, atendiendo a la mejora continua de nuestros Programas Educativos.</p>
