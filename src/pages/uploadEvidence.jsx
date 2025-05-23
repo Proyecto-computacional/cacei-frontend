@@ -44,7 +44,16 @@ const UploadEvidence = () => {
           setEvidence(response.data.evidence);
           setFirstRevisor(response.data.first_revisor);
           setUploadedFiles(response.data.evidence.files);
-          setJustification(response.data.evidence.files[0]?.justification || "");
+          setJustification(response.data.evidence.justification || "");
+
+          // Sort statuses by date and time
+          if (response.data.evidence.status && response.data.evidence.status.length > 0) {
+            response.data.evidence.status.sort((a, b) => {
+              const dateA = new Date(a.created_at);
+              const dateB = new Date(b.created_at);
+              return dateB - dateA; // Sort in descending order (newest first)
+            });
+          }
 
           if (response.data.evidence.status && response.data.evidence.status.length > 0) {
             const firstStatus = response.data.evidence.status[0];
@@ -52,15 +61,18 @@ const UploadEvidence = () => {
               (s) => s.user.user_role === "ADMINISTRADOR"
             );
 
+            // Lock the evidence if it has been approved or is pending
             if (adminStatus) {
               if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "PENDIENTE") {
                 setIsLocked(true);
               } else if (adminStatus.status_description === "NO APROBADA") {
-                setIsLocked(false);
+                // Only allow editing if the user is the evidence owner
+                setIsLocked(user?.user_rpe !== response.data.evidence.user_rpe);
               }
             } else {
               if (firstStatus.status_description === "NO APROBADA") {
-                setIsLocked(false);
+                // Only allow editing if the user is the evidence owner
+                setIsLocked(user?.user_rpe !== response.data.evidence.user_rpe);
               } else if (
                 firstStatus.status_description === "APROBADA" ||
                 firstStatus.status_description === "PENDIENTE"
@@ -81,7 +93,7 @@ const UploadEvidence = () => {
           }
         });
     }
-  }, [evidence_id]);
+  }, [evidence_id, user]);
 
   useEffect(() => {
     async function fetchData() {
@@ -138,34 +150,47 @@ const UploadEvidence = () => {
     }
     setIsLocked(true);
 
-    // Solo requerir archivos nuevos si no hay archivos existentes
+    // Si no hay archivos nuevos y no hay archivos subidos previamente, mostrar error
     if (!files.length && (!uploadedFiles || uploadedFiles.length === 0)) {
       alert("Por favor, selecciona al menos un archivo.");
       setIsLocked(false);
       return;
     }
 
-    const formData = new FormData();
-    
-    // Solo adjuntar archivos si hay nuevos
-    if (files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        formData.append('files[]', files[i]);
-      }
-    }
-
-    formData.append("evidence_id", evidence.evidence_id);
-    formData.append("justification", justification);
-
     try {
-      const response = await api.post("/api/file",
-        formData, {
+      // Primero actualizar la justificación de la evidencia
+      const response = await api.put(`/api/evidences/${evidence.evidence_id}`, {
+        justification: justification
+      }, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem('token')}`,
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
+      if (files.length > 0) {
+        const formData = new FormData();
+        
+        // Agregar evidence_id
+        formData.append("evidence_id", evidence.evidence_id);
+        
+        // Agregar archivos - Laravel espera files[] para múltiples archivos
+        Array.from(files).forEach((file) => {
+          formData.append('files[]', file);
+        });
 
+        try {
+          const response = await api.post("/api/file", formData, {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem('token')}`,
+              "Content-Type": "multipart/form-data",
+            },
+          });
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      // Crear status para el primer revisor
       for (const revisor of firstRevisor) {
         await api.post(`/api/RevisionEvidencias/pendiente`, {
           user_rpe: evidence.user_rpe,
@@ -174,23 +199,23 @@ const UploadEvidence = () => {
           feedback: null
         }, {
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem('token')}`, // autenticación
+            "Authorization": `Bearer ${localStorage.getItem('token')}`,
           }
         });
       }
 
-      alert("Archivo subido con éxito");
+      alert("Cambios guardados con éxito");
 
       await api.get(`api/evidences/${evidence_id}`).then(
         (response) => {
           setEvidence(response.data.evidence);
           setUploadedFiles(response.data.evidence.files);
-          setJustification(response.data.evidence.files[0].justification || "");
+          setJustification(response.data.evidence.justification || "");
         }
       );
       setFiles([]);
 
-      // 4. Bloquear la pantalla después de subir
+      // Bloquear la pantalla después de subir
       setIsLocked(true);
 
     } catch (error) {
@@ -370,6 +395,9 @@ const UploadEvidence = () => {
                   <div className="flex">
                     <p className="text-black text-lg font-semibold">Revisor:</p>
                     <p className="text-black text-lg ml-1">{item.user.user_name}</p>
+                    <p className="text-black text-sm ml-2">
+                      ({item.status_date})
+                    </p>
                   </div>
                   <p className="text-black text-lg font-semibold">Estado</p>
                   <p className={`w-1/2 font-semibold px-3 text-center rounded-lg ${getEstadoClass(item.status_description)}`}>
