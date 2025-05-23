@@ -4,6 +4,7 @@ import { Filter, Check, X, FileText } from "lucide-react";
 import Feedback from "./Feedback";
 import HeaderSort from "./headerSort";
 import CommentViewer from "./CommentViewer";
+import JustificationViewer from "./JustificationViewer";
 import api from "../../services/api";
 
 export default function EvidenceTable() {
@@ -19,7 +20,8 @@ export default function EvidenceTable() {
     const [order, setOrder] = useState(null);
     const [user, setUser] = useState(null);
     const [refresh, setRefresh] = useState(false);
-
+    const [showJustificationModal, setShowJustificationModal] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -143,6 +145,12 @@ export default function EvidenceTable() {
         });
     };
 
+  
+
+    
+
+    
+
     const canReview = (statuses) => {
         if (!user) return false;
 
@@ -179,6 +187,18 @@ export default function EvidenceTable() {
             date: statusObj?.status_date
         });
         setShowCommentModal(true);
+
+        
+    };
+
+    const handleJustificationClick = (justification) => {
+        setSelectedFile({
+            text: justification || "Sin justificación"
+        });
+        setShowJustificationModal(true);
+    }   
+    const handleJustificationClose = () => {
+        setShowJustificationModal(false);
     };
 
     return (
@@ -205,7 +225,7 @@ export default function EvidenceTable() {
                             onChange={handleFilterChange}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1 focus:border-primary1 transition-all duration-200"
                         >
-                            <option value="">Todos los Procesos</option>
+                            <option value="">Todos los procesos</option>
                             {process.map((process, index) => (
                                 <option key={`sec-${index}`} value={process}>{process}</option>
                             ))}
@@ -295,14 +315,20 @@ export default function EvidenceTable() {
                                         <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                       <HeaderSort column="Justificacion" text={"Justificacion de evidencia"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-center text-sm font-semibold text-white" />
+
                                         <th className="w-[10%] py-4 px-6 text-center text-sm font-semibold text-white" colSpan={3}>Estatus</th>
                                         <th className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" rowSpan={2}>Revisión</th>
+                                        
+
                                     </tr>
                                     <tr className="bg-primary1/90">
                                         <th className="py-3 px-6 text-sm font-medium text-white">Administrador</th>
-                                        <th className="py-3 px-6 text-sm font-medium text-white">Jefe de Área</th>
+                                        <th className="py-3 px-6 text-sm font-medium text-white">Jefe de área</th>
                                         <th className="py-3 px-6 text-sm font-medium text-white">Coordinador de Carrera</th>
+                                      
                                     </tr>
+                                    
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {filteredEvidences.length > 0 ? filteredEvidences.map((item) => (
@@ -329,6 +355,27 @@ export default function EvidenceTable() {
                                                     ))
                                                 ) : (
                                                     <span className="text-sm text-gray-500 italic">Sin archivo</span>
+                                                )}
+                                            </td>
+                                            <td className="py-4 px-6 text-sm text-gray-900">
+                                                {item.files.length > 0 ? (
+                                                    item.files.map((file, index) => (
+                                                        <div key={index} className="mb-2">
+                                                            {file.justification ? (
+                                                               
+                                                                <button
+  onClick={() => handleJustificationClick(file.justification)}
+  className="text-blue-500 hover:underline"
+>
+  Ver justificación
+</button>
+                                                            ) : (
+                                                                <span className="text-sm text-gray-500 italic">Sin justificación</span>
+                                                            )}
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-sm text-gray-500 italic">Sin justificación</span>
                                                 )}
                                             </td>
                                             {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR"].map((rol) => {
@@ -369,11 +416,12 @@ export default function EvidenceTable() {
                                                     <p className="text-gray-500 italic text-xs">Ya revisado o aun falta aprobacion de otro usuario</p>
                                                 )}
                                             </td>
+
                                         </tr>
                                     )) :
-                                        <tr>
-                                            <td colSpan="8" className="py-8 text-center text-gray-500 text-sm">
-                                                No se encontraron evidencias con los filtros aplicados
+                                            <tr>
+                                                <td colSpan="8" className="py-8 text-center text-gray-500 text-sm">
+                                                    No se encontraron evidencias con los filtros aplicados
                                             </td>
                                         </tr>
                                     }
@@ -398,6 +446,13 @@ export default function EvidenceTable() {
                     statusFeedback={statusFeedback}
                 />
             )}
+           {showJustificationModal && (
+  <JustificationViewer
+    file={selectedFile}
+    onClose={handleJustificationClose}
+  />
+)}
+
         </>
     );
 }
