@@ -180,10 +180,11 @@ export default function EvidenceTable() {
         if (statusObj && ["Aprobado", "Desaprobado"].includes(statusObj.status_description)) {
             comentario = statusObj.feedback || "Sin comentarios";
         }
-
+         
         // Mostrar modal para CUALQUIER estado
         setCurrentComment({
-            text: comentario,
+            text: statusObj?.feedback || "Sin comentarios",
+            status: statusObj?.status_description || "Sin estado", // Añade esto
             user: statusObj?.user_name,
             date: statusObj?.status_date
         });
