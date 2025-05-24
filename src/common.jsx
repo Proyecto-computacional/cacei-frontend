@@ -5,7 +5,7 @@ import headerImg from './assets/headerImage.png';
 import { useNavigate, useParams } from "react-router-dom";
 import Logout from "./components/logout";
 import NotificationsTable from "./components/NotificationTable";
-import { Mail, Bell, User, Menu } from "lucide-react";
+import { Mail, Bell, User, Menu, Users, FileText, Eye } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import api from "./services/api";
 
@@ -221,27 +221,31 @@ export function SubHeading() {
                                        role === "Jefe de area" || 
                                        role === "Coordinador") && (
                                     <>
-                                        <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black">
+                                        <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black hover:text-[#004A98] transition-colors duration-200">
                                             <Menu />
                                         </button>
                                         {open && (
-                                            <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                                                <ul className="py-2">
+                                            <div className="absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                                                <ul className="py-1">
                                                     {role === "Administrador" && (
                                                         <>
-                                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                            <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
                                                                 onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
-                                                                Administración de usuarios
+                                                                <Users className="w-4 h-4 mr-3" />
+                                                                <span>Administración de usuarios</span>
                                                             </li>
-                                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                            <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
                                                                 onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
-                                                                Gestión de formato
+                                                                <FileText className="w-4 h-4 mr-3" />
+                                                                <span>Gestión de formato</span>
                                                             </li>
+                                                            <div className="border-t border-gray-200 my-1"></div>
                                                         </>
                                                     )}
-                                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                    <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
                                                         onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
-                                                        Revisión de evidencias
+                                                        <Eye className="w-4 h-4 mr-3" />
+                                                        <span>Revisión de evidencias</span>
                                                     </li>
                                                 </ul>
                                             </div>
