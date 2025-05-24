@@ -148,12 +148,16 @@ export function SubHeading() {
         const fetchUserInfo = async () => {
             try {
                 const response = await api.get('/api/user');
+                console.log("API Response:", response.data);
+                console.log("API user_role:", response.data.user_role);
+                console.log("localStorage role:", localStorage.getItem("role"));
                 const formattedRole = response.data.user_role
                     ? response.data.user_role
                         .split('_')
                         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
                         .join(' ')
                     : '';
+                console.log("Formatted role:", formattedRole);
                 setUserRole(formattedRole);
                 const formattedName = response.data.user_name
                     ? response.data.user_name
@@ -210,40 +214,48 @@ export function SubHeading() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center">
                         <div className="relative">
-                            <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black">
-                                <Menu />
-                            </button>
-                            {open && (
-                                <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                                    <ul className="py-2">
-                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                            onClick={() => { navigate("/uploadEvidence"); setOpen(false); }} >
-                                            Carga de evidencias
-                                        </li>
-                                        {(
-                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
-                                                Administración de usuarios
-                                            </li>
+                            {(() => {
+                                const role = userRole;
+                                console.log("Current role from API:", role);
+                                return (role === "Administrador" || 
+                                       role === "Jefe de area" || 
+                                       role === "Coordinador") && (
+                                    <>
+                                        <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black">
+                                            <Menu />
+                                        </button>
+                                        {open && (
+                                            <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                                                <ul className="py-2">
+                                                    {role === "Administrador" && (
+                                                        <>
+                                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                                onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
+                                                                Administración de usuarios
+                                                            </li>
+                                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                                onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
+                                                                Gestión de formato
+                                                            </li>
+                                                        </>
+                                                    )}
+                                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
+                                                        Revisión de evidencias
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         )}
-                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                            onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
-                                            Revisión de evidencias
-                                        </li>
-                                        {(
-                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
-                                                Gestión de formato
-                                            </li>
-                                        )}
-                                    </ul>
-                                </div>
-                            )}
+                                    </>
+                                );
+                            })()}
                         </div>
 
-                        <div className="ml-12 flex items-center">
+                        <div className={`flex items-center ${userRole === "Administrador" || 
+                            userRole === "Jefe de area" || 
+                            userRole === "Coordinador" ? 'ml-12' : 'ml-0'}`}>
                             {pathnames.includes('mainmenu') ? (
-                                <span className="text-[#00B2E3] text-lg font-medium">Inicio</span>
+                                <span className="text-[#00B2E3] text-lg font-medium pl-10">Inicio</span>
                             ) : pathnames.includes('dash') ? (
                                 <>
                                     <span 
