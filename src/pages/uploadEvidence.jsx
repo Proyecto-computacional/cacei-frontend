@@ -400,7 +400,7 @@ const UploadEvidence = () => {
                 <Link
                   key={index}
                   to={`/uploadEvidence/${item.evidence_id}`}
-                  className={`block p-3 transition-colors duration-200 ${
+                  className={`block p-3 transition-colors duration-200 no-underline ${
                     evidence_id === item.evidence_id.toString()
                       ? 'bg-primary1/10 border-l-4 border-primary1'
                       : 'hover:bg-gray-50'

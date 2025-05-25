@@ -88,7 +88,7 @@ const DashboardWidgets = () => {
       </div>
 
       {/* Task Assignments Card (Admin Only) */}
-      {userRole === "ADMINISTRADOR" && (
+      {(userRole === "ADMINISTRADOR" || userRole === "COORDINADOR" || userRole === "JEFE DE AREA") && (
         <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
           <div>
             <h2 className="text-2xl font-bold mb-2 flex items-center">
