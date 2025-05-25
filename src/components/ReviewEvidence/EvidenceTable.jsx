@@ -383,22 +383,13 @@ export default function EvidenceTable() {
                                                 )}
                                             </td>
                                             <td className="py-4 px-6 text-sm text-gray-900">
-                                                {item.files.length > 0 ? (
-                                                    item.files.map((file, index) => (
-                                                        <div key={index} className="mb-2">
-                                                            {file.justification ? (
-
-                                                                <button
-                                                                    onClick={() => handleJustificationClick(file.justification)}
-                                                                    className="text-blue-500 hover:underline"
-                                                                >
-                                                                    Ver justificación
-                                                                </button>
-                                                            ) : (
-                                                                <span className="text-sm text-gray-500 italic">Sin justificación</span>
-                                                            )}
-                                                        </div>
-                                                    ))
+                                                {item.justification ? (
+                                                    <button
+                                                        onClick={() => handleJustificationClick(item.justification)}
+                                                        className="text-blue-500 hover:underline"
+                                                    >
+                                                        Ver justificación
+                                                    </button>
                                                 ) : (
                                                     <span className="text-sm text-gray-500 italic">Sin justificación</span>
                                                 )}
