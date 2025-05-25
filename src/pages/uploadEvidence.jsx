@@ -69,12 +69,14 @@ const UploadEvidence = () => {
                 setIsLocked(true);
               } else if (adminStatus.status_description === "NO APROBADA") {
                 // Only allow editing if the user is the evidence owner
-                setIsLocked(user?.user_rpe !== response.data.evidence.user_rpe);
+                const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
+                setIsLocked(shouldLock);
               }
             } else {
               if (firstStatus.status_description === "NO APROBADA") {
                 // Only allow editing if the user is the evidence owner
-                setIsLocked(user?.user_rpe !== response.data.evidence.user_rpe);
+                const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
+                setIsLocked(shouldLock);
               } else if (
                 firstStatus.status_description === "APROBADA" ||
                 firstStatus.status_description === "PENDIENTE"
@@ -162,6 +164,11 @@ const UploadEvidence = () => {
     }
 
     try {
+      console.log('UploadEvidence - Intentando actualizar justificación:', {
+        evidenceId: evidence.evidence_id,
+        justification: justification
+      });
+
       // Primero actualizar la justificación de la evidencia
       const response = await api.put(`/api/evidences/${evidence.evidence_id}`, {
         justification: justification
@@ -171,15 +178,39 @@ const UploadEvidence = () => {
           "Content-Type": "application/json",
         },
       });
+
+      console.log('UploadEvidence - Respuesta de actualización de justificación:', response.data);
+
       if (files.length > 0) {
         const formData = new FormData();
         
         // Agregar evidence_id
         formData.append("evidence_id", evidence.evidence_id);
         
-        // Agregar archivos - Laravel espera files[] para múltiples archivos
-        Array.from(files).forEach((file) => {
-          formData.append('files[]', file);
+        // Agregar archivos - Modificar la forma de agregar archivos
+        Array.from(files).forEach((file, index) => {
+          // Usar 'files' en lugar de 'files[]' y agregar el índice
+          formData.append(`files[${index}]`, file);
+        });
+
+        // Log detallado del FormData
+        console.log('UploadEvidence - FormData completo:', {
+          evidenceId: evidence.evidence_id,
+          files: Array.from(files).map(file => ({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            lastModified: file.lastModified
+          })),
+          formDataEntries: Array.from(formData.entries()).map(([key, value]) => ({
+            key,
+            value: value instanceof File ? {
+              name: value.name,
+              type: value.type,
+              size: value.size,
+              lastModified: value.lastModified
+            } : value
+          }))
         });
 
         try {
@@ -188,13 +219,59 @@ const UploadEvidence = () => {
               "Authorization": `Bearer ${localStorage.getItem('token')}`,
               "Content-Type": "multipart/form-data",
             },
+            // Agregar configuración para manejar archivos grandes
+            maxContentLength: Infinity,
+            maxBodyLength: Infinity,
+            onUploadProgress: (progressEvent) => {
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              console.log(`UploadProgress: ${percentCompleted}%`);
+            }
           });
+          console.log('UploadEvidence - Respuesta de subida de archivos:', response.data);
         } catch (error) {
+          // Log detallado del error
+          console.error('UploadEvidence - Error detallado:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            errors: error.response?.data?.errors,
+            message: error.message,
+            requestData: {
+              evidenceId: evidence.evidence_id,
+              files: Array.from(files).map(file => ({
+                name: file.name,
+                type: file.type,
+                size: file.size
+              }))
+            }
+          });
+
+          // Mostrar el contenido completo del error en la consola
+          console.log('UploadEvidence - Contenido completo del error:', {
+            response: error.response,
+            request: error.request,
+            config: error.config,
+            data: error.response?.data,
+            errors: error.response?.data?.errors
+          });
+          
+          // Mostrar mensaje de error más específico
+          const errorMessage = error.response?.data?.message || 
+                             error.response?.data?.errors?.files?.[0] || 
+                             error.response?.data?.errors?.evidence_id?.[0] ||
+                             error.message;
+          alert(`Error al subir archivo: ${errorMessage}`);
           throw error;
         }
       }
 
       // Crear status para el primer revisor
+      console.log('UploadEvidence - Creando status para revisores:', {
+        firstRevisor,
+        evidenceId: evidence.evidence_id,
+        userRpe: evidence.user_rpe
+      });
+
       for (const revisor of firstRevisor) {
         await api.post(`/api/RevisionEvidencias/pendiente`, {
           user_rpe: evidence.user_rpe,
@@ -224,8 +301,13 @@ const UploadEvidence = () => {
 
     } catch (error) {
       setIsLocked(false);
-      console.error("Error al subir archivo", error);
-      alert("Error al subir archivo");
+      console.error("Error al subir archivo", {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        stack: error.stack
+      });
+      alert(`Error al subir archivo: ${error.response?.data?.message || error.message}`);
     }
   };
   const handleDeleteUploadedFile = async (fileId) => {

@@ -106,8 +106,8 @@ const AssignTask = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-      <div className="w-96 bg-white p-6 rounded-2xl shadow-lg">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[99999]">
+      <div className="w-96 bg-white p-6 rounded-2xl shadow-lg relative z-[99999]">
         <h2 className="text-xl font-bold text-center mb-4">Asignar tarea</h2>
   
         <div className="mb-4">

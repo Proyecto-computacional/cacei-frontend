@@ -267,7 +267,7 @@ const CV = () => {
             sectionName: "Capacitación Docente",
             campos: [
                 { name: "tipodecapacitacion", type: "text", label: "Tipo de capacitación", placeholder: "Nombre de la capacitación" },
-                { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del páis" },
+                { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del país" },
                 { name: "añoobtencion", type: "text", label: "Año de obtención", placeholder: "MM/AAAA" },
                 { name: "horas", type: "text", label: "Horas", placeholder: "Horas hechas" },
             ],
@@ -277,7 +277,7 @@ const CV = () => {
             sectionName: "Actualización Disciplinar",
             campos: [
                 { name: "tipodeactualizacion", type: "text", label: "Tipo de actualización", placeholder: "Nombre de la actualización" },
-                { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del páis" },
+                { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del país" },
                 { name: "añoobtencion", type: "text", label: "Año de obtención", placeholder: "MM/AAAA" },
                 { name: "horas", type: "text", label: "Horas", placeholder: "Horas hechas" },
             ],
@@ -311,10 +311,10 @@ const CV = () => {
         },
         {
             id: 7,
-            sectionName: "Experiencia en diseño igenieril",
+            sectionName: "Experiencia en diseño ingenieril",
             campos: [
                 {name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo"},
-                {name: "periodo", type: "text", label: "Periodo (años)", placeholder: "Número de años"},
+                {name: "periodo", type: "text", label: "Período (años)", placeholder: "Número de años"},
                 {name: "nivel", type: "text", label: "Nivel de experiencia", placeholder:"Nivel del 1 al 5"},
             ],
         },

@@ -403,8 +403,8 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     };
   
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[99999] overflow-y-auto py-20">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8 relative z-[99999]">
           <div className="p-6">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Criterio</h2>
             <div className="space-y-4">

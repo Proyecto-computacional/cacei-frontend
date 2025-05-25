@@ -21,6 +21,7 @@ export default function EditorCacei({setJustification, value, readOnly}) {
   const editorRef = useRef(null);
 
   useEffect(() => {
+    console.log('EditorCacei - Props:', { value, readOnly });
     if (editorRef.current) {
       const editor = editorRef.current;
       if (readOnly) {
@@ -31,13 +32,23 @@ export default function EditorCacei({setJustification, value, readOnly}) {
         editor.getBody().style.userSelect = 'auto';
       }
     }
-  }, [readOnly]);
+  }, [readOnly, value]);
 
   return (
     <div className="">
       <Editor
-        onInit={(evt, editor) => (editorRef.current = editor)}
+        onInit={(evt, editor) => {
+          console.log('EditorCacei - Editor initialized:', {
+            isReadOnly: editor.mode.get() === 'readonly',
+            contentEditable: editor.getBody().getAttribute('contenteditable')
+          });
+          editorRef.current = editor;
+        }}
         onEditorChange={(content, editor) => {
+          console.log('EditorCacei - Content changed:', {
+            contentLength: content.length,
+            isReadOnly: editor.mode.get() === 'readonly'
+          });
           setJustification(content);
         }}
         value={value}
@@ -48,11 +59,17 @@ export default function EditorCacei({setJustification, value, readOnly}) {
           toolbar:
             'fontsize bold italic underline | backcolor | bullist numlist | table ',
           fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
+          readonly: readOnly,
           setup: (editor) => {
             editor.on('init', () => {
+              console.log('EditorCacei - Setup init:', {
+                readOnly,
+                isReadOnly: editor.mode.get() === 'readonly'
+              });
               if (readOnly) {
-                editor.getBody().setAttribute('contenteditable', false);
-                editor.getBody().style.userSelect = 'none';
+                editor.mode.set('readonly');
+              } else {
+                editor.mode.set('design');
               }
             });
           }
