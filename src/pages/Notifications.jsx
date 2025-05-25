@@ -162,6 +162,7 @@ const Notification = () => {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
 
+
   return (
     <>
       <AppHeader />
@@ -216,6 +217,7 @@ const Notification = () => {
                   pinned={notif.pinned}
                   starred={notif.starred}
                   deleted={notif.seen}
+                  notification_date={notif.notification_date}
                   onDeletedClick={() => handleDelete(notif.notification_id)}
                   onStarClick={() => handleStarred(notif.notification_id)}
                   onPinClick={() => handlePin(notif.notification_id)}

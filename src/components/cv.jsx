@@ -1,23 +1,22 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
-import { Download } from "lucide-react";
-
+import { Download, Plus, Save, X } from "lucide-react";
 
 const CV = () => {
     const [data, setData] = useState({});
     const [activeSection, setActiveSection] = useState(1);
-    const [cvId, setCvId] = useState(null); // Nuevo estado para cv_id
+    const [cvId, setCvId] = useState(null);
     const rpe = localStorage.getItem("rpe");
 
     const mapLetterToDegree = (letter) => {
         const degrees = {
-          'L': 'Licenciatura',
-          'E': 'Especialidad',
-          'M': 'Maestría',
-          'D': 'Doctorado'
+            'L': 'Licenciatura',
+            'E': 'Especialidad',
+            'M': 'Maestría',
+            'D': 'Doctorado'
         };
-        return degrees[letter] || letter; // Si no hay coincidencia, muestra la letra
-      };
+        return degrees[letter] || letter;
+    };
 
     // Mapea los datos de la API al formato que espera tu formulario
     const mapApiDataToFormFields = (sectionId, apiData) => {
@@ -80,7 +79,7 @@ const CV = () => {
         return mappers[sectionId]?.(apiData) || {};
     };
 
-      useEffect(() => {
+    useEffect(() => {
         const fetchSectionData = async (cvId, sectionId) => {
             const sectionEndpoints = {
                 1: 'educations',
@@ -218,7 +217,6 @@ const CV = () => {
         }
     };
 
-    
     // Add download function
     const handleDownload = async () => {
         try {
@@ -250,7 +248,7 @@ const CV = () => {
         }
     };
 
-    const secciones = [
+    const sections = [
         {
             id: 1,
             sectionName: "Formación Académica",
@@ -397,15 +395,19 @@ const CV = () => {
     };
     
     return (
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col">
             <div className="flex flex-1">
-                <aside className="w-1/4 bg-gray-200 p-4">
-                    <h2 className="text-xl font-bold mb-4">Secciones</h2>
-                    <ul>
-                        {secciones.map((section) => (
+                <aside className="w-1/4 bg-gray-100 p-4 rounded-lg">
+                    <h2 className="text-lg font-semibold mb-4 text-gray-800">Secciones</h2>
+                    <ul className="space-y-2">
+                        {sections.map((section) => (
                             <li
                                 key={section.id}
-                                className={`p-2 cursor-pointer ${activeSection === section.id ? "bg-gray-400" : ""}`}
+                                className={`p-2 rounded-lg cursor-pointer transition-colors duration-200 ${
+                                    activeSection === section.id 
+                                        ? "bg-primary1 text-white" 
+                                        : "hover:bg-gray-200"
+                                }`}
                                 onClick={() => setActiveSection(section.id)}
                             >
                                 {section.sectionName}
@@ -415,77 +417,86 @@ const CV = () => {
                 </aside>
 
                 <main className="w-3/4 p-6">
-                    {secciones.map(
+                    {sections.map(
                         (section) =>
                             activeSection === section.id && (
                                 <div key={section.id}>
-                                    <h2 className="text-2xl font-bold mb-4">{section.sectionName}</h2>
-                                    <table className="w-full text-primary1">
-                                        <thead>
-                                            <tr>
-                                                {section.campos.map((campo) => (
-                                                    <th key={campo.name} className="px-4 py-2">{campo.label}</th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {(data[section.id] || []).map((row) => (
-                                                <tr key={row.id}>
-                                                    {section.campos.map((campo) => (
-                                                        <td key={`${row.id}_${campo.name}`} className="border px-4 py-2">
-                                                            {campo.type === "select" ? (
-                                                                <select
-                                                                    value={row.values[campo.name] || ""}
-                                                                    onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
-                                                                    className="border p-1 w-full"
-                                                                >
-                                                                    <option value="">Seleccione</option>
-                                                                    {campo.options.map((option) => (
-                                                                        <option key={option} value={option}>{option}</option>
-                                                                    ))}
-                                                                </select>
-                                                            ) : (
-                                                                <input
-                                                                    type={campo.type}
-                                                                    value={row.values[campo.name] || ""}
-                                                                    onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
-                                                                    placeholder={campo.placeholder}
-                                                                    className="border p-1 w-full"
-                                                                />
-                                                            )}
-                                                        </td>
-                                                    ))}
-                                                    <td className="border px-4 py-2">
-                                                        {isRowEmpty(row) && (
-                                                            <button
-                                                                onClick={() => removeRow(section.id, row.id)}
-                                                                className="text-red-500 hover:text-red-700"
-                                                                title="Eliminar fila vacía"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                    <div className="flex gap-4 mt-4">
-                                        <button 
-                                            className="bg-neutral-200 px-4 py-2 rounded hover:bg-neutral-300 transition-colors duration-200" 
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}</h2>
+                                        <button
                                             onClick={() => addRow(section.id)}
+                                            className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
                                         >
+                                            <Plus className="w-4 h-4" />
                                             Agregar
                                         </button>
-                                        <button 
-                                            className="bg-primary1 text-white px-4 py-2 rounded hover:bg-[#003d7a] transition-colors duration-200" 
-                                            onClick={() => sendData(section.id)}
-                                        >
-                                            Enviar
-                                        </button>
                                     </div>
+                                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr className="bg-gray-50">
+                                                    {section.campos.map((campo) => (
+                                                        <th key={campo.name} className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                                                            {campo.label}
+                                                        </th>
+                                                    ))}
+                                                    <th className="w-12"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200">
+                                                {(data[section.id] || []).map((row) => (
+                                                    <tr key={row.id} className="hover:bg-gray-50">
+                                                        {section.campos.map((campo) => (
+                                                            <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
+                                                                {campo.type === "select" ? (
+                                                                    <select
+                                                                        value={row.values[campo.name] || ""}
+                                                                        onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
+                                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
+                                                                    >
+                                                                        <option value="">Seleccione</option>
+                                                                        {campo.options.map((option) => (
+                                                                            <option key={option} value={option}>{option}</option>
+                                                                        ))}
+                                                                    </select>
+                                                                ) : (
+                                                                    <input
+                                                                        type={campo.type}
+                                                                        value={row.values[campo.name] || ""}
+                                                                        onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
+                                                                        placeholder={campo.placeholder}
+                                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
+                                                                    />
+                                                                )}
+                                                            </td>
+                                                        ))}
+                                                        <td className="px-2 py-3">
+                                                            {isRowEmpty(row) && (
+                                                                <button
+                                                                    onClick={() => removeRow(section.id, row.id)}
+                                                                    className="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                                                                    title="Eliminar fila vacía"
+                                                                >
+                                                                    <X className="w-5 h-5" />
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {data[section.id]?.length > 0 && (
+                                        <div className="mt-4 flex justify-end">
+                                            <button
+                                                onClick={() => sendData(section.id)}
+                                                className="flex items-center gap-2 px-6 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                            >
+                                                <Save className="w-4 h-4" />
+                                                Guardar cambios
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             )
                     )}
@@ -495,9 +506,9 @@ const CV = () => {
             {/* Fixed download button */}
             <button 
                 onClick={handleDownload}
-                className="fixed bottom-15 right-15 bg-primary1 text-white px-6 py-3 hover:bg-[#003d7a] transition-colors duration-200 flex items-center gap-2 shadow-lg"
+                className="fixed bottom-15 right-15 bg-primary1 text-white px-6 py-3 hover:bg-[#003d7a] transition-colors duration-200 flex items-center gap-2 shadow-lg rounded-lg"
             >
-                <Download className="h-6 w-6" />
+                <Download className="h-5 w-5" />
                 Descargar CV
             </button>
         </div>
