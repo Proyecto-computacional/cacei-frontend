@@ -27,7 +27,7 @@ const PersonalConfig = () => {
     };
 
     fetchCV();
-  }, []);
+  }, [rpe]);
 
   return (
     <>
