@@ -4,12 +4,14 @@ import { useParams } from "react-router-dom";
 import CV from "../components/cv";
 import api from "../services/api";
 import { User, Calendar, Briefcase, Hash, Clock, Award } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const PersonalConfig = () => {
   const [cvData, setCvData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { rpe } = useParams()
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCV = async () => {
@@ -19,8 +21,11 @@ const PersonalConfig = () => {
         setCvData(response.data);
       } catch (err) {
         console.error("Error fetching CV:", err);
-        setError(err.message);
-        alert(`Error al cargar datos: ${err.message}`);
+        const msg = err.response?.data?.error || "Error inesperado al cargar el CV";
+        setError(msg);
+        alert(msg);
+        navigate("/mainmenu");
+        
       } finally {
         setLoading(false);
       }
