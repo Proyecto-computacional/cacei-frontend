@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
+import { useParams } from "react-router-dom";
 
 const CV = () => {
     const [data, setData] = useState({});
     const [activeSection, setActiveSection] = useState(1);
     const [cvId, setCvId] = useState(null);
-    const rpe = localStorage.getItem("rpe");
+    const { rpe } = useParams()
 
     const mapLetterToDegree = (letter) => {
         const degrees = {

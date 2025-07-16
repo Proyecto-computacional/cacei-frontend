@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
+import { useParams } from "react-router-dom";
 import CV from "../components/cv";
 import api from "../services/api";
 import { User, Calendar, Briefcase, Hash, Clock, Award } from "lucide-react";
@@ -8,12 +9,11 @@ const PersonalConfig = () => {
   const [cvData, setCvData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { rpe } = useParams()
 
   useEffect(() => {
     const fetchCV = async () => {
       try {
-        const rpe = localStorage.getItem("rpe");
-        if (!rpe) throw new Error("No se encontró el RPE en localStorage");
 
         const response = await api.post("/api/cvs", { user_rpe: rpe });
         setCvData(response.data);
