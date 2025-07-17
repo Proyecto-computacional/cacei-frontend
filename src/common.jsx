@@ -148,16 +148,12 @@ export function SubHeading() {
         const fetchUserInfo = async () => {
             try {
                 const response = await api.get('/api/user');
-                console.log("API Response:", response.data);
-                console.log("API user_role:", response.data.user_role);
-                console.log("localStorage role:", localStorage.getItem("role"));
                 const formattedRole = response.data.user_role
                     ? response.data.user_role
                         .split('_')
                         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
                         .join(' ')
                     : '';
-                console.log("Formatted role:", formattedRole);
                 setUserRole(formattedRole);
                 const formattedName = response.data.user_name
                     ? response.data.user_name
@@ -216,10 +212,10 @@ export function SubHeading() {
                         <div className="relative">
                             {(() => {
                                 const role = userRole;
-                                console.log("Current role from API:", role);
                                 return (role === "Administrador" || 
                                        role === "Jefe de area" || 
-                                       role === "Coordinador") && (
+                                       role === "Coordinador" ||
+                                       role === "Directivo") && (
                                     <>
                                         <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black hover:text-[#004A98] transition-colors duration-200">
                                             <Menu />
@@ -257,7 +253,7 @@ export function SubHeading() {
 
                         <div className={`flex items-center ${userRole === "Administrador" || 
                             userRole === "Jefe de area" || 
-                            userRole === "Coordinador" ? 'ml-12' : 'ml-0'}`}>
+                            userRole === "Coordinador" || userRole === "Directivo" ? 'ml-12' : 'ml-0'}`}>
                             {pathnames.includes('mainmenu') ? (
                                 <span className="text-[#00B2E3] text-lg font-medium pl-10">Inicio</span>
                             ) : pathnames.includes('dash') ? (

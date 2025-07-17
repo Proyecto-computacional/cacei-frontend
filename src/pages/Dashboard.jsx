@@ -127,6 +127,7 @@ const Dashboard = () => {
     const fetchUserRole = async () => {
       try {
         const response = await api.get('/api/user');
+        console.log(response);
         setUserRole(response.data.user_role);
       } catch (error) {
         console.error("Error al obtener el rol del usuario:", error);
@@ -144,6 +145,7 @@ const Dashboard = () => {
           throw new Error("No process ID found");
         }
         const response = await api.get(`/api/processes/${processId}`);
+        console.log(response);
         setProcessInfo({
           frameName: response.data.frame_name || '',
           area: response.data.area_name || '',
@@ -228,8 +230,9 @@ const Dashboard = () => {
       try {
         const processId = localStorage.getItem("currentProcessId");
         if (!processId) return;
-        
+        console.log(processId);
         const response = await api.get(`/api/processes/${processId}`);
+        console.log(response);
         setIsFinished(response.data.finished || false);
       } catch (error) {
         console.error("Error checking process status:", error);
