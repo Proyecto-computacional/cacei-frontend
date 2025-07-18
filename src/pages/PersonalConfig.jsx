@@ -14,6 +14,7 @@ const PersonalConfig = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true);
     const fetchCV = async () => {
       try {
 
