@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
 import { useParams } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const CV = () => {
     const [data, setData] = useState({});
@@ -9,7 +10,7 @@ const CV = () => {
     const [cvId, setCvId] = useState(null);
     const [canEdit, setCanEdit] = useState(false);
     const { rpe } = useParams()
-
+    const [loading, setLoading] = useState(true);
 
     const mapLetterToDegree = (letter) => {
         const degrees = {
@@ -84,7 +85,6 @@ const CV = () => {
 
     useEffect(() => {
         setCanEdit(rpe === localStorage.getItem('rpe'));
-        console.log("can edit", canEdit);
 
         const fetchSectionData = async (cvId, sectionId) => {
             const sectionEndpoints = {
@@ -107,6 +107,7 @@ const CV = () => {
     
         const fetchInitialData = async () => {
             try {
+                setLoading(true);
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
         
@@ -123,6 +124,8 @@ const CV = () => {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
+            }finally{
+                setLoading(false);
             }
         };
     
@@ -423,7 +426,12 @@ const CV = () => {
                 </aside>
 
                 <main className="w-3/4 p-6">
-                    {sections.map(
+                {loading ? (
+                    <div className="col-span-full flex justify-center py-12">
+                    <LoadingSpinner />
+                    </div>
+                ):
+                (sections.map(
                         (section) =>
                             activeSection === section.id && (
                                 <div key={section.id}>
@@ -511,7 +519,8 @@ const CV = () => {
                                     )}
                                 </div>
                             )
-                    )}
+                    ))
+                }
                 </main>
             </div>
             
