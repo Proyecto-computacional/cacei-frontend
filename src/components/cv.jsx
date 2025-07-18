@@ -7,7 +7,9 @@ const CV = () => {
     const [data, setData] = useState({});
     const [activeSection, setActiveSection] = useState(1);
     const [cvId, setCvId] = useState(null);
+    const [canEdit, setCanEdit] = useState(false);
     const { rpe } = useParams()
+
 
     const mapLetterToDegree = (letter) => {
         const degrees = {
@@ -81,6 +83,9 @@ const CV = () => {
     };
 
     useEffect(() => {
+        setCanEdit(rpe === localStorage.getItem('rpe'));
+        console.log("can edit", canEdit);
+
         const fetchSectionData = async (cvId, sectionId) => {
             const sectionEndpoints = {
                 1: 'educations',
@@ -424,13 +429,15 @@ const CV = () => {
                                 <div key={section.id}>
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}</h2>
-                                        <button
-                                            onClick={() => addRow(section.id)}
-                                            className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
-                                        >
-                                            <Plus className="w-4 h-4" />
-                                            Agregar
-                                        </button>
+                                        {canEdit && (
+                                            <button
+                                                onClick={() => addRow(section.id)}
+                                                className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                            >
+                                                <Plus className="w-4 h-4" />
+                                                Agregar
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                                         <table className="w-full">
@@ -451,6 +458,7 @@ const CV = () => {
                                                             <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
                                                                 {campo.type === "select" ? (
                                                                     <select
+                                                                        disabled={!canEdit}
                                                                         value={row.values[campo.name] || ""}
                                                                         onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
                                                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
@@ -462,6 +470,7 @@ const CV = () => {
                                                                     </select>
                                                                 ) : (
                                                                     <input
+                                                                        disabled={!canEdit}
                                                                         type={campo.type}
                                                                         value={row.values[campo.name] || ""}
                                                                         onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
@@ -489,13 +498,15 @@ const CV = () => {
                                     </div>
                                     {data[section.id]?.length > 0 && (
                                         <div className="mt-4 flex justify-end">
-                                            <button
-                                                onClick={() => sendData(section.id)}
-                                                className="flex items-center gap-2 px-6 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
-                                            >
-                                                <Save className="w-4 h-4" />
-                                                Guardar cambios
-                                            </button>
+                                            {canEdit && (
+                                                <button
+                                                    onClick={() => sendData(section.id)}
+                                                    className="flex items-center gap-2 px-6 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                                >
+                                                    <Save className="w-4 h-4" />
+                                                    Guardar cambios
+                                                </button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
