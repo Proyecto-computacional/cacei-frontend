@@ -87,7 +87,7 @@ const Login = () => {
                 </div>
             </div>
             <AppFooter></AppFooter>
-           {/* Mostrar modal siempre pero controlando si está abierto */}
+           
 <ModalAlert
   isOpen={modalAlertMessage !== null}
   message={modalAlertMessage}

@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
+import ModalAlert from "../components/ModalAlert";
+
 
 const CV = () => {
     const [data, setData] = useState({});
     const [activeSection, setActiveSection] = useState(1);
     const [cvId, setCvId] = useState(null);
     const rpe = localStorage.getItem("rpe");
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
+     
     const mapLetterToDegree = (letter) => {
         const degrees = {
             'L': 'Licenciatura',
@@ -21,14 +25,14 @@ const CV = () => {
     // Mapea los datos de la API al formato que espera tu formulario
     const mapApiDataToFormFields = (sectionId, apiData) => {
         const mappers = {
-            1: (data) => ({ 
+            1: (data) => ({
                 grado: mapLetterToDegree(data.degree_obtained),
                 titulo: data.degree_name,
                 institución: data.institution,
                 año: data.obtained_year,
                 cedula: data.professional_license
             }),
-            2: (data) => ({ 
+            2: (data) => ({
                 tipodecapacitacion: data.title_certification,
                 institucion: data.institution_country,
                 añoobtencion: data.obtained_year,
@@ -94,19 +98,19 @@ const CV = () => {
                 10: 'awards',
                 11: 'contributions-to-pe'
             };
-    
+
             const response = await api.get(`/api/additionalInfo/${cvId}/${sectionEndpoints[sectionId]}`);
             return response.data;
         };
-    
+
         const fetchInitialData = async () => {
             try {
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
-        
+
                 if (cvResponse.data.cv_id) {
                     const sectionData = await fetchSectionData(cvResponse.data.cv_id, activeSection);
-                    
+
                     setData(prev => ({
                         ...prev,
                         [activeSection]: sectionData.map((item, index) => ({
@@ -119,101 +123,123 @@ const CV = () => {
                 console.error("Error fetching data:", error);
             }
         };
-    
+
         if (rpe) fetchInitialData();
     }, [rpe, activeSection]);
 
     // Función modificada para enviar datos al backend
     const sendData = async (sectionId) => {
         if (!cvId || !data[sectionId]) return;
-      
+
         try {
-          // Mapeo de secciones a sus endpoints y transformación de datos
-          const sectionConfigs = {
-            1: { endpoint: 'educations', transform: (row) => ({ 
-                institution: row.values.institución,
-                degree_obtained: String(row.values.grado).charAt(0).toUpperCase(),
-                obtained_year: parseInt(row.values.año),
-                professional_license: row.values.cedula || null,
-                degree_name: row.values.titulo
-            })},
-            2: { endpoint: 'teacher-trainings', transform: (row) => ({
-                title_certification: row.values.tipodecapacitacion,
-                institution_country: row.values.institucion,
-                obtained_year: parseInt(row.values.añoobtencion),
-                hours: parseInt(row.values.horas)
-            })},
-            3: { endpoint: 'disciplinary-updates', transform: (row) => ({
-                title_certification: row.values.tipodeactualizacion,
-                institution_country: row.values.institucion,
-                year_certification: parseInt(row.values.añoobtencion),
-                hours: parseInt(row.values.horas)
-            })},
-            4: { endpoint: 'academic-managements', transform: (row) => ({
-                job_position: row.values.puesto,
-                institution: row.values.institucion,
-                start_date: row.values.fechaInicio,
-                end_date: row.values.fechaFin
-            })},
-            5: { endpoint: 'academic-products', transform: (row) => ({
-                description: row.values.descripcion
-            })},
-            6: { endpoint: 'laboral-experiences', transform: (row) => ({
-                company_name: row.values.empresa,
-                position: row.values.cargo,
-                start_date: row.values.fechaInicio,
-                end_date: row.values.fechaFin
-            })},
-            7: { endpoint: 'engineering-designs', transform: (row) => ({
-                institution: row.values.organismo,
-                period: row.values.periodo,
-                level_experience: row.values.nivel
-            })},
-            8: { endpoint: 'professional-achievements', transform: (row) => ({
-                description: row.values.descripcion
-            })},
-            9: {endpoint: 'participations', transform: (row) => ({
-                institution: row.values.organismo,
-                period: row.values.periodo,
-                level_participation: row.values.nivel
-            })},
-            10: { endpoint: 'awards', transform: (row) => ({
-                description: row.values.descripcion
-            })},
-            11: { endpoint: 'contributions-to-pe', transform: (row) => ({
-                description: row.values.descripcion
-            })}
-          };
-      
-          const config = sectionConfigs[sectionId];
-          if (!config) return;
+            // Mapeo de secciones a sus endpoints y transformación de datos
+            const sectionConfigs = {
+                1: {
+                    endpoint: 'educations', transform: (row) => ({
+                        institution: row.values.institución,
+                        degree_obtained: String(row.values.grado).charAt(0).toUpperCase(),
+                        obtained_year: parseInt(row.values.año),
+                        professional_license: row.values.cedula || null,
+                        degree_name: row.values.titulo
+                    })
+                },
+                2: {
+                    endpoint: 'teacher-trainings', transform: (row) => ({
+                        title_certification: row.values.tipodecapacitacion,
+                        institution_country: row.values.institucion,
+                        obtained_year: parseInt(row.values.añoobtencion),
+                        hours: parseInt(row.values.horas)
+                    })
+                },
+                3: {
+                    endpoint: 'disciplinary-updates', transform: (row) => ({
+                        title_certification: row.values.tipodeactualizacion,
+                        institution_country: row.values.institucion,
+                        year_certification: parseInt(row.values.añoobtencion),
+                        hours: parseInt(row.values.horas)
+                    })
+                },
+                4: {
+                    endpoint: 'academic-managements', transform: (row) => ({
+                        job_position: row.values.puesto,
+                        institution: row.values.institucion,
+                        start_date: row.values.fechaInicio,
+                        end_date: row.values.fechaFin
+                    })
+                },
+                5: {
+                    endpoint: 'academic-products', transform: (row) => ({
+                        description: row.values.descripcion
+                    })
+                },
+                6: {
+                    endpoint: 'laboral-experiences', transform: (row) => ({
+                        company_name: row.values.empresa,
+                        position: row.values.cargo,
+                        start_date: row.values.fechaInicio,
+                        end_date: row.values.fechaFin
+                    })
+                },
+                7: {
+                    endpoint: 'engineering-designs', transform: (row) => ({
+                        institution: row.values.organismo,
+                        period: row.values.periodo,
+                        level_experience: row.values.nivel
+                    })
+                },
+                8: {
+                    endpoint: 'professional-achievements', transform: (row) => ({
+                        description: row.values.descripcion
+                    })
+                },
+                9: {
+                    endpoint: 'participations', transform: (row) => ({
+                        institution: row.values.organismo,
+                        period: row.values.periodo,
+                        level_participation: row.values.nivel
+                    })
+                },
+                10: {
+                    endpoint: 'awards', transform: (row) => ({
+                        description: row.values.descripcion
+                    })
+                },
+                11: {
+                    endpoint: 'contributions-to-pe', transform: (row) => ({
+                        description: row.values.descripcion
+                    })
+                }
+            };
 
-          // Filter out empty rows and validate payloads
-          const validRows = data[sectionId].filter(row => {
-            const payload = config.transform(row);
-            const hasValues = Object.values(payload).some(value => value !== undefined && value !== null && value !== '');
-            return hasValues;
-          });
+            const config = sectionConfigs[sectionId];
+            if (!config) return;
 
-          if (validRows.length === 0) {
-            alert('No hay datos válidos para guardar');
-            return;
-          }
-      
-          // Enviar datos para la sección actual
-          await Promise.all(validRows.map(async (row) => {
-            const payload = config.transform(row);
-            await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
-          }));
-      
-          alert('¡Datos guardados correctamente!');
+            // Filter out empty rows and validate payloads
+            const validRows = data[sectionId].filter(row => {
+                const payload = config.transform(row);
+                const hasValues = Object.values(payload).some(value => value !== undefined && value !== null && value !== '');
+                return hasValues;
+            });
+
+            if (validRows.length === 0) {
+                setModalAlertMessage('No hay datos válidos para guardar');
+                return;
+            }
+
+            // Enviar datos para la sección actual
+            await Promise.all(validRows.map(async (row) => {
+                const payload = config.transform(row);
+                await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
+            }));
+
+            setModalAlertMessage('¡Datos guardados correctamente!');
         } catch (error) {
-          console.error('Error:', error.response?.data);
-          if (error.response?.status === 422) {
-            alert('Por favor ingrese los datos necesarios en las celdas');
-          } else {
-            alert(`Error al guardar: ${error.response?.data.message || error.message}`);
-          }
+            console.error('Error:', error.response?.data);
+            if (error.response?.status === 422) {
+                setModalAlertMessage('Por favor ingrese los datos necesarios en las celdas');
+            } else {
+                setModalAlertMessage(`Error al guardar: ${error.response?.data.message || error.message}`);
+            }
         }
     };
 
@@ -223,28 +249,28 @@ const CV = () => {
             const response = await api.get(`/api/cv/word/${rpe}`, {
                 responseType: 'blob'
             });
-            
+
             // Create a blob from the response data
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-            
+
             // Create a URL for the blob
             const url = window.URL.createObjectURL(blob);
-            
+
             // Create a temporary link element
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `CV_${rpe}.docx`);
-            
+
             // Append to body, click and remove
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             // Clean up the URL
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Error downloading CV:', error);
-            alert('Error al descargar el CV. Por favor intente nuevamente.');
+            setModalAlertMessage('Error al descargar el CV. Por favor intente nuevamente.');
         }
     };
 
@@ -293,8 +319,8 @@ const CV = () => {
         {
             id: 5,
             sectionName: "Productos académicos relevantes",
-            campos:[
-                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Descripción del producto en cuestión"},
+            campos: [
+                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Descripción del producto en cuestión" },
             ],
         },
         {
@@ -311,9 +337,9 @@ const CV = () => {
             id: 7,
             sectionName: "Experiencia en diseño ingenieril",
             campos: [
-                {name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo"},
-                {name: "periodo", type: "text", label: "Período (años)", placeholder: "Número de años"},
-                {name: "nivel", type: "text", label: "Nivel de experiencia", placeholder:"Nivel del 1 al 5"},
+                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo" },
+                { name: "periodo", type: "text", label: "Período (años)", placeholder: "Número de años" },
+                { name: "nivel", type: "text", label: "Nivel de experiencia", placeholder: "Nivel del 1 al 5" },
             ],
         },
         {
@@ -327,9 +353,9 @@ const CV = () => {
             id: 9,
             sectionName: "Participación en organismos profesionales",
             campos: [
-                {name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo"},
-                {name: "periodo", type: "text", label: "Periodo (años)", placeholder: "Número de años"},
-                {name: "nivel", type: "text", label: "Nivel de participación", placeholder:"Nivel del 1 al 5"},
+                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo" },
+                { name: "periodo", type: "text", label: "Periodo (años)", placeholder: "Número de años" },
+                { name: "nivel", type: "text", label: "Nivel de participación", placeholder: "Nivel del 1 al 5" },
             ],
         },
         {
@@ -346,16 +372,16 @@ const CV = () => {
                 { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Desarrollo de un nuevo modelo de enseñanza híbrida" },
             ],
         },
-    ];  
+    ];
 
     const addRow = (sectionId) => {
         setData((prev) => ({
             ...prev,
             [sectionId]: [
-                ...(prev[sectionId] || []), 
-                { 
+                ...(prev[sectionId] || []),
+                {
                     id: `new_${sectionId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                    values: {} 
+                    values: {}
                 }
             ],
         }));
@@ -376,26 +402,31 @@ const CV = () => {
         setData((prev) => {
             // Verifica que la sección exista
             if (!prev[sectionId]) return prev;
-            
+
             return {
                 ...prev,
                 [sectionId]: prev[sectionId].map((row) =>
-                    row.id === rowId 
-                        ? { 
-                            ...row, 
-                            values: { 
-                                ...row.values, 
-                                [field]: value 
-                            } 
-                        } 
+                    row.id === rowId
+                        ? {
+                            ...row,
+                            values: {
+                                ...row.values,
+                                [field]: value
+                            }
+                        }
                         : row
                 ),
             };
         });
     };
-    
+
     return (
         <div className="flex flex-col">
+            <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
             <div className="flex flex-1">
                 <aside className="w-1/4 bg-gray-100 p-4 rounded-lg">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">Secciones</h2>
@@ -403,11 +434,10 @@ const CV = () => {
                         {sections.map((section) => (
                             <li
                                 key={section.id}
-                                className={`p-2 rounded-lg cursor-pointer transition-colors duration-200 ${
-                                    activeSection === section.id 
-                                        ? "bg-primary1 text-white" 
+                                className={`p-2 rounded-lg cursor-pointer transition-colors duration-200 ${activeSection === section.id
+                                        ? "bg-primary1 text-white"
                                         : "hover:bg-gray-200"
-                                }`}
+                                    }`}
                                 onClick={() => setActiveSection(section.id)}
                             >
                                 {section.sectionName}
@@ -502,9 +532,9 @@ const CV = () => {
                     )}
                 </main>
             </div>
-            
+
             {/* Fixed download button */}
-            <button 
+            <button
                 onClick={handleDownload}
                 className="fixed bottom-15 right-15 bg-primary1 text-white px-6 py-3 hover:bg-[#003d7a] transition-colors duration-200 flex items-center gap-2 shadow-lg rounded-lg"
             >

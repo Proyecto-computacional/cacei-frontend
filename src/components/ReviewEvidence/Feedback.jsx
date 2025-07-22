@@ -1,16 +1,20 @@
 import { useState } from "react";
 import "../../app.css"
 import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import ModalAlert from "../../components/ModalAlert";
+
 
 const Feedback = ({ enviar, cerrar, statusFeedback }) => {
     const [feedback, setFeedback] = useState("");
     const [confirmacionAbierta, setConfirmacionAbierta] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
+
 
     const handleConfirmacion = async () => {
         if (!feedback.trim()) {
-            alert("La justificación no puede estar en blanco");
+            setModalAlertMessage("La justificación no puede estar en blanco");
             return;
         }
         setError("");
@@ -114,6 +118,11 @@ const Feedback = ({ enviar, cerrar, statusFeedback }) => {
                     </div>
                 </div>
             )}
+            <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
         </>
     );
 };

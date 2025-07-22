@@ -5,6 +5,7 @@ import "../app.css"
 import api from "../services/api";
 import { Search, Users, Shield } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
+import ModalAlert from "../components/ModalAlert";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UsersTable() {
@@ -24,6 +25,7 @@ export default function UsersTable() {
     const [nextPage, setNextPage] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
     const fetchUsers = async () => {
         try {
@@ -41,16 +43,16 @@ export default function UsersTable() {
         } catch (error) {
             if (error.response) {
                 if (error.response.status === 403) {
-                    alert("No tienes permisos para acceder a esta sección.");
+                    setModalAlertMessage("No tienes permisos para acceder a esta sección.");
                     window.location.href = "/PersonalConfig";
                 } else if (error.response.status === 401) {
-                    alert("Sesión expirada. Inicia sesión de nuevo.");
+                    setModalAlertMessage("Sesión expirada. Inicia sesión de nuevo.");
                     window.location.href = "/";
                 } else {
-                    alert("Error desconocido al obtener los usuarios.");
+                    setModalAlertMessage("Error desconocido al obtener los usuarios.");
                 }
             } else {
-                alert("Error de conexión con el servidor.");
+                setModalAlertMessage("Error de conexión con el servidor.");
             }
             console.error("Error al obtener los usuarios:", error);
         } finally {
@@ -64,19 +66,19 @@ export default function UsersTable() {
 
     const handleSearch = (value) => {
         setSearchTerm(value);
-        
+
         if (!value.trim()) {
             setFilteredUsers(allUsers);
             return;
         }
 
         const searchLower = value.toLowerCase();
-        const filtered = allUsers.filter(user => 
+        const filtered = allUsers.filter(user =>
             user.user_rpe.toLowerCase().includes(searchLower) ||
             (user.user_name && user.user_name.toLowerCase().includes(searchLower)) ||
             (user.user_mail && user.user_mail.toLowerCase().includes(searchLower))
         );
-        
+
         setFilteredUsers(filtered);
     };
 
@@ -106,9 +108,9 @@ export default function UsersTable() {
                 </div>
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <input 
-                        type="text" 
-                        placeholder="Buscar por RPE, nombre o correo..." 
+                    <input
+                        type="text"
+                        placeholder="Buscar por RPE, nombre o correo..."
                         className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004A98] focus:border-transparent w-96"
                         value={searchTerm}
                         onChange={(e) => handleSearch(e.target.value)}
@@ -145,15 +147,15 @@ export default function UsersTable() {
                                 </td>
                             </tr>
                         )) :
-                        <tr>
-                            <td colSpan="4" className="py-8 text-center">
-                                <div className="flex flex-col items-center text-gray-500">
-                                    <Users className="h-12 w-12 mb-3 text-gray-400" />
-                                    <p className="text-lg font-medium">No se encontraron usuarios</p>
-                                    <p className="text-sm">Intenta con otros términos de búsqueda</p>
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colSpan="4" className="py-8 text-center">
+                                    <div className="flex flex-col items-center text-gray-500">
+                                        <Users className="h-12 w-12 mb-3 text-gray-400" />
+                                        <p className="text-lg font-medium">No se encontraron usuarios</p>
+                                        <p className="text-sm">Intenta con otros términos de búsqueda</p>
+                                    </div>
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
@@ -187,6 +189,11 @@ export default function UsersTable() {
                     </table>
                 </div>
             </div>
+            <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
         </div>
     );
 }

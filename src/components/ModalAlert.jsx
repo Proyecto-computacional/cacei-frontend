@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Modal({ isOpen, onClose, message }) {
+export default function ModalAlert({ isOpen, onClose, message }) {
   if (!isOpen) return null;
 
   return (
