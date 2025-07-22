@@ -25,7 +25,7 @@ const UploadEvidence = () => {
   const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
   const Finished = localStorage.getItem('finished');
   const [isFinished, setIsFinished] = useState(false);
-
+  const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   const navigate = useNavigate();
 
