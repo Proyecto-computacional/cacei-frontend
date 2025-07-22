@@ -195,8 +195,9 @@ export function SubHeading() {
         const fetchEvidenceName = async () => {
             try {
                 if (evidence_id) {
-                    const response = await api.get(`/api/evidence/${evidence_id}`);
+                    const response = await api.get(`/api/evidences/${evidence_id}`);
                     setEvidenceName(response.data.evidence_name);
+                   
                 }
             } catch (error) {
                 console.error("Error al obtener el nombre de la evidencia:", error);

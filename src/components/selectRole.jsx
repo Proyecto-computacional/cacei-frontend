@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../services/api";
+import ModalAlert from "../components/ModalAlert";
 
 const normalizeRol = (str) => {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
@@ -7,13 +8,15 @@ const normalizeRol = (str) => {
 
 const SelectRol = ({ userId, initialRole, AllRoles }) => {
     const [role, setRole] = useState(initialRole);
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
+
     const handleChange = async (event) => {
         const newRole = event.target.value;
         setRole(newRole);
 
         try {
-            await api.post("/api/usersadmin/actualizar-rol", 
-                { user_id: userId, rol: normalizeRol(newRole) }, 
+            await api.post("/api/usersadmin/actualizar-rol",
+                { user_id: userId, rol: normalizeRol(newRole) },
                 {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem('token')}`,
@@ -22,19 +25,26 @@ const SelectRol = ({ userId, initialRole, AllRoles }) => {
                 }
             );
 
-            alert("Rol actualizado correctamente");
+            setModalAlertMessage("Rol actualizado correctamente");
         } catch (error) {
             console.error("Error al actualizar el rol", error);
-            alert("Hubo un error al actualizar el rol");
+            setModalAlertMessage("Hubo un error al actualizar el rol");
         }
     };
 
     return (
-        <select value={normalizeRol(role)} onChange={handleChange}>
-            {AllRoles.map((rol) => {
-                return (<option value={normalizeRol(rol.name)} key={normalizeRol(rol.name)}>{rol.name}</option>)
-            })}
-        </select>
+        <>
+            <select value={normalizeRol(role)} onChange={handleChange}>
+                {AllRoles.map((rol) => {
+                    return (<option value={normalizeRol(rol.name)} key={normalizeRol(rol.name)}>{rol.name}</option>)
+                })}
+            </select>
+            <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
+        </>
     );
 };
 
