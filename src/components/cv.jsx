@@ -60,8 +60,8 @@ const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ..
           whitespace-pre-wrap
         `}
                 style={{
-                    minHeight: '1.5rem',
-                    lineHeight: '1.5rem',
+                    minHeight: '1.0rem',
+                    lineHeight: '1.0rem',
                 }}
                 {...props}
             />
@@ -663,7 +663,7 @@ const CV = () => {
                                     {isEditing && data[section.id]?.length > 0 && (
                                         <div className="mt-4 flex justify-end gap-2">
                                             <button
-                                                onClick={() => { setIsEditing(false); window.location.reload(); }}
+                                                onClick={() => { setIsEditing(false);  }}
                                                 className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
                                             >
                                                 Cancelar
@@ -672,7 +672,7 @@ const CV = () => {
                                                 onClick={() => {
                                                     sendData(section.id);
                                                     setIsEditing(false);
-                                                    window.location.reload();
+                                                    
                                                 }}
                                                 className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
                                             >
