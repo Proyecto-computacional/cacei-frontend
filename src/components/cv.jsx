@@ -1,10 +1,93 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
+
+
+const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ...props }) => {
+    const textareaRef = useRef(null);
+    const placeholderRef = useRef(null);
+
+    // Función para calcular la altura exacta del placeholder
+    const calculatePlaceholderHeight = () => {
+        if (!placeholderRef.current || !textareaRef.current) return 'auto';
+
+        // Creamos un div invisible con el mismo texto del placeholder
+        const hiddenDiv = document.createElement('div');
+        hiddenDiv.style.position = 'absolute';
+        hiddenDiv.style.visibility = 'hidden';
+        hiddenDiv.style.whiteSpace = 'pre-wrap';
+        hiddenDiv.style.width = `${textareaRef.current.offsetWidth}px`;
+        hiddenDiv.style.padding = '0.5rem 0.75rem'; // Igual que el textarea
+        hiddenDiv.style.lineHeight = '1.5rem';
+        hiddenDiv.style.fontFamily = 'inherit';
+        hiddenDiv.style.fontSize = 'inherit';
+        hiddenDiv.textContent = placeholder;
+
+        document.body.appendChild(hiddenDiv);
+        const height = hiddenDiv.offsetHeight;
+        document.body.removeChild(hiddenDiv);
+
+        return `${Math.max(height, 24)}px`; // Mínimo 24px (1.5rem)
+    };
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+
+            if (!value && placeholder) {
+                // Solo para placeholder (sin contenido)
+                textareaRef.current.style.height = calculatePlaceholderHeight();
+            } else {
+                // Para contenido normal
+                textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+            }
+        }
+    }, [value, placeholder, isEditing]); // Añadimos isEditing como dependencia
+
+    return (
+        <div className="relative">
+            <textarea
+                ref={textareaRef}
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+                disabled={disabled}
+                className={`
+          w-full px-3 py-2 border rounded-lg
+          ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50'
+                        : 'border-gray-200 bg-gray-50'}
+          resize-none overflow-hidden
+          whitespace-pre-wrap
+        `}
+                style={{
+                    minHeight: '1.5rem',
+                    lineHeight: '1.5rem',
+                }}
+                {...props}
+            />
+            {/* Div oculto para medir el placeholder */}
+            <div
+                ref={placeholderRef}
+                className="invisible absolute pointer-events-none whitespace-pre-wrap"
+                style={{
+                    width: '100%',
+                    padding: '0.5rem 0.75rem',
+                    lineHeight: '1.5rem'
+                }}
+            >
+                {placeholder}
+            </div>
+        </div>
+    );
+};
+
+
+
 
 const CV = () => {
     const [data, setData] = useState({});
     const [activeSection, setActiveSection] = useState(1);
+    const [isEditing, setIsEditing] = useState(false);
     const [cvId, setCvId] = useState(null);
     const rpe = localStorage.getItem("rpe");
 
@@ -21,14 +104,14 @@ const CV = () => {
     // Mapea los datos de la API al formato que espera tu formulario
     const mapApiDataToFormFields = (sectionId, apiData) => {
         const mappers = {
-            1: (data) => ({ 
+            1: (data) => ({
                 grado: mapLetterToDegree(data.degree_obtained),
                 titulo: data.degree_name,
                 institución: data.institution,
                 año: data.obtained_year,
                 cedula: data.professional_license
             }),
-            2: (data) => ({ 
+            2: (data) => ({
                 tipodecapacitacion: data.title_certification,
                 institucion: data.institution_country,
                 añoobtencion: data.obtained_year,
@@ -79,6 +162,8 @@ const CV = () => {
         return mappers[sectionId]?.(apiData) || {};
     };
 
+
+
     useEffect(() => {
         const fetchSectionData = async (cvId, sectionId) => {
             const sectionEndpoints = {
@@ -94,19 +179,21 @@ const CV = () => {
                 10: 'awards',
                 11: 'contributions-to-pe'
             };
-    
+
             const response = await api.get(`/api/additionalInfo/${cvId}/${sectionEndpoints[sectionId]}`);
             return response.data;
         };
-    
+
+
         const fetchInitialData = async () => {
             try {
+                setIsEditing(false);
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
-        
+
                 if (cvResponse.data.cv_id) {
                     const sectionData = await fetchSectionData(cvResponse.data.cv_id, activeSection);
-                    
+
                     setData(prev => ({
                         ...prev,
                         [activeSection]: sectionData.map((item, index) => ({
@@ -119,101 +206,124 @@ const CV = () => {
                 console.error("Error fetching data:", error);
             }
         };
-    
+
         if (rpe) fetchInitialData();
     }, [rpe, activeSection]);
 
     // Función modificada para enviar datos al backend
     const sendData = async (sectionId) => {
         if (!cvId || !data[sectionId]) return;
-      
+
         try {
-          // Mapeo de secciones a sus endpoints y transformación de datos
-          const sectionConfigs = {
-            1: { endpoint: 'educations', transform: (row) => ({ 
-                institution: row.values.institución,
-                degree_obtained: String(row.values.grado).charAt(0).toUpperCase(),
-                obtained_year: parseInt(row.values.año),
-                professional_license: row.values.cedula || null,
-                degree_name: row.values.titulo
-            })},
-            2: { endpoint: 'teacher-trainings', transform: (row) => ({
-                title_certification: row.values.tipodecapacitacion,
-                institution_country: row.values.institucion,
-                obtained_year: parseInt(row.values.añoobtencion),
-                hours: parseInt(row.values.horas)
-            })},
-            3: { endpoint: 'disciplinary-updates', transform: (row) => ({
-                title_certification: row.values.tipodeactualizacion,
-                institution_country: row.values.institucion,
-                year_certification: parseInt(row.values.añoobtencion),
-                hours: parseInt(row.values.horas)
-            })},
-            4: { endpoint: 'academic-managements', transform: (row) => ({
-                job_position: row.values.puesto,
-                institution: row.values.institucion,
-                start_date: row.values.fechaInicio,
-                end_date: row.values.fechaFin
-            })},
-            5: { endpoint: 'academic-products', transform: (row) => ({
-                description: row.values.descripcion
-            })},
-            6: { endpoint: 'laboral-experiences', transform: (row) => ({
-                company_name: row.values.empresa,
-                position: row.values.cargo,
-                start_date: row.values.fechaInicio,
-                end_date: row.values.fechaFin
-            })},
-            7: { endpoint: 'engineering-designs', transform: (row) => ({
-                institution: row.values.organismo,
-                period: row.values.periodo,
-                level_experience: row.values.nivel
-            })},
-            8: { endpoint: 'professional-achievements', transform: (row) => ({
-                description: row.values.descripcion
-            })},
-            9: {endpoint: 'participations', transform: (row) => ({
-                institution: row.values.organismo,
-                period: row.values.periodo,
-                level_participation: row.values.nivel
-            })},
-            10: { endpoint: 'awards', transform: (row) => ({
-                description: row.values.descripcion
-            })},
-            11: { endpoint: 'contributions-to-pe', transform: (row) => ({
-                description: row.values.descripcion
-            })}
-          };
-      
-          const config = sectionConfigs[sectionId];
-          if (!config) return;
 
-          // Filter out empty rows and validate payloads
-          const validRows = data[sectionId].filter(row => {
-            const payload = config.transform(row);
-            const hasValues = Object.values(payload).some(value => value !== undefined && value !== null && value !== '');
-            return hasValues;
-          });
+            const sectionConfigs = {
+                1: {
+                    endpoint: 'educations', transform: (row) => ({
+                        institution: row.values.institución,
+                        degree_obtained: String(row.values.grado).charAt(0).toUpperCase(),
+                        obtained_year: parseInt(row.values.año),
+                        professional_license: row.values.cedula || null,
+                        degree_name: row.values.titulo
+                    })
+                },
+                2: {
+                    endpoint: 'teacher-trainings', transform: (row) => ({
+                        title_certification: row.values.tipodecapacitacion,
+                        institution_country: row.values.institucion,
+                        obtained_year: parseInt(row.values.añoobtencion),
+                        hours: parseInt(row.values.horas)
+                    })
+                },
+                3: {
+                    endpoint: 'disciplinary-updates', transform: (row) => ({
+                        title_certification: row.values.tipodeactualizacion,
+                        institution_country: row.values.institucion,
+                        year_certification: parseInt(row.values.añoobtencion),
+                        hours: parseInt(row.values.horas)
+                    })
+                },
+                4: {
+                    endpoint: 'academic-managements', transform: (row) => ({
+                        job_position: row.values.puesto,
+                        institution: row.values.institucion,
+                        start_date: row.values.fechaInicio,
+                        end_date: row.values.fechaFin
+                    })
+                },
+                5: {
+                    endpoint: 'academic-products', transform: (row) => ({
+                        description: row.values.descripcion
+                    })
+                },
+                6: {
+                    endpoint: 'laboral-experiences', transform: (row) => ({
+                        company_name: row.values.empresa,
+                        position: row.values.cargo,
+                        start_date: row.values.fechaInicio,
+                        end_date: row.values.fechaFin
+                    })
+                },
+                7: {
+                    endpoint: 'engineering-designs', transform: (row) => ({
+                        institution: row.values.organismo,
+                        period: row.values.periodo,
+                        level_experience: row.values.nivel
+                    })
+                },
+                8: {
+                    endpoint: 'professional-achievements', transform: (row) => ({
+                        description: row.values.descripcion
+                    })
+                },
+                9: {
+                    endpoint: 'participations', transform: (row) => ({
+                        institution: row.values.organismo,
+                        period: row.values.periodo,
+                        level_participation: row.values.nivel
+                    })
+                },
+                10: {
+                    endpoint: 'awards', transform: (row) => ({
+                        description: row.values.descripcion
+                    })
+                },
+                11: {
+                    endpoint: 'contributions-to-pe', transform: (row) => ({
+                        description: row.values.descripcion
+                    })
+                }
+            };
 
-          if (validRows.length === 0) {
-            alert('No hay datos válidos para guardar');
-            return;
-          }
-      
-          // Enviar datos para la sección actual
-          await Promise.all(validRows.map(async (row) => {
-            const payload = config.transform(row);
-            await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
-          }));
-      
-          alert('¡Datos guardados correctamente!');
+            const config = sectionConfigs[sectionId];
+            if (!config) return;
+
+            // Filter out empty rows and validate payloads
+            const validRows = data[sectionId].filter(row => {
+
+                const payload = config.transform(row);
+                const hasValues = Object.values(payload).some(value => value !== undefined && value !== null && value !== '');
+                return hasValues;
+            });
+
+            if (validRows.length === 0) {
+                alert('No hay datos válidos para guardar');
+                return;
+            }
+
+            // Enviar datos para la sección actual
+            await Promise.all(validRows.map(async (row) => {
+                const payload = config.transform(row);
+                await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
+            }));
+
+            alert('¡Datos guardados correctamente!');
         } catch (error) {
-          console.error('Error:', error.response?.data);
-          if (error.response?.status === 422) {
-            alert('Por favor ingrese los datos necesarios en las celdas');
-          } else {
-            alert(`Error al guardar: ${error.response?.data.message || error.message}`);
-          }
+            console.error('Error:', error.response?.data);
+            if (error.response?.status === 422) {
+                alert('Por favor ingrese los datos necesarios en las celdas');
+            } else {
+                alert(`Error al guardar: ${error.response?.data.message || error.message}`);
+            }
         }
     };
 
@@ -223,23 +333,23 @@ const CV = () => {
             const response = await api.get(`/api/cv/word/${rpe}`, {
                 responseType: 'blob'
             });
-            
+
             // Create a blob from the response data
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-            
+
             // Create a URL for the blob
             const url = window.URL.createObjectURL(blob);
-            
+
             // Create a temporary link element
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `CV_${rpe}.docx`);
-            
+
             // Append to body, click and remove
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             // Clean up the URL
             window.URL.revokeObjectURL(url);
         } catch (error) {
@@ -293,8 +403,8 @@ const CV = () => {
         {
             id: 5,
             sectionName: "Productos académicos relevantes",
-            campos:[
-                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Descripción del producto en cuestión"},
+            campos: [
+                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Descripción del producto en cuestión" },
             ],
         },
         {
@@ -311,9 +421,9 @@ const CV = () => {
             id: 7,
             sectionName: "Experiencia en diseño ingenieril",
             campos: [
-                {name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo"},
-                {name: "periodo", type: "text", label: "Período (años)", placeholder: "Número de años"},
-                {name: "nivel", type: "text", label: "Nivel de experiencia", placeholder:"Nivel del 1 al 5"},
+                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo" },
+                { name: "periodo", type: "text", label: "Período (años)", placeholder: "Número de años" },
+                { name: "nivel", type: "text", label: "Nivel de experiencia", placeholder: "Nivel del 1 al 5" },
             ],
         },
         {
@@ -327,9 +437,9 @@ const CV = () => {
             id: 9,
             sectionName: "Participación en organismos profesionales",
             campos: [
-                {name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo"},
-                {name: "periodo", type: "text", label: "Periodo (años)", placeholder: "Número de años"},
-                {name: "nivel", type: "text", label: "Nivel de participación", placeholder:"Nivel del 1 al 5"},
+                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo" },
+                { name: "periodo", type: "text", label: "Periodo (años)", placeholder: "Número de años" },
+                { name: "nivel", type: "text", label: "Nivel de participación", placeholder: "Nivel del 1 al 5" },
             ],
         },
         {
@@ -343,19 +453,24 @@ const CV = () => {
             id: 11,
             sectionName: "Aportaciones a la Mejora del PE",
             campos: [
-                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Desarrollo de un nuevo modelo de enseñanza híbrida" },
+                { name: "descripcion", type: "textarea", label: "Descripción", placeholder: "Ej: Desarrollo de un nuevo modelo de enseñanza híbrida(max 2000 caracteres)" },
             ],
+            singleField: true
         },
-    ];  
+
+    ];
 
     const addRow = (sectionId) => {
+        if (sectionId === 11 && data[sectionId]?.length >= 1) {
+            return;
+        }
         setData((prev) => ({
             ...prev,
             [sectionId]: [
-                ...(prev[sectionId] || []), 
-                { 
+                ...(prev[sectionId] || []),
+                {
                     id: `new_${sectionId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                    values: {} 
+                    values: {}
                 }
             ],
         }));
@@ -376,24 +491,27 @@ const CV = () => {
         setData((prev) => {
             // Verifica que la sección exista
             if (!prev[sectionId]) return prev;
-            
+
             return {
                 ...prev,
                 [sectionId]: prev[sectionId].map((row) =>
-                    row.id === rowId 
-                        ? { 
-                            ...row, 
-                            values: { 
-                                ...row.values, 
-                                [field]: value 
-                            } 
-                        } 
+                    row.id === rowId
+                        ? {
+                            ...row,
+                            values: {
+                                ...row.values,
+                                [field]: value
+                            }
+                        }
                         : row
                 ),
             };
         });
     };
-    
+
+
+
+    // Modificamos el JSX para incluir el botón de edición
     return (
         <div className="flex flex-col">
             <div className="flex flex-1">
@@ -403,11 +521,10 @@ const CV = () => {
                         {sections.map((section) => (
                             <li
                                 key={section.id}
-                                className={`p-2 rounded-lg cursor-pointer transition-colors duration-200 ${
-                                    activeSection === section.id 
-                                        ? "bg-primary1 text-white" 
-                                        : "hover:bg-gray-200"
-                                }`}
+                                className={`p-2 rounded-lg cursor-pointer transition-colors duration-200 ${activeSection === section.id
+                                    ? "bg-primary1 text-white"
+                                    : "hover:bg-gray-200"
+                                    }`}
                                 onClick={() => setActiveSection(section.id)}
                             >
                                 {section.sectionName}
@@ -422,78 +539,145 @@ const CV = () => {
                             activeSection === section.id && (
                                 <div key={section.id}>
                                     <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}</h2>
-                                        <button
-                                            onClick={() => addRow(section.id)}
-                                            className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
-                                        >
-                                            <Plus className="w-4 h-4" />
-                                            Agregar
-                                        </button>
+                                        <h2 className="text-xl font-semibold text-gray-800">
+                                            {section.sectionName}
+                                            {!isEditing && <span className="ml-2 text-sm text-gray-500">(solo lectura)</span>}
+                                        </h2>
+                                        <div className="flex gap-2">
+                                            {!isEditing ? (
+                                                <button
+                                                    onClick={() => setIsEditing(true)}
+                                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                                >
+                                                    Editar Sección
+                                                </button>
+                                            ) : (
+                                                <>
+
+                                                    {section.id !== 11 && (
+                                                        <button
+                                                            onClick={() => addRow(section.id)}
+                                                            className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                                        >
+                                                            <Plus className="w-4 h-4" />
+                                                            Agregar
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                                        <table className="w-full">
-                                            <thead>
-                                                <tr className="bg-gray-50">
-                                                    {section.campos.map((campo) => (
-                                                        <th key={campo.name} className="px-4 py-3 text-left text-sm font-medium text-gray-600">
-                                                            {campo.label}
-                                                        </th>
-                                                    ))}
-                                                    <th className="w-12"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-200">
-                                                {(data[section.id] || []).map((row) => (
-                                                    <tr key={row.id} className="hover:bg-gray-50">
+
+                                    <div className={`bg-white rounded-lg border ${isEditing ? 'border-blue-200' : 'border-gray-200'} overflow-hidden`}>
+                                        {section.id === 11 ? (
+                                            <div className="p-4">
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    {section.campos[0].label}
+                                                </label>
+                                                <textarea
+                                                    value={data[11]?.[0]?.values?.descripcion || ""}
+                                                    onChange={(e) => {
+                                                        if (!data[11]?.[0]) {
+                                                            addRow(11);
+                                                        }
+                                                        updateRow(11, data[11]?.[0]?.id, "descripcion", e.target.value);
+                                                        e.target.style.height = 'auto';
+                                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                                    }}
+                                                    placeholder={section.campos[0].placeholder}
+                                                    className={`w-full px-3 py-2 border ${isEditing ? 'border-blue-300 focus:ring-2 focus:ring-blue-200' : 'border-gray-300 bg-gray-50'} rounded-lg focus:border-primary1 resize-none overflow-hidden`}
+                                                    maxLength={500}
+                                                    style={{ height: 'auto', minHeight: '150px' }}
+                                                    rows={17}
+                                                    disabled={!isEditing}
+                                                />
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                    {data[11]?.[0]?.values?.descripcion?.length || 0}/500 caracteres
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr className="bg-gray-50">
                                                         {section.campos.map((campo) => (
-                                                            <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
-                                                                {campo.type === "select" ? (
-                                                                    <select
-                                                                        value={row.values[campo.name] || ""}
-                                                                        onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
-                                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
+                                                            <th key={campo.name} className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                                                                {campo.label}
+                                                            </th>
+                                                        ))}
+                                                        <th className="w-12"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-200">
+                                                    {(data[section.id] || []).map((row) => (
+                                                        <tr key={row.id} className="hover:bg-gray-50">
+                                                            {section.campos.map((campo) => (
+                                                                <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
+                                                                    {campo.type === "select" ? (
+                                                                        <select
+                                                                            value={row.values[campo.name] || ""}
+                                                                            onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
+                                                                            className={`w-full px-3 py-2 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50' : 'border-gray-200 bg-gray-50'} rounded-lg focus:border-primary1`}
+                                                                            disabled={!isEditing}
+                                                                        >
+                                                                            <option value="">Seleccione</option>
+                                                                            {campo.options.map((option) => (
+                                                                                <option key={option} value={option}>{option}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    ) : campo.type === "date" ? (
+                                                                        <input
+                                                                            type="date"
+                                                                            value={row.values[campo.name] || ""}
+                                                                            onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
+                                                                            className={`w-full px-3 py-2 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50' : 'border-gray-200 bg-gray-50'} rounded-lg focus:border-primary1`}
+                                                                            disabled={!isEditing}
+                                                                        />
+                                                                    ) : (
+                                                                        <DynamicTextarea
+                                                                            value={row.values[campo.name] || ""}
+                                                                            onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
+                                                                            placeholder={campo.placeholder}
+                                                                            disabled={!isEditing}
+                                                                            isEditing={isEditing}
+                                                                        />
+                                                                    )}
+                                                                </td>
+                                                            ))}
+                                                            <td className="px-2 py-3">
+                                                                {isEditing && isRowEmpty(row) && (
+                                                                    <button
+                                                                        onClick={() => removeRow(section.id, row.id)}
+                                                                        className="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                                                                        title="Eliminar fila vacía"
                                                                     >
-                                                                        <option value="">Seleccione</option>
-                                                                        {campo.options.map((option) => (
-                                                                            <option key={option} value={option}>{option}</option>
-                                                                        ))}
-                                                                    </select>
-                                                                ) : (
-                                                                    <input
-                                                                        type={campo.type}
-                                                                        value={row.values[campo.name] || ""}
-                                                                        onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
-                                                                        placeholder={campo.placeholder}
-                                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
-                                                                    />
+                                                                        <X className="w-5 h-5" />
+                                                                    </button>
                                                                 )}
                                                             </td>
-                                                        ))}
-                                                        <td className="px-2 py-3">
-                                                            {isRowEmpty(row) && (
-                                                                <button
-                                                                    onClick={() => removeRow(section.id, row.id)}
-                                                                    className="text-gray-400 hover:text-red-500 transition-colors duration-200"
-                                                                    title="Eliminar fila vacía"
-                                                                >
-                                                                    <X className="w-5 h-5" />
-                                                                </button>
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        )}
                                     </div>
-                                    {data[section.id]?.length > 0 && (
-                                        <div className="mt-4 flex justify-end">
+                                    {isEditing && data[section.id]?.length > 0 && (
+                                        <div className="mt-4 flex justify-end gap-2">
                                             <button
-                                                onClick={() => sendData(section.id)}
-                                                className="flex items-center gap-2 px-6 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                                onClick={() => { setIsEditing(false); window.location.reload(); }}
+                                                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    sendData(section.id);
+                                                    setIsEditing(false);
+                                                    window.location.reload();
+                                                }}
+                                                className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
                                             >
                                                 <Save className="w-4 h-4" />
-                                                Guardar cambios
+                                                Guardar Cambios
                                             </button>
                                         </div>
                                     )}
@@ -502,9 +686,8 @@ const CV = () => {
                     )}
                 </main>
             </div>
-            
-            {/* Fixed download button */}
-            <button 
+
+            <button
                 onClick={handleDownload}
                 className="fixed bottom-15 right-15 bg-primary1 text-white px-6 py-3 hover:bg-[#003d7a] transition-colors duration-200 flex items-center gap-2 shadow-lg rounded-lg"
             >
