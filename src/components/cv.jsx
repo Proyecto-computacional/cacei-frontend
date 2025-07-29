@@ -604,6 +604,7 @@ const CV = () => {
                                                             {section.campos.map((campo) => (
                                                                 <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
                                                                     {campo.type === "select" ? (
+                                                                        <div className="relative min-w-[170px]">
                                                                         <select
                                                                             value={row.values[campo.name] || ""}
                                                                             onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
@@ -615,6 +616,7 @@ const CV = () => {
                                                                                 <option key={option} value={option}>{option}</option>
                                                                             ))}
                                                                         </select>
+                                                                        </div>
                                                                     ) : campo.type === "date" ? (
                                                                         <input
                                                                             type="date"
