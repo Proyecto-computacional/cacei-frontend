@@ -2,22 +2,19 @@ import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
 
-
 const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ...props }) => {
     const textareaRef = useRef(null);
     const placeholderRef = useRef(null);
 
-    // Función para calcular la altura exacta del placeholder
     const calculatePlaceholderHeight = () => {
         if (!placeholderRef.current || !textareaRef.current) return 'auto';
 
-        // Creamos un div invisible con el mismo texto del placeholder
         const hiddenDiv = document.createElement('div');
         hiddenDiv.style.position = 'absolute';
         hiddenDiv.style.visibility = 'hidden';
         hiddenDiv.style.whiteSpace = 'pre-wrap';
         hiddenDiv.style.width = `${textareaRef.current.offsetWidth}px`;
-        hiddenDiv.style.padding = '0.5rem 0.75rem'; // Igual que el textarea
+        hiddenDiv.style.padding = '0.5rem 0.75rem';
         hiddenDiv.style.lineHeight = '1.5rem';
         hiddenDiv.style.fontFamily = 'inherit';
         hiddenDiv.style.fontSize = 'inherit';
@@ -27,7 +24,7 @@ const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ..
         const height = hiddenDiv.offsetHeight;
         document.body.removeChild(hiddenDiv);
 
-        return `${Math.max(height, 24)}px`; // Mínimo 24px (1.5rem)
+        return `${Math.max(height, 24)}px`;
     };
 
     useEffect(() => {
@@ -35,14 +32,12 @@ const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ..
             textareaRef.current.style.height = 'auto';
 
             if (!value && placeholder) {
-                // Solo para placeholder (sin contenido)
                 textareaRef.current.style.height = calculatePlaceholderHeight();
             } else {
-                // Para contenido normal
                 textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
             }
         }
-    }, [value, placeholder, isEditing]); // Añadimos isEditing como dependencia
+    }, [value, placeholder, isEditing]);
 
     return (
         <div className="relative">
@@ -65,7 +60,6 @@ const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ..
                 }}
                 {...props}
             />
-            {/* Div oculto para medir el placeholder */}
             <div
                 ref={placeholderRef}
                 className="invisible absolute pointer-events-none whitespace-pre-wrap"
@@ -80,9 +74,6 @@ const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ..
         </div>
     );
 };
-
-
-
 
 const CV = () => {
     const [data, setData] = useState({});
@@ -101,7 +92,6 @@ const CV = () => {
         return degrees[letter] || letter;
     };
 
-    // Mapea los datos de la API al formato que espera tu formulario
     const mapApiDataToFormFields = (sectionId, apiData) => {
         const mappers = {
             1: (data) => ({
@@ -162,8 +152,6 @@ const CV = () => {
         return mappers[sectionId]?.(apiData) || {};
     };
 
-
-
     useEffect(() => {
         const fetchSectionData = async (cvId, sectionId) => {
             const sectionEndpoints = {
@@ -184,7 +172,6 @@ const CV = () => {
             return response.data;
         };
 
-
         const fetchInitialData = async () => {
             try {
                 setIsEditing(false);
@@ -197,7 +184,7 @@ const CV = () => {
                     setData(prev => ({
                         ...prev,
                         [activeSection]: sectionData.map((item, index) => ({
-                            id: `${activeSection}_${item.id}_${index}`, // Añade sectionId al key
+                            id: `${activeSection}_${item.id}_${index}`,
                             values: mapApiDataToFormFields(activeSection, item)
                         }))
                     }));
@@ -210,15 +197,14 @@ const CV = () => {
         if (rpe) fetchInitialData();
     }, [rpe, activeSection]);
 
-    // Función modificada para enviar datos al backend
     const sendData = async (sectionId) => {
         if (!cvId || !data[sectionId]) return;
 
         try {
-
             const sectionConfigs = {
                 1: {
-                    endpoint: 'educations', transform: (row) => ({
+                    endpoint: 'educations',
+                    transform: (row) => ({
                         institution: row.values.institución,
                         degree_obtained: String(row.values.grado).charAt(0).toUpperCase(),
                         obtained_year: parseInt(row.values.año),
@@ -227,7 +213,8 @@ const CV = () => {
                     })
                 },
                 2: {
-                    endpoint: 'teacher-trainings', transform: (row) => ({
+                    endpoint: 'teacher-trainings',
+                    transform: (row) => ({
                         title_certification: row.values.tipodecapacitacion,
                         institution_country: row.values.institucion,
                         obtained_year: parseInt(row.values.añoobtencion),
@@ -235,7 +222,8 @@ const CV = () => {
                     })
                 },
                 3: {
-                    endpoint: 'disciplinary-updates', transform: (row) => ({
+                    endpoint: 'disciplinary-updates',
+                    transform: (row) => ({
                         title_certification: row.values.tipodeactualizacion,
                         institution_country: row.values.institucion,
                         year_certification: parseInt(row.values.añoobtencion),
@@ -243,7 +231,8 @@ const CV = () => {
                     })
                 },
                 4: {
-                    endpoint: 'academic-managements', transform: (row) => ({
+                    endpoint: 'academic-managements',
+                    transform: (row) => ({
                         job_position: row.values.puesto,
                         institution: row.values.institucion,
                         start_date: row.values.fechaInicio,
@@ -251,12 +240,14 @@ const CV = () => {
                     })
                 },
                 5: {
-                    endpoint: 'academic-products', transform: (row) => ({
+                    endpoint: 'academic-products',
+                    transform: (row) => ({
                         description: row.values.descripcion
                     })
                 },
                 6: {
-                    endpoint: 'laboral-experiences', transform: (row) => ({
+                    endpoint: 'laboral-experiences',
+                    transform: (row) => ({
                         company_name: row.values.empresa,
                         position: row.values.cargo,
                         start_date: row.values.fechaInicio,
@@ -264,31 +255,36 @@ const CV = () => {
                     })
                 },
                 7: {
-                    endpoint: 'engineering-designs', transform: (row) => ({
+                    endpoint: 'engineering-designs',
+                    transform: (row) => ({
                         institution: row.values.organismo,
                         period: row.values.periodo,
                         level_experience: row.values.nivel
                     })
                 },
                 8: {
-                    endpoint: 'professional-achievements', transform: (row) => ({
+                    endpoint: 'professional-achievements',
+                    transform: (row) => ({
                         description: row.values.descripcion
                     })
                 },
                 9: {
-                    endpoint: 'participations', transform: (row) => ({
+                    endpoint: 'participations',
+                    transform: (row) => ({
                         institution: row.values.organismo,
                         period: row.values.periodo,
                         level_participation: row.values.nivel
                     })
                 },
                 10: {
-                    endpoint: 'awards', transform: (row) => ({
+                    endpoint: 'awards',
+                    transform: (row) => ({
                         description: row.values.descripcion
                     })
                 },
                 11: {
-                    endpoint: 'contributions-to-pe', transform: (row) => ({
+                    endpoint: 'contributions-to-pe',
+                    transform: (row) => ({
                         description: row.values.descripcion
                     })
                 }
@@ -297,9 +293,7 @@ const CV = () => {
             const config = sectionConfigs[sectionId];
             if (!config) return;
 
-            // Filter out empty rows and validate payloads
             const validRows = data[sectionId].filter(row => {
-
                 const payload = config.transform(row);
                 const hasValues = Object.values(payload).some(value => value !== undefined && value !== null && value !== '');
                 return hasValues;
@@ -310,7 +304,6 @@ const CV = () => {
                 return;
             }
 
-            // Enviar datos para la sección actual
             await Promise.all(validRows.map(async (row) => {
                 const payload = config.transform(row);
                 await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
@@ -327,30 +320,20 @@ const CV = () => {
         }
     };
 
-    // Add download function
     const handleDownload = async () => {
         try {
             const response = await api.get(`/api/cv/word/${rpe}`, {
                 responseType: 'blob'
             });
 
-            // Create a blob from the response data
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-
-            // Create a URL for the blob
             const url = window.URL.createObjectURL(blob);
-
-            // Create a temporary link element
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `CV_${rpe}.docx`);
-
-            // Append to body, click and remove
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
-            // Clean up the URL
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Error downloading CV:', error);
@@ -362,6 +345,7 @@ const CV = () => {
         {
             id: 1,
             sectionName: "Formación Académica",
+            description: "Ingrese los nombres de los grados académicos, e indique especialidad en su caso. Además ingrese institución y país, año de obtención del título o grado académico y número de cédula obtenida, según aplique para cada caso. Si no cuenta con esta, señalar ND. Si está en trámite poner EP.",
             campos: [
                 { name: "grado", type: "select", options: ["Licenciatura", "Especialidad", "Maestría", "Doctorado"], label: "Grado" },
                 { name: "titulo", type: "text", label: "Nombre del título", placeholder: "Título (Incluir especialidad)" },
@@ -373,6 +357,7 @@ const CV = () => {
         {
             id: 2,
             sectionName: "Capacitación Docente",
+            description: "Ingrese el nombre de los cursos, diplomados o módulos de capacitación o actualización docente realizados en los últimos cinco años. Para cada uno ingrese institución, país donde los realizó y horas de duración.",
             campos: [
                 { name: "tipodecapacitacion", type: "text", label: "Tipo de capacitación", placeholder: "Nombre de la capacitación" },
                 { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del país" },
@@ -383,6 +368,7 @@ const CV = () => {
         {
             id: 3,
             sectionName: "Actualización Disciplinar",
+            description: "Ingrese el nombre de los cursos, diplomados o módulos de capacitación en su disciplina realizados en los últimos cinco años. Para cada uno ingrese institución, país donde los realizó y horas de duración.",
             campos: [
                 { name: "tipodeactualizacion", type: "text", label: "Tipo de actualización", placeholder: "Nombre de la actualización" },
                 { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del país" },
@@ -393,6 +379,7 @@ const CV = () => {
         {
             id: 4,
             sectionName: "Gestión académica",
+            description: "Ingrese la relación de actividades de gestión académica realizada. Se consideran en esta actividad: puestos directivos, de coordinación o supervisión académica o técnica. Agregar lugar donde se desempeñó y el período de la vigencia (el período no se limita a los últimos años).",
             campos: [
                 { name: "puesto", type: "text", label: "Actividad o puesto", placeholder: "Actividad o puesto desempeñado" },
                 { name: "institucion", type: "textarea", label: "Institución", placeholder: "Nombre de la institución" },
@@ -403,6 +390,7 @@ const CV = () => {
         {
             id: 5,
             sectionName: "Productos académicos relevantes",
+            description: "Ingrese en cada celda la descripción de los productos académicos realizados, iniciando de la fecha más reciente a la más antigua. Puede incluirse más celdas de ser necesario.",
             campos: [
                 { name: "descripcion", type: "text", label: "Descripción", placeholder: "Descripción del producto en cuestión" },
             ],
@@ -410,6 +398,7 @@ const CV = () => {
         {
             id: 6,
             sectionName: "Experiencia Laboral",
+            description: "Experiencia profesional no académica. Incluya actividades realizadas en la industria, consultoría, como emprendedor o en otras áreas diferentes a la educación superior.",
             campos: [
                 { name: "empresa", type: "text", label: "Empresa", placeholder: "Nombre de la empresa" },
                 { name: "cargo", type: "text", label: "Cargo", placeholder: "Cargo desempeñado" },
@@ -420,6 +409,7 @@ const CV = () => {
         {
             id: 7,
             sectionName: "Experiencia en diseño ingenieril",
+            description: "Experiencia en diseño ingenieril: se refiere a actividades de diseño de ingeniería desarrolladas, dentro o fuera de la institución, en las que se evidencia que se participó en actividades de diseño. Especificar organismo donde se realizó la actividad de diseño, periodo en años y nivel de experiencia (responsable, asistente, analista, auxiliar, etc.).",
             campos: [
                 { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo" },
                 { name: "periodo", type: "text", label: "Período (años)", placeholder: "Número de años" },
@@ -429,6 +419,7 @@ const CV = () => {
         {
             id: 8,
             sectionName: "Logros Profesionales",
+            description: "Describir cada logro profesional, especificando sus datos relevantes, tales como: nombre del logro, relevancia, autores, dónde se realizó, etc. Por ejemplo: certificaciones profesionales, premios o reconocimientos, patentes, etc.",
             campos: [
                 { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Premio Nacional de Innovación en Tecnología 2020" },
             ],
@@ -436,6 +427,7 @@ const CV = () => {
         {
             id: 9,
             sectionName: "Participación en organismos profesionales",
+            description: "Membresía vigente en colegios, cámaras, asociaciones científicas o algún otro tipo de organismo profesional. Señale el nombre del organismo, tiempo de membresía y el nivel de participación (miembro, socio, directivo, integrante o coordinador de algún equipo o comisión, etc.).",
             campos: [
                 { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo" },
                 { name: "periodo", type: "text", label: "Periodo (años)", placeholder: "Número de años" },
@@ -445,6 +437,7 @@ const CV = () => {
         {
             id: 10,
             sectionName: "Premios y Reconocimientos",
+            description: "Describir los premios, distinciones o reconocimientos recibidos: de preferencia relacionados con actividades académicas, o profesionales relacionadas con el área de ingeniería del PE evaluado.",
             campos: [
                 { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Premio Nacional de Innovación en Tecnología 2020" },
             ],
@@ -452,12 +445,12 @@ const CV = () => {
         {
             id: 11,
             sectionName: "Aportaciones a la Mejora del PE",
+            description: "Describir, en máximo 200 palabras, la participación del profesor en actividades relevantes del PE, tales como: diseño el PE, diseño de asignatura(s) del PE, análisis de indicadores del PE, participación en cuerpos colegiados del PE, participación en grupos de mejora continua del PE, en actividades extracurriculares relacionadas con el PE, etc.",
             campos: [
-                { name: "descripcion", type: "textarea", label: "Descripción", placeholder: "Ej: Desarrollo de un nuevo modelo de enseñanza híbrida(max 2000 caracteres)" },
+                { name: "descripcion", type: "textarea", label: "Descripción", placeholder: "Ej: Desarrollo de un nuevo modelo de enseñanza híbrida (max 2000 caracteres)" },
             ],
             singleField: true
         },
-
     ];
 
     const addRow = (sectionId) => {
@@ -489,7 +482,6 @@ const CV = () => {
 
     const updateRow = (sectionId, rowId, field, value) => {
         setData((prev) => {
-            // Verifica que la sección exista
             if (!prev[sectionId]) return prev;
 
             return {
@@ -509,9 +501,6 @@ const CV = () => {
         });
     };
 
-
-
-    // Modificamos el JSX para incluir el botón de edición
     return (
         <div className="flex flex-col">
             <div className="flex flex-1">
@@ -538,22 +527,24 @@ const CV = () => {
                         (section) =>
                             activeSection === section.id && (
                                 <div key={section.id}>
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-xl font-semibold text-gray-800">
-                                            {section.sectionName}
-                                            {!isEditing && <span className="ml-2 text-sm text-gray-500">(solo lectura)</span>}
-                                        </h2>
+                                    <div className="flex justify-between items-start mb-4"> 
+                                        <div className="flex-1 mr-4"> 
+                                            <h2 className="text-xl font-semibold text-gray-800">
+                                                {section.sectionName}
+                                                {!isEditing && <span className="ml-2 text-sm text-gray-500">(solo lectura)</span>}
+                                            </h2>
+                                            <p className="text-sm text-gray-600 mt-1">{section.description}</p>
+                                        </div>
                                         <div className="flex gap-2">
                                             {!isEditing ? (
                                                 <button
                                                     onClick={() => setIsEditing(true)}
                                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
                                                 >
-                                                    Editar Sección
+                                                    Editar sección
                                                 </button>
                                             ) : (
                                                 <>
-
                                                     {section.id !== 11 && (
                                                         <button
                                                             onClick={() => addRow(section.id)}
@@ -663,7 +654,7 @@ const CV = () => {
                                     {isEditing && data[section.id]?.length > 0 && (
                                         <div className="mt-4 flex justify-end gap-2">
                                             <button
-                                                onClick={() => { setIsEditing(false);  }}
+                                                onClick={() => { setIsEditing(false); }}
                                                 className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
                                             >
                                                 Cancelar
@@ -672,7 +663,6 @@ const CV = () => {
                                                 onClick={() => {
                                                     sendData(section.id);
                                                     setIsEditing(false);
-                                                    
                                                 }}
                                                 className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
                                             >
