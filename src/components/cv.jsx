@@ -145,8 +145,8 @@ const CV = () => {
                 descripcion: data.description
             }),
             11: (data) => ({
-                descripcion: data.description
-            })
+                descripcion: data.description || ''
+            }),
         };
 
         return mappers[sectionId]?.(apiData) || {};
@@ -168,6 +168,7 @@ const CV = () => {
                 11: 'contributions-to-pe'
             };
 
+
             const response = await api.get(`/api/additionalInfo/${cvId}/${sectionEndpoints[sectionId]}`);
             return response.data;
         };
@@ -177,17 +178,30 @@ const CV = () => {
                 setIsEditing(false);
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
-
                 if (cvResponse.data.cv_id) {
                     const sectionData = await fetchSectionData(cvResponse.data.cv_id, activeSection);
 
-                    setData(prev => ({
-                        ...prev,
-                        [activeSection]: sectionData.map((item, index) => ({
-                            id: `${activeSection}_${item.id}_${index}`,
-                            values: mapApiDataToFormFields(activeSection, item)
-                        }))
-                    }));
+                    // Manejo especial para la sección 11
+                    if (activeSection === 11) {
+                        setData(prev => ({
+                            ...prev,
+                            [activeSection]: sectionData.length > 0
+                                ? [{
+                                    id: `${activeSection}_${sectionData[0].id}`,
+                                    values: mapApiDataToFormFields(activeSection, sectionData[0])
+                                }]
+                                : []
+                        }));
+                    } else {
+                        // Manejo normal para otras secciones
+                        setData(prev => ({
+                            ...prev,
+                            [activeSection]: sectionData.map((item, index) => ({
+                                id: `${activeSection}_${item.id}_${index}`,
+                                values: mapApiDataToFormFields(activeSection, item)
+                            }))
+                        }));
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -527,13 +541,13 @@ const CV = () => {
                         (section) =>
                             activeSection === section.id && (
                                 <div key={section.id}>
-                                    <div className="flex justify-between items-start mb-4"> 
-                                        <div className="flex-1 mr-4"> 
+                                    <div className="flex justify-between items-start mb-4 ">
+                                        <div className="flex-1 mr-4">
                                             <h2 className="text-xl font-semibold text-gray-800">
                                                 {section.sectionName}
                                                 {!isEditing && <span className="ml-2 text-sm text-gray-500">(solo lectura)</span>}
                                             </h2>
-                                            <p className="text-sm text-gray-600 mt-1">{section.description}</p>
+                                            <p className="text-lg text-gray-600 mt-1">{section.description}</p>
                                         </div>
                                         <div className="flex gap-2">
                                             {!isEditing ? (
@@ -561,32 +575,43 @@ const CV = () => {
 
                                     <div className={`bg-white rounded-lg border ${isEditing ? 'border-blue-200' : 'border-gray-200'} overflow-hidden`}>
                                         {section.id === 11 ? (
-                                            <div className="p-4">
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                    {section.campos[0].label}
-                                                </label>
-                                                <textarea
-                                                    value={data[11]?.[0]?.values?.descripcion || ""}
-                                                    onChange={(e) => {
-                                                        if (!data[11]?.[0]) {
-                                                            addRow(11);
-                                                        }
-                                                        updateRow(11, data[11]?.[0]?.id, "descripcion", e.target.value);
-                                                        e.target.style.height = 'auto';
-                                                        e.target.style.height = `${e.target.scrollHeight}px`;
-                                                    }}
-                                                    placeholder={section.campos[0].placeholder}
-                                                    className={`w-full px-3 py-2 border ${isEditing ? 'border-blue-300 focus:ring-2 focus:ring-blue-200' : 'border-gray-300 bg-gray-50'} rounded-lg focus:border-primary1 resize-none overflow-hidden`}
-                                                    maxLength={500}
-                                                    style={{ height: 'auto', minHeight: '150px' }}
-                                                    rows={17}
-                                                    disabled={!isEditing}
-                                                />
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                    {data[11]?.[0]?.values?.descripcion?.length || 0}/500 caracteres
-                                                </div>
-                                            </div>
-                                        ) : (
+    <div className="p-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+            {section.campos[0].label}
+        </label>
+        <textarea
+            value={data[11]?.[0]?.values?.descripcion || ""}
+            onChange={(e) => {
+                // Si no existe el registro, crear uno nuevo
+                if (!data[11] || data[11].length === 0) {
+                    setData(prev => ({
+                        ...prev,
+                        [11]: [{
+                            id: `new_${11}_${Date.now()}`,
+                            values: { descripcion: e.target.value }
+                        }]
+                    }));
+                } else {
+                    // Actualizar el registro existente
+                    updateRow(11, data[11][0].id, "descripcion", e.target.value);
+                }
+                
+                // Ajustar altura del textarea
+                e.target.style.height = 'auto';
+                e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            placeholder={section.campos[0].placeholder}
+            className={`w-full px-3 py-2 border ${isEditing ? 'border-blue-300 focus:ring-2 focus:ring-blue-200' : 'border-gray-300 bg-gray-50'} rounded-lg focus:border-primary1 resize-none overflow-hidden`}
+            maxLength={2000}
+            style={{ height: 'auto', minHeight: '150px' }}
+            rows={6}
+            disabled={!isEditing}
+        />
+        <div className="text-xs text-gray-500 mt-1">
+            {data[11]?.[0]?.values?.descripcion?.length || 0}/2000 caracteres
+        </div>
+    </div>
+) : (
                                             <table className="w-full">
                                                 <thead>
                                                     <tr className="bg-gray-50">
@@ -602,20 +627,20 @@ const CV = () => {
                                                     {(data[section.id] || []).map((row) => (
                                                         <tr key={row.id} className="hover:bg-gray-50">
                                                             {section.campos.map((campo) => (
-                                                                <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
+                                                                <td key={`${row.id}_${campo.name}`} className="px-3 py-2">
                                                                     {campo.type === "select" ? (
                                                                         <div className="relative min-w-[170px]">
-                                                                        <select
-                                                                            value={row.values[campo.name] || ""}
-                                                                            onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
-                                                                            className={`w-full px-3 py-2 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50' : 'border-gray-200 bg-gray-50'} rounded-lg focus:border-primary1`}
-                                                                            disabled={!isEditing}
-                                                                        >
-                                                                            <option value="">Seleccione</option>
-                                                                            {campo.options.map((option) => (
-                                                                                <option key={option} value={option}>{option}</option>
-                                                                            ))}
-                                                                        </select>
+                                                                            <select
+                                                                                value={row.values[campo.name] || ""}
+                                                                                onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
+                                                                                className={`w-full px-3 py-2 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50' : 'border-gray-200 bg-gray-50'} rounded-lg focus:border-primary1`}
+                                                                                disabled={!isEditing}
+                                                                            >
+                                                                                <option value="">Seleccione</option>
+                                                                                {campo.options.map((option) => (
+                                                                                    <option key={option} value={option}>{option}</option>
+                                                                                ))}
+                                                                            </select>
                                                                         </div>
                                                                     ) : campo.type === "date" ? (
                                                                         <input
@@ -626,6 +651,7 @@ const CV = () => {
                                                                             disabled={!isEditing}
                                                                         />
                                                                     ) : (
+
                                                                         <DynamicTextarea
                                                                             value={row.values[campo.name] || ""}
                                                                             onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
