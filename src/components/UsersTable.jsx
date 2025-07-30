@@ -5,6 +5,8 @@ import "../app.css"
 import api from "../services/api";
 import { Search, Users, Shield } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
+import PermissionsTable from "./permissionsTable";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UsersTable() {
@@ -159,34 +161,7 @@ export default function UsersTable() {
                 </table>
             </div>
 
-            <div className="mt-8">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="bg-[#004A98] p-2 rounded-lg">
-                        <Shield className="h-6 w-6 text-white" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-800">
-                        Lista de Roles
-                    </h2>
-                </div>
-                <div className="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
-                    <table className="min-w-full bg-white">
-                        <thead>
-                            <tr className="bg-[#004A98] text-white">
-                                <th className="py-4 px-6 text-left font-semibold">Rol</th>
-                                <th className="py-4 px-6 text-left font-semibold">Permisos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {roles.map((rol) => (
-                                <tr key={rol.name} className="border-b hover:bg-gray-50 transition-colors duration-200">
-                                    <td className="py-4 px-6 font-medium">{rol.name}</td>
-                                    <td className="py-4 px-6 text-gray-600">{rol.description}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <PermissionsTable/>
         </div>
     );
 }
