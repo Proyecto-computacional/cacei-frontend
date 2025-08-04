@@ -152,6 +152,9 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
     const [selectedCategoryId, setSelectedCategoryId] = useState("");
+    const [is_standard, setStandard] = useState("");
+    const [is_transversal, setTrasnversal] = useState(false);
+    const [help, setHelp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSave = async () => {
@@ -169,9 +172,39 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
         const res = await api.post("/api/section", { 
           section_name: nombre, 
           category_id: selectedCategoryId, 
-          section_description: descripcion 
+          section_description: descripcion ,
+          is_standard: is_standard,
         });
-        alert("Sección creada exitosamente");
+
+        if(!res.data || !res.data.data){
+          throw new Error("No se recibio respuesta válida al crear la sección");
+        }
+        // Obtenemos el ID de la sección creada desde la respuesta
+        const createdSection = res.data.data; // Accedemos a data.data según tu estructura de respuesta
+        const sectionId = createdSection.section_id;
+        // Si es un criterio, creamos también el standard asociado
+        if (is_standard) {
+          try{
+          const res = await api.post("/api/standard", {
+            section_id: sectionId,
+            standard_name: nombre,
+            standard_description: descripcion,
+            is_transversal: is_transversal,
+            help: help
+          });
+          if(!res.data){
+            console.error("Error al crear criterio:", res);
+            throw new Error("No se recibio respuesta vlaida al crear el criterio");
+          }
+          } catch (standardError) {
+            console.error("Error al crear criterio:", standardError);
+            // Si falla la creación del criterio pero la sección ya está creada,
+            // podrías decidir eliminarla o mostrar un mensaje específico
+            throw new Error("Sección creada pero falló la creación del criterio");
+          }
+        }
+
+        alert(is_standard ? "Sección y criterio creados exitosamente" : "Sección creada exitosamente");
         onSaved();
       } catch (err) {
         alert("Error al crear la sección: " + (err.response?.data?.message || "Error desconocido"));
@@ -220,17 +253,60 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
               </div>
 
               <div>
-        <label htmlFor="descripcionSeccion" className="block text-sm font-medium text-gray-700 mb-1">
-          Descripción de la sección
-        </label>
+                <label htmlFor="descripcionSeccion" className="block text-sm font-medium text-gray-700 mb-1">
+                  Descripción de la sección
+                </label>
                 <textarea
                   id="descripcionSeccion"
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                   placeholder="Ingrese la descripción de la sección"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
                   rows="3"
                 />
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="standard"
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  checked={is_standard}
+                  onChange={(e) => setStandard(e.target.checked)}
+                />
+                <label htmlFor="standard" className="ml-2 text-sm font-medium text-gray-700">
+                  Es criterio
+                </label>
+                {/* Campos adicionales que aparecen solo cuando is_standard es true */}
+              {is_standard && (
+                <>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="transversal"
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      checked={is_transversal}
+                      onChange={(e) => setTrasnversal(e.target.checked)}
+                    />
+                    <label htmlFor="transversal" className="ml-2 text-sm font-medium text-gray-700">
+                      Criterio transversal
+                    </label>
+                  </div>
+
+                  <div>
+                    <label htmlFor="ayudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+                      Ayuda del criterio
+                    </label>
+                    <textarea
+                      id="ayudaCriterio"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      placeholder="Ingrese la ayuda del criterio"
+                      value={help}
+                      onChange={(e) => setHelp(e.target.value)}
+                      rows="3"
+                    />
+                  </div>
+                </>
+              )}
               </div>
             </div>
           </div>
@@ -265,7 +341,48 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   function ModificarSeccionForm({ seccion, onCancel, onSaved }) {
     const [nombre, setNombre] = useState(seccion.section_name);
     const [descripcion, setDescripcion] = useState(seccion.section_description);
+    const [is_standard, setStandard] = useState(seccion.is_standard);
+    const [is_transversal, setTrasnversal] = useState(seccion.standard?.is_transversal || false);
+    const [help, setHelp] = useState(seccion.standard?.help || "");
     const [isLoading, setIsLoading] = useState(false);
+    const [standardId, setStandardId] = useState(null);
+    // Cargar datos del criterio si existe
+    useEffect(() => {
+        const fetchStandard = async () => {
+            if (seccion.is_standard) {
+                try {
+                    const res = await api.post("/api/standards", { section_id: seccion.section_id});
+                    if (res.data && res.data.length > 0) {
+                        const firstStandard = res.data[0];
+                        setStandardId(firstStandard.standard_id);
+                        setTrasnversal(firstStandard.is_transversal);
+                        setHelp(firstStandard.help);
+                    }
+                    else{
+                      // No existe estándar para esta sección
+                      setStandardId(null);
+                      setTrasnversal(false);
+                      setHelp("");
+                    }
+                } catch (err) {
+                    console.error("Error al cargar criterio:", {
+                    error: err.message,
+                    response: err.response?.data
+                  });
+                  setStandardId(null);
+                  setTrasnversal(false);
+                  setHelp("");
+                }
+            } else {
+              // Resetear si no es estándar
+              setStandardId(null);
+              setTrasnversal(false);
+              setHelp("");
+            }
+        };
+        fetchStandard();
+    }, [seccion.section_id, seccion.is_standard]);
+    console.log(standardId);
   
     const handleSave = async () => {
       if (!nombre.trim()) {
@@ -275,11 +392,35 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
 
       setIsLoading(true);
       try {
-        await api.put("/api/section-update", {
+        const res = await api.put("/api/section-update", {
           section_id: seccion.section_id,
           section_name: nombre,
-          section_description: descripcion
+          section_description: descripcion,
+          is_standard: is_standard
         });
+        // 2. Manejar el criterio según el estado del checkbox
+        if (is_standard) {
+          // Usamos PUT para actualizar o POST para crear si no existe standardId
+                const standardData = {
+                    section_id: seccion.section_id,
+                    standard_id: standardId,
+                    standard_name: nombre,
+                    standard_description: descripcion,
+                    is_transversal: is_transversal,
+                    help: help
+                };
+
+                if (standardId) {
+                    const res = await api.put("/api/standard-update/", standardData);
+                } else {
+                    const res = await api.post("/api/standard", standardData);
+                    setStandardId(res.data.data.standard_id);
+                }
+            } else if (standardId) {
+                // Ahora sí podemos eliminar el criterio
+                const res = await api.delete(`/api/standard/${standardId}`);
+                setStandardId(null);
+            }
         alert("Sección actualizada exitosamente");
         onSaved();
       } catch (err) {
@@ -320,6 +461,48 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
                   rows="3"
                 />
               </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="standard"
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  checked={is_standard}
+                  onChange={(e) => setStandard(e.target.checked)}
+                />
+                <label htmlFor="standard" className="ml-2 text-sm font-medium text-gray-700">
+                  Es criterio
+                </label>
+              </div>
+              {is_standard && (
+                <>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="transversal"
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      checked={is_transversal}
+                      onChange={(e) => setTrasnversal(e.target.checked)}
+                    />
+                    <label htmlFor="transversal" className="ml-2 text-sm font-medium text-gray-700">
+                      Criterio transversal
+                    </label>
+                  </div>
+
+                  <div>
+                    <label htmlFor="ayudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+                      Ayuda del criterio
+                    </label>
+                    <textarea
+                      id="ayudaCriterio"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      placeholder="Ingrese la ayuda del criterio"
+                      value={help}
+                      onChange={(e) => setHelp(e.target.value)}
+                      rows="3"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
           <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">

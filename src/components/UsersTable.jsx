@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
 import SelectRol from "./selectRole";
 import axios from "axios";
 import "../app.css"
 import api from "../services/api";
-import { Search, Users, Shield } from "lucide-react";
+import { Search, Users, Shield, FileUser } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 import PermissionsTable from "./permissionsTable";
 
@@ -26,7 +27,7 @@ export default function UsersTable() {
     const [nextPage, setNextPage] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-
+    
     const fetchUsers = async () => {
         try {
             setLoading(true);
@@ -126,6 +127,7 @@ export default function UsersTable() {
                             <th className="py-4 px-6 text-left font-semibold">Nombre</th>
                             <th className="py-4 px-6 text-left font-semibold">Correo</th>
                             <th className="py-4 px-6 text-left font-semibold">Rol</th>
+                            <th className="py-4 px-6 text-left font-semibold">CV</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -144,6 +146,13 @@ export default function UsersTable() {
                                 <td className="py-4 px-6 text-gray-600">{item.user_mail}</td>
                                 <td className="py-4 px-6">
                                     <SelectRol userId={item.user_rpe} initialRole={item.user_role} AllRoles={roles} />
+                                </td>
+                                <td className="py-4 px-6">
+                                    <Link to={`/personalInfo/${item.user_rpe}`}>
+                                        <div className="bg-[#004A98] p-2 rounded-lg w-fit cursor-pointer">
+                                            <FileUser className="h-6 w-6 text-white"/>
+                                        </div>
+                                    </Link>
                                 </td>
                             </tr>
                         )) :
