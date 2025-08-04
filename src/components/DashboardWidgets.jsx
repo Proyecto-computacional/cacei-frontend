@@ -30,10 +30,10 @@ const DashboardWidgets = () => {
   const fetchEstadisticas = async () => {
     try {
       let resumenGeneralPorRPE = {};
-      if (userRole === "ADMINISTRADOR") {
+      if (userRole === "ADMINISTRADOR" || userRole === "JEFE DE AREA" || userRole === "DIRECTIVO" || userRole === "COORDINADOR") {
         const res = await api.get(`/estadisticas/${rpe}/${frameName}/${careerName}`);
         resumenGeneralPorRPE = res.data;
-      } else if (userRole === "PROFESOR" || userRole === "DEPARTAMENTO UNIVERSITARIO") {
+      } else if (userRole === "PROFESOR" || userRole === "DEPARTAMENTO UNIVERSITARIO" || userRole === "PERSONAL DE APOYO") {
         const res = await api.get(`/estadisticas/por-autor/${rpe}/${frameName}/${careerName}`);
         resumenGeneralPorRPE = res.data;
       }
