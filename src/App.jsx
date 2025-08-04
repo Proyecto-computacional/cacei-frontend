@@ -35,7 +35,7 @@ function App() {
             <PersonalConfig />
           </ProtectedRoute>
         } />
-        <Route path="/personalInfo" element={
+        <Route path="/personalInfo/:rpe" element={
           <ProtectedRoute>
             <PersonalConfig />
           </ProtectedRoute>
