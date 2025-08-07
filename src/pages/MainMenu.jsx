@@ -40,7 +40,7 @@ const MainMenu = () => {
         }
 
         let response;
-        if (userRole === "ADMINISTRADOR") {
+        if (userRole === "ADMINISTRADOR" || userRole === "DIRECTIVO") {
           // Fetch all processes for administrators
           response = await api.get("api/processes", {
             headers: {
