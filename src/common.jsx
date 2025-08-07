@@ -53,7 +53,7 @@ export function AppHeader() {
                                         <span className="text-white"> | </span>
                                     </div>
                                     <div className="p-1 px-1 bd-highlight">
-                                        <a href="/personalInfo" onClick={(e) => { e.preventDefault(); navigate('/personalInfo'); }}>Configuración Personal</a>
+                                        <a href="/personalInfo" onClick={(e) => { e.preventDefault(); navigate(`/personalInfo/${localStorage.getItem("rpe")}`); }}>Configuración Personal</a>
                                         <span className="text-white"> | </span>
                                     </div>
                                     <div className="p-1 px-1 bd-highlight">
