@@ -66,63 +66,19 @@ export default function EvidenceTable() {
     const sendFeedback = async (feedbackText) => {
         try {
             const url = statusFeedback ? 'api/RevisionEvidencias/aprobar' : 'api/RevisionEvidencias/desaprobar';
-        
-            // 1. Obtener la evidencia actual
-            const currentEvidence = evidences.find(ev => ev.evidence_id == idEvidenceFeedback);
-            const isTransversal = currentEvidence?.is_transversal || false;
-        
-            // 2. Si es transversal, obtener todas las evidencias del mismo criterio
-            let evidencesToProcess = [currentEvidence];
-        
-            if (isTransversal) {
-                const transversalEvidences = evidences.filter(ev => 
-                    ev.standard_id === currentEvidence.standard_id && 
-                    ev.evidence_id !== currentEvidence.evidence_id
-                );
-                evidencesToProcess = [...evidencesToProcess, ...transversalEvidences];
-            }
 
-            // 3. Procesar cada evidencia individualmente
-            const results = [];
-            for (const evidence of evidencesToProcess) {
-                try {
-                    const response = await api.post(url, {
-                        evidence_id: parseInt(evidence.evidence_id),
-                        user_rpe: statusUserRPE,
-                        feedback: feedbackText
-                    });
-                    results.push({
-                        success: true,
-                        evidenceId: evidence.evidence_id,
-                        message: response.data?.message
-                    });
-                } catch (error) {
-                    results.push({
-                        success: false,
-                        evidenceId: evidence.evidence_id,
-                        message: error.response?.data?.message || error.message
-                    });
-                }
+            const respuesta = await api.post(url, {
+                evidence_id: parseInt(idEvidenceFeedback),
+                user_rpe: statusUserRPE,
+                feedback: feedbackText
+            });
+            if (respuesta.status === 200) {
+                alert(respuesta.data?.message || 'Feedback enviado con éxito');
+                setRefresh(prev => !prev)
             }
-
-            // 4. Mostrar resumen al usuario
-            const successful = results.filter(r => r.success).length;
-            const failed = results.filter(r => !r.success).length;
-            
-            if (failed === 0) {
-                alert(isTransversal 
-                    ? `Se ${statusFeedback ? 'aprobaron' : 'rechazaron'} ${successful} evidencias correctamente` 
-                    : 'Operación realizada con éxito');
-            } else {
-                alert(`Se completaron ${successful} operaciones, pero fallaron ${failed}.`);
-            }
-            
-            setRefresh(prev => !prev);
         } catch (e) {
             console.error(e);
-            alert('Error en el servidor: ' + (e.response?.data?.message || e.message));
-        } finally {
-            setOpenFeedback(false);
+            alert('Error en el servidor');
         }
     };
 
