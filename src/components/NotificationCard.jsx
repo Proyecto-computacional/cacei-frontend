@@ -1,7 +1,8 @@
 import React from "react";
 import { Star, Trash, Pin, Clock } from "lucide-react";
 
-const NotificationCard = ({ title, description, pinned, starred, deleted, onDeletedClick, onStarClick, onPinClick, notification_date }) => {
+const NotificationCard = ({ title, description, pinned, starred, deleted, onDeletedClick, onStarClick, onPinClick, notification_date, evidence, reviser }) => {
+  
   // Función para formatear la fecha
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -12,11 +13,13 @@ const NotificationCard = ({ title, description, pinned, starred, deleted, onDele
     });
   };
 
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
+            {/* Para el estado (si está fijada o favorita) */}
             {pinned && (
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 <Pin className="h-3 w-3 mr-1" />
@@ -30,7 +33,11 @@ const NotificationCard = ({ title, description, pinned, starred, deleted, onDele
               </span>
             )}
           </div>
+
+          {/* Información de la notificación */}
           <h2 className="text-lg font-semibold text-gray-800 mb-2">{title}</h2>
+          <h1 className="text-gray-600 text-sm mb-2">{reviser}</h1>
+          <h1 className="text-gray-600 text-sm mb-2">{evidence}</h1>
           <p className="text-gray-600 text-sm mb-2">{description}</p>
           {notification_date && (
             <div className="flex items-center text-xs text-gray-500">

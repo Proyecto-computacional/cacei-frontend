@@ -14,14 +14,16 @@ const Notification = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+
+    // Función para obtener las notificaciones
     const fetchNotifications = async () => {
       try {
-        if (!userRpe) {
+        if (!userRpe) { // ¿Existe el RPE del usuario?
           console.error("userRpe no está disponible");
           return;
         }
 
-        const response = await api.post("/api/Notificaciones", 
+        const response = await api.post("/api/Notificaciones", // Obtener notificaciones (checando su token)
           { user_rpe: userRpe },
           {
             headers: {
@@ -30,7 +32,7 @@ const Notification = () => {
           }
         );
 
-        if (response.status !== 200) {
+        if (response.status !== 200) { // ¿Literal cualquier cosa que fallo?
           throw new Error("Error al obtener las notificaciones");
         }
 
@@ -43,6 +45,8 @@ const Notification = () => {
     fetchNotifications();
   }, [userRpe]);
 
+
+  // Función para fijar/desfijar notificaciones
   const handlePin = async (id) => {
     try {  
       const currentNotif = notifications.find((notif) => notif.notification_id === id);
@@ -76,6 +80,7 @@ const Notification = () => {
     }
   };
 
+  // Función para favoritear notificaciones
   const handleStarred = async (id) => {
     try {  
       const currentNotif = notifications.find((notif) => notif.notification_id === id);
@@ -107,6 +112,7 @@ const Notification = () => {
     }
   };
 
+  // Para eliminar (siguen en la BD, ¿no?) notificaciones
   const handleDelete = async (id) => {
     try {  
       const currentNotif = notifications.find((notif) => notif.notification_id === id);
@@ -134,10 +140,12 @@ const Notification = () => {
     }
   };
 
+  // ¿Para ir a la página de una notificacion especifica?
   const handleNotificationClick = (id) => {
     navigate(`/notification/${id}`, { state: { notificationId: id } });
   };
 
+  // Obtiene las notificaciones filtradas (¿las que involucran al usuario?)
   const filteredNotifications = notifications
     .filter((notif) => {
       const matchesSearch =
@@ -207,10 +215,11 @@ const Notification = () => {
             </div>
           </div>
 
+          {/* ¿Mini panel de las notificaciones (la del header)? */}
           <div className="space-y-4">
             {filteredNotifications.length > 0 ? (
               filteredNotifications.map((notif) => (
-                <NotificationCard
+                <NotificationCard // Le da la información a las "cards". Revisar la tabla en "Cacei.sql" en backend
                   key={notif.notification_id}
                   title={notif.title}
                   description={notif.description}
@@ -218,12 +227,14 @@ const Notification = () => {
                   starred={notif.starred}
                   deleted={notif.seen}
                   notification_date={notif.notification_date}
+                  evidence={notif.evidence_id} // Para encontrar info de la evidencia
+                  reviser={notif.reviser_id} // Para encontrar info del revisor
                   onDeletedClick={() => handleDelete(notif.notification_id)}
                   onStarClick={() => handleStarred(notif.notification_id)}
                   onPinClick={() => handlePin(notif.notification_id)}
                 />
               ))
-            ) : (
+            ) : ( // Si es que no hay ninguna notificacion
               <div className="text-center py-12 bg-white rounded-lg shadow-sm">
                 <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">
