@@ -14,8 +14,6 @@ const AssignTask = ({ onClose }) => {
   const [validationError, setValidationError] = useState("");
   const [frame_id, setFrameId] = useState(null);
   const [process_id, setProcessId] = useState(null);
-  const [isTransversal, setIsTransversal] = useState(false);
-  const [processes, setProcesses] = useState([]);
   const storedFrameId = localStorage.getItem('frameId');
   const storedProcessId = localStorage.getItem('currentProcessId');
 
@@ -49,27 +47,6 @@ const AssignTask = ({ onClose }) => {
     }
   }, [selectedSection]);
 
-  useEffect(() => {
-    if (selectedStandard) {
-      // Buscar si el estándar seleccionado es transversal
-      const selectedStd = standards.find(std => std.standard_id == selectedStandard);
-      const isTransversalStd = selectedStd?.is_transversal || false;
-      setIsTransversal(isTransversalStd);
-      
-      // Si es transversal, obtener todos los procesos con el mismo frame_id
-      if (isTransversalStd && frame_id) {
-        api.post("/api/processes-by-frame", { frame_id })
-          .then(res => {
-            // Filtrar para no incluir el proceso actual
-            const otherProcesses = res.data.filter(p => p.process_id != storedProcessId);
-            setProcesses(otherProcesses);
-          });
-      } else {
-        setProcesses([]);
-      }
-    }
-  }, [selectedStandard]);
-
   const validateUser = async (rpe) => {
     setIsValidating(true);
     setValidationError("");
@@ -97,73 +74,35 @@ const AssignTask = ({ onClose }) => {
       return;
     }
 
+    if (!storedProcessId) {
+      setValidationError("No se encontró el ID del proceso");
+      return;
+    }
+
     // Validar el RPE primero
     const isValid = await validateUser(userRpe);
     if (!isValid) return;
 
     try {
-      let evidenceIds = [];
-      
-      // Siempre crear evidencia para el proceso actual
-      if (!storedProcessId) {
-        setValidationError("No se encontró el ID del proceso");
-        return;
-      }
-      
-      const currentEvidence = await api.post("/api/evidence", {
+      // Primero creamos la evidencia
+      const evidenceResponse = await api.post("/api/evidence", {
         standard_id: selectedStandard,
         user_rpe: userRpe,
         process_id: storedProcessId,
         due_date: dueDate
       });
-      evidenceIds.push(currentEvidence.data.evidence.evidence_id);
 
-      // Si es transversal, crear evidencias para los demás procesos
-      if (isTransversal && processes.length > 0) {
-        for (const process of processes) {
-          const evidenceResponse = await api.post("/api/evidence", {
-            standard_id: selectedStandard,
-            user_rpe: userRpe,
-            process_id: process.process_id,
-            due_date: dueDate
-          });
-          evidenceIds.push(evidenceResponse.data.evidence.evidence_id);
-        }
-      }
+      // Luego asignamos el revisor usando el evidence_id recién creado
+      const reviserResponse = await api.post("/api/reviser", {
+        user_rpe: userRpe,
+        evidence_id: evidenceResponse.data.evidence.evidence_id,
+      });
 
-      // Asignar revisor para cada evidencia creada
-      for (const evidenceId of evidenceIds) {
-        await api.post("/api/reviser", {
-          user_rpe: userRpe,
-          evidence_id: evidenceId,
-        });
-      }
-
-      alert(`Se crearon ${evidenceIds.length} evidencia(s) correctamente`);
+      alert(reviserResponse.data.message);
       onClose();
     } catch (err) {
       alert("Error al asignar: " + (err.response?.data?.message || err.message));
     }
-  };
-
-  // Mostrar información sobre la asignación transversal
-  const renderTransversalInfo = () => {
-    if (!isTransversal) return null;
-    
-    return (
-      <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
-        <p className="font-medium text-blue-800">Este estándar es transversal</p>
-        {processes.length > 0 ? (
-          <p className="text-sm text-blue-600">
-            Se creará una evidencia para este proceso y para {processes.length} proceso(s) adicional(es) con el mismo marco de referencia.
-          </p>
-        ) : (
-          <p className="text-sm text-blue-600">
-            Se creará una evidencia solo para este proceso (no se encontraron otros procesos con el mismo marco de referencia).
-          </p>
-        )}
-      </div>
-    );
   };
 
   return (
@@ -210,8 +149,6 @@ const AssignTask = ({ onClose }) => {
             onChange={(e) => setDueDate(e.target.value)}
           />
         </div>
-
-        {renderTransversalInfo()}
   
         <div className="mb-4">
           <label className="block mb-1 font-medium">Usuario (RPE):</label>
