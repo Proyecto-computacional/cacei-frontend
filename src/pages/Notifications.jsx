@@ -227,11 +227,10 @@ const Notification = () => {
                   starred={notif.starred}
                   deleted={notif.seen}
                   notification_date={notif.notification_date}
-                  evidence={notif.evidence_id} // Para encontrar info de la evidencia
-                  reviser={notif.reviser_id} // Para encontrar info del revisor
-                  onDeletedClick={() => handleDelete(notif.notification_id)}
-                  onStarClick={() => handleStarred(notif.notification_id)}
-                  onPinClick={() => handlePin(notif.notification_id)}
+                  
+                  evidence={notif.evidence ?? 'No especificado'}
+
+                  reviser={notif.reviser ?? 'Sin nombre'}
                 />
               ))
             ) : ( // Si es que no hay ninguna notificacion

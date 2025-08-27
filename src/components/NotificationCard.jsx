@@ -35,10 +35,23 @@ const NotificationCard = ({ title, description, pinned, starred, deleted, onDele
           </div>
 
           {/* Información de la notificación */}
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">{title}</h2>
-          <h1 className="text-gray-600 text-sm mb-2">{reviser}</h1>
-          <h1 className="text-gray-600 text-sm mb-2">{evidence}</h1>
-          <p className="text-gray-600 text-sm mb-2">{description}</p>
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">
+            {title || "Sin título"}
+          </h2>
+
+          <h3 className="text-gray-800 text-sm mb-2">
+            Criterio: {evidence?.standard?.standard_name || "No especificado"}
+          </h3>
+
+          <h3 className="text-gray-800 text-sm mb-2">
+            Revisor: {reviser?.user_name || "Sin nombre"}, {reviser?.user_rpe || "N/A"}, {reviser?.user_mail || "N/A"}
+          </h3>
+
+          <p className="text-gray-600 text-sm mb-2">
+            {description || "Sin descripción"}
+          </p>
+
+          
           {notification_date && (
             <div className="flex items-center text-xs text-gray-500">
               <Clock className="h-3 w-3 mr-1" />
