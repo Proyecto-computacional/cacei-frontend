@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import './app.css';
 import headerLogo from './assets/headerLogo.png';
 import headerImg from './assets/headerImage.png';
@@ -9,11 +9,13 @@ import { Mail, Bell, User, Menu, Users, FileText, Eye } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import api from "./services/api";
 
+// TODO LO DEL HEADER
 export function AppHeader() {
     const [isScrolled, setIsScrolled] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const isLoginPage = location.pathname === '/';
+    
 
     useEffect(() => {
         const handleScroll = () => {
@@ -25,7 +27,9 @@ export function AppHeader() {
         };
 
         window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
     }, []);
 
     return (
@@ -70,6 +74,7 @@ export function AppHeader() {
     );
 }
 
+// TODO LO DEL FOOTER (no tiene JS)
 export function AppFooter() {
     return (
         <div className="mt-0">
@@ -118,6 +123,7 @@ export function AppFooter() {
     );
 }
 
+// TODO LO DEL SUBHEADER
 export function SubHeading() {
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
@@ -127,6 +133,7 @@ export function SubHeading() {
     const [userName, setUserName] = useState("");
     const pathnames = location.pathname.split("/").filter((x) => x);
     const { evidence_id } = useParams();
+    const containerRef = useRef(null);
 
     const breadcrumbMap = {
         mainmenu: "Inicio",
@@ -144,6 +151,7 @@ export function SubHeading() {
     const [processName, setProcessName] = useState("");
     const [evidenceName, setEvidenceName] = useState("");
 
+    // Obtiene la información del usuario
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
@@ -169,6 +177,7 @@ export function SubHeading() {
         fetchUserInfo();
     }, []);
 
+    // Obtiene el nombre del proceso
     useEffect(() => {
         const fetchProcessName = async () => {
             try {
@@ -187,6 +196,7 @@ export function SubHeading() {
         }
     }, [pathnames]);
 
+    // Obtiene el nombre de la evidencia
     useEffect(() => {
         const fetchEvidenceName = async () => {
             try {
@@ -203,6 +213,26 @@ export function SubHeading() {
             fetchEvidenceName();
         }
     }, [evidence_id]);
+
+    // Maneja la tabla de notificaciones desplegable
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setViewNotifications(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    // Alterna el panel al hacer click en la campana
+    const handleBellClick = (e) => {
+        e.stopPropagation(); // evitar que el click burbujee y cierre inmediatamente por el listener del doc
+        setViewNotifications((v) => !v);
+    };
 
     return (
         <div className="bg-white border-b border-gray-200">
@@ -330,14 +360,15 @@ export function SubHeading() {
                         <a href="https://outlook.office.com/mail/" target="_blank" rel="noopener noreferrer">
                             <Mail className="w-5 h-5 text-black cursor-pointer" />
                         </a>
-                        <div className="relative inline-block">
-                            <button onClick={() => navigate("/notifications")} onMouseEnter={() => setViewNotifications(true)}>
+                        {/* ¿Es esto para los botones del correo y notificaciones? */}
+                        <div className="relative inline-block" ref={containerRef}>
+                            <button onClick={handleBellClick}>
                                 <Bell className="w-5 h-5 text-black cursor-pointer" ></Bell>
                             </button>
+                            {/* Comportamiento de la mini-tabla de notificaciones */}
                             {viewNotifications && (
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-fit bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-                                    onMouseEnter={() => setViewNotifications(true)}
-                                    onMouseLeave={() => setViewNotifications(false)}>
+                                    onClick={(e) => e.stopPropagation()}>
                                     <NotificationsTable />
                                 </div>
                             )}
