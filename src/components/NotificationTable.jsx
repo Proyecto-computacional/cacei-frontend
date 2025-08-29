@@ -56,7 +56,11 @@ const NotificationsTable = () => {
         setNotifications((prev) => prev.filter((noti) => noti.id !== id));
     };
 
-    const unreadNotifications = notifications.filter(notif => !notif.seen);
+    // Filtra las notificaciones por las 3 más recientes no leidas
+    const displayedNotifications = [...notifications]
+    .filter(n => !n.seen)
+    .sort((a, b) => new Date(b.notification_date) - new Date(a.notification_date))
+    .slice(0, 3);
 
     return (
         <div className="w-96 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
@@ -67,8 +71,8 @@ const NotificationsTable = () => {
             </div>
 
             <div className="max-h-96 overflow-y-auto">
-                {unreadNotifications.length > 0 ? (
-                    unreadNotifications.map((noti) => (
+                {displayedNotifications.length > 0 ? (
+                    displayedNotifications.map((noti) => (
                         <div 
                             key={noti.id} 
                             className="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
