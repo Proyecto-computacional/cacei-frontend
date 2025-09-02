@@ -3,6 +3,7 @@ import { AppHeader, AppFooter, SubHeading } from "../common";
 import EvidenceTable from "../components/ReviewEvidence/EvidenceTable";
 import '../app.css'
 
+// Este archivo solo tiene el titulo (con Header y Footer) y llama a "EvidenceTable"
 const ReviewEvidence = () => {
   return (
     <>

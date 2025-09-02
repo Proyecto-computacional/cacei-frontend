@@ -9,6 +9,8 @@ import LoadingSpinner from "./LoadingSpinner";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UsersTable() {
+    
+    // Lista de roles a exponer en la tabla
     const [roles] = useState([
         { name: 'Administrador', description: 'Administración y visualización de todos los procesos de todos los procesos de acreditación' },
         { name: 'Directivo', description: 'visualización de todos los procesos de todos los procesos de acreditación' },
@@ -20,12 +22,14 @@ export default function UsersTable() {
         { name: 'Personal de apoyo', description: 'Subir y visualizar las evidencias que se les asigne' },
     ]);
 
+    // Obtiene toda la info
     const [allUsers, setAllUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [nextPage, setNextPage] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     
+    // Si es admin (y token valido), le deja acceder
     const fetchUsers = async () => {
         try {
             setLoading(true);
@@ -63,6 +67,7 @@ export default function UsersTable() {
         fetchUsers();
     }, []);
 
+    // Busca con filtros a usuarios
     const handleSearch = (value) => {
         setSearchTerm(value);
         
@@ -81,6 +86,7 @@ export default function UsersTable() {
         setFilteredUsers(filtered);
     };
 
+    // Esto no se usa actualmente
     const loadMore = () => {
         if (!nextPage) return;
         setLoading(true);
@@ -96,6 +102,7 @@ export default function UsersTable() {
 
     return (
         <div className="container mx-auto p-5">
+            {/* Cuadro de búsqueda */}
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                     <div className="bg-[#004A98] p-2 rounded-lg">
@@ -117,6 +124,7 @@ export default function UsersTable() {
                 </div>
             </div>
 
+            {/* Lista/Tabla de usuarios (con detalles) */}
             <div className="overflow-x-auto overflow-y-scroll max-h-[600px] rounded-lg shadow-sm border border-gray-200">
                 <table className="min-w-full bg-white">
                     <thead className="sticky top-0 z-0">
@@ -168,6 +176,7 @@ export default function UsersTable() {
                 </table>
             </div>
 
+            {/* Lista/Tabla de roles */}
             <div className="mt-8">
                 <div className="flex items-center gap-3 mb-4">
                     <div className="bg-[#004A98] p-2 rounded-lg">

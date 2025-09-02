@@ -10,7 +10,7 @@ import LoadingSpinner from "../LoadingSpinner";
 
 export default function EvidenceTable() {
 
-
+    // Para obtener ch1ngos de información
     const [evidences, setEvidences] = useState([]);
     const [filteredEvidences, setFilteredEvidences] = useState([]);
     const [openFeedback, setOpenFeedback] = useState(false);
@@ -26,6 +26,7 @@ export default function EvidenceTable() {
     const [loading, setLoading] = useState(true);
 
 
+    // Obtiene status del usuario
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -43,6 +44,7 @@ export default function EvidenceTable() {
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [currentComment, setCurrentComment] = useState("");
 
+    // Lista de filtros ¿supongo?
     const [filters, setFilters] = useState({
         process: '',
         category: '',
@@ -51,6 +53,7 @@ export default function EvidenceTable() {
         user: ''
     });
 
+    // Obtiene aun más información (no tengo idea de que diferencia tiene de los primeros const)
     const process = [...new Set(evidences.map(item => item.process_name))].filter(Boolean);
     const categories = [...new Set(evidences.map(item => item.category_name))].filter(Boolean);
     const sections = [...new Set(evidences.map(item => item.section_name))].filter(Boolean);
@@ -63,6 +66,7 @@ export default function EvidenceTable() {
         setOrder(newOrder);
     };
 
+    // Manda la retro a backend
     const sendFeedback = async (feedbackText) => {
         try {
             const url = statusFeedback ? 'api/RevisionEvidencias/aprobar' : 'api/RevisionEvidencias/desaprobar';
@@ -127,7 +131,7 @@ export default function EvidenceTable() {
     };
 
 
-
+    // Recolecta datos del feedback
     const handleFeedback = (id, userRpe, status, evidence) => {
         setOpenFeedback(true);
         setIdEvidenceFeedback(id);
@@ -135,6 +139,7 @@ export default function EvidenceTable() {
         setStatusFeedback(status);
     }
 
+    // No tengo certeza de lo que hace esto ¿Los archivos de evidencia?
     useEffect(() => {
         let url = `api/ReviewEvidence?`;
         api.get(url).then(({ data }) => {
@@ -150,6 +155,7 @@ export default function EvidenceTable() {
         });
     }, [refresh]);
 
+    // Aplica los filtros (creo)
     useEffect(() => {
         let result = evidences;
 
@@ -176,6 +182,7 @@ export default function EvidenceTable() {
         setFilteredEvidences(result);
     }, [filters, evidences]);
 
+    // Cambia los filtros
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters(prev => ({
@@ -184,6 +191,7 @@ export default function EvidenceTable() {
         }));
     };
 
+    // Resetea los filtros (parece redundante, pero creo que ayuda a leer más facil el código, y entiendo lo que hace - JP)
     const resetFilters = () => {
         setFilters({
             process: '',
@@ -194,16 +202,10 @@ export default function EvidenceTable() {
         });
     };
 
-
-
-
-
-
-
+    // Revisa si el usuario puede cambiar el estado de revisión
     const canReview = (statuses) => {
         if (!user) return false;
 
-        // Get the most recent status for each role
         const getMostRecentStatus = (role) => {
             return statuses
                 .filter(s => s.user_role?.toUpperCase() === role)
@@ -250,20 +252,25 @@ export default function EvidenceTable() {
 
     };
 
+    // Supongo que revisa si tiene texto la justificación, y evitar que un NULL truene 1 año de trabajo
     const handleJustificationClick = (justification) => {
         setSelectedFile({
             text: justification || "Sin justificación"
         });
         setShowJustificationModal(true);
-    }
+    };
+    // Cierra el modal, ¿no es un poco exagerado una función para solo hacer 1 linea de código
     const handleJustificationClose = () => {
         setShowJustificationModal(false);
     };
 
+    // HTML --------------------------------------------------------------------------------------------
     return (
         <>
             <div className="container mx-auto p-8 bg-gray-50 min-h-screen relative">
-                {loading}
+                {loading}  {/* Pantalla de carga poco elegante ¿la tienen todas las páginas? */}
+
+                {/* Cuadro de filtros */}
                 <div className="mb-8 p-6 bg-white rounded-xl shadow-md border border-gray-100">
                     <div className="flex items-center mb-6">
                         <Filter className="mr-3 text-primary1" size={24} />
@@ -358,9 +365,10 @@ export default function EvidenceTable() {
                     </div>
                 </div>
 
-                {!user ? (
+                {/* Tabla de evidencias */}
+                {!user ? ( 
                     <div className="text-center py-12 bg-white rounded-xl shadow-md">
-                        <LoadingSpinner />
+                        <LoadingSpinner /> {/* ¿Qué hace aquí? ¿Muestra un spinner de carga mietras obtiene los datos? */}
                     </div>
                 ) : (
                     <div className="bg-white rounded-xl shadow-md overflow-hidden">

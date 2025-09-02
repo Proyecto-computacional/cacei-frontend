@@ -3,6 +3,8 @@ import { AppHeader, AppFooter, SubHeading } from "../common";
 import UsersTable from "../components/UsersTable";
 import '../app.css'
 
+
+// Este archivo solo tiene el titulo (con Header y Footer) y llama a "UsersTable"
 const UsersAdmin = () => {
   return (
     <>
