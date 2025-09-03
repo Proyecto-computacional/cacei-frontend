@@ -262,8 +262,15 @@ export default function EvidenceTable() {
 
     return (
         <>
+<<<<<<< Updated upstream
             <div className="container mx-auto p-8 bg-gray-50 min-h-screen relative">
                 {loading}
+=======
+            <div className="container mx-auto p-5 ">
+                {loading}  {/* Pantalla de carga poco elegante ¿la tienen todas las páginas? */}
+
+                {/* Cuadro de filtros */}
+>>>>>>> Stashed changes
                 <div className="mb-8 p-6 bg-white rounded-xl shadow-md border border-gray-100">
                     <div className="flex items-center mb-6">
                         <Filter className="mr-3 text-primary1" size={24} />

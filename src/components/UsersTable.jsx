@@ -11,7 +11,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export default function UsersTable() {
     const [roles] = useState([
         { name: 'Administrador', description: 'Administración y visualización de todos los procesos de todos los procesos de acreditación' },
-        { name: 'Directivo', description: 'visualización de todos los procesos de todos los procesos de acreditación' },
+        { name: 'Directivo', description: 'Visualización de todos los procesos de todos los procesos de acreditación' },
         { name: 'Jefe de área', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su area' },
         { name: 'Coordinador de carrera', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su carrera' },
         { name: 'Profesor', description: 'Subir y visualizar las evidencias que se le asignen' },
@@ -94,6 +94,7 @@ export default function UsersTable() {
         });
     };
 
+    // HTML --------------------------------------------------------------------------------------------
     return (
         <div className="container mx-auto p-5">
             <div className="flex items-center justify-between mb-8">
@@ -120,7 +121,7 @@ export default function UsersTable() {
             <div className="overflow-x-auto overflow-y-scroll max-h-[600px] rounded-lg shadow-sm border border-gray-200">
                 <table className="min-w-full bg-white">
                     <thead className="sticky top-0 z-0">
-                        <tr className="bg-[#004A98] text-white">
+                        <tr className="bg-primary1 text-white">
                             <th className="py-4 px-6 text-left font-semibold">RPE</th>
                             <th className="py-4 px-6 text-left font-semibold">Nombre</th>
                             <th className="py-4 px-6 text-left font-semibold">Correo</th>
