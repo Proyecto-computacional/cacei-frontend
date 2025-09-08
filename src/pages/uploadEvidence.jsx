@@ -274,7 +274,6 @@ const UploadEvidence = () => {
               }))
             }
           });
-        }
           // Mostrar mensaje de error más específico
           const errorMessage = error.response?.data?.message || 
                              error.response?.data?.errors?.files?.[0] || 
@@ -282,6 +281,7 @@ const UploadEvidence = () => {
                              error.message;
           alert(`Error al subir archivo: ${errorMessage}`);
           throw error;
+        }
         }
       }
 
