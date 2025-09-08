@@ -24,6 +24,7 @@ const UploadEvidence = () => {
   const [showCriteriaGuide, setShowCriteriaGuide] = useState(false);
   const Finished = localStorage.getItem('finished');
   const [isFinished, setIsFinished] = useState(false);
+  const [relatedEvidences, setRelatedEvidences] = useState([]);
 
   const navigate = useNavigate();
 
@@ -116,6 +117,20 @@ const UploadEvidence = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+  if (evidence?.standard?.is_transversal) {
+    const fetchRelatedEvidences = async () => {
+      try {
+        const response = await api.get(`/api/evidences/by-standard/${evidence.standard.standard_id}`);
+        setRelatedEvidences(response.data.filter(e => e.evidence_id !== evidence.evidence_id));
+      } catch (error) {
+        console.error("Error fetching related evidences:", error);
+      }
+    };
+    fetchRelatedEvidences();
+  }
+}, [evidence]);
+
   const handleFileChange = (event) => {
     const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf', 'doc', 'docx', 'csv'];
     const maxFileSize = 50 * 1024 * 1024;
@@ -164,10 +179,24 @@ const UploadEvidence = () => {
     }
 
     try {
-      console.log('UploadEvidence - Intentando actualizar justificación:', {
-        evidenceId: evidence.evidence_id,
-        justification: justification
-      });
+      // Actualizar justificación en todas las evidencias relacionadas si es transversal
+      if(evidence.standard.is_transversal && relatedEvidences.length>0){
+        const allEvidences = [evidence, ...relatedEvidences];
+
+        // Actualizar justificaciones en paralelo
+        await Promise.all(
+          allEvidences.map(ev =>
+            api.put(`/api/evidences/${ev.evidence_id}`, {
+              justification: justification
+            }, {
+              headers: {
+                "Authorization": `Bearer ${localStorage.getItem('token')}`,
+                "Content-Type": "application/json",
+              },
+            })
+          )
+        );
+      } else {
 
       // Primero actualizar la justificación de la evidencia
       const response = await api.put(`/api/evidences/${evidence.evidence_id}`, {
@@ -178,10 +207,31 @@ const UploadEvidence = () => {
           "Content-Type": "application/json",
         },
       });
+    }
 
-      console.log('UploadEvidence - Respuesta de actualización de justificación:', response.data);
+      
 
       if (files.length > 0) {
+        // Subir archivos a la evidencia principal y a las relacionadas si es transversal
+      if (evidence.standard.is_transversal && relatedEvidences.length > 0) {
+        // Subir a todas las evidencias (incluyendo la principal)
+        const allEvidences = [evidence, ...relatedEvidences];
+        
+        for (const targetEvidence of allEvidences) {
+          const formData = new FormData();
+          formData.append("evidence_id", targetEvidence.evidence_id);
+          
+          Array.from(files).forEach((file, index) => {
+            formData.append(`files[${index}]`, file);
+          });
+
+          await api.post("/api/file", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+        }
+      } else {
         const formData = new FormData();
         
         // Agregar evidence_id
@@ -193,25 +243,6 @@ const UploadEvidence = () => {
           formData.append(`files[${index}]`, file);
         });
 
-        // Log detallado del FormData
-        console.log('UploadEvidence - FormData completo:', {
-          evidenceId: evidence.evidence_id,
-          files: Array.from(files).map(file => ({
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            lastModified: file.lastModified
-          })),
-          formDataEntries: Array.from(formData.entries()).map(([key, value]) => ({
-            key,
-            value: value instanceof File ? {
-              name: value.name,
-              type: value.type,
-              size: value.size,
-              lastModified: value.lastModified
-            } : value
-          }))
-        });
 
         try {
           const response = await api.post("/api/file", formData, {
@@ -224,10 +255,8 @@ const UploadEvidence = () => {
             maxBodyLength: Infinity,
             onUploadProgress: (progressEvent) => {
               const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-              console.log(`UploadProgress: ${percentCompleted}%`);
             }
           });
-          console.log('UploadEvidence - Respuesta de subida de archivos:', response.data);
         } catch (error) {
           // Log detallado del error
           console.error('UploadEvidence - Error detallado:', {
@@ -245,16 +274,6 @@ const UploadEvidence = () => {
               }))
             }
           });
-
-          // Mostrar el contenido completo del error en la consola
-          console.log('UploadEvidence - Contenido completo del error:', {
-            response: error.response,
-            request: error.request,
-            config: error.config,
-            data: error.response?.data,
-            errors: error.response?.data?.errors
-          });
-          
           // Mostrar mensaje de error más específico
           const errorMessage = error.response?.data?.message || 
                              error.response?.data?.errors?.files?.[0] || 
@@ -263,14 +282,8 @@ const UploadEvidence = () => {
           alert(`Error al subir archivo: ${errorMessage}`);
           throw error;
         }
+        }
       }
-
-      // Crear status para el primer revisor
-      console.log('UploadEvidence - Creando status para revisores:', {
-        firstRevisor,
-        evidenceId: evidence.evidence_id,
-        userRpe: evidence.user_rpe
-      });
 
       for (const revisor of firstRevisor) {
         await api.post(`/api/RevisionEvidencias/pendiente`, {
