@@ -9,13 +9,14 @@ import { Mail, Bell, User, Menu, Users, FileText, Eye } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import api from "./services/api";
 
+// TODO el header
 export function AppHeader() {
     const [isScrolled, setIsScrolled] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const isLoginPage = location.pathname === '/';
 
-    useEffect(() => {
+    useEffect(() => { // ¿Qué tanto ha "scrolleado" en la página?
         const handleScroll = () => {
             if (window.scrollY > 100) {
                 setIsScrolled(true);
@@ -33,6 +34,7 @@ export function AppHeader() {
             <div className={`header container-fluid ${isScrolled ? 'scrolled' : ''}`}>
                 <div className="container">
                     <div className="row header">
+                        {/* Para el login */}
                         <div className="col-12 col-md-auto d-flex justify-content-center justify-content-md-start align-items-center">
                             <a href="https://www.uaslp.mx">
                                 <img src={headerLogo} className={`img-fluid ${isScrolled ? 'd-none' : 'd-block'} logoUASLP`} alt="UASLP Logo" />
@@ -45,6 +47,7 @@ export function AppHeader() {
                             <div className={`divisorUASLP-ENTIDADScroll ${isScrolled ? 'd-block' : 'd-none'} me-2 ms-3`}></div>
                         </div>
 
+                        {/* Para cuando ya está logeado */}
                         {!isLoginPage && (
                             <div className="col-12 col-md-auto flex-grow-1 justify-content-center justify-content-md-end align-items-center pt-md-0 pt-2 d-none d-md-block d-lg-block d-xl-block">
                                 <div className="h-75 d-flex flex-column flex-sm-row bd-highlight justify-content-end align-items-sm-end pt-sm-0 pt-5 align-items-center">
@@ -70,6 +73,7 @@ export function AppHeader() {
     );
 }
 
+// TODO el footer
 export function AppFooter() {
     return (
         <div className="mt-0">
