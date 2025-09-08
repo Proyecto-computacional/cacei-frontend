@@ -191,6 +191,8 @@ export function SubHeading() {
         }
     }, [pathnames]);
 
+
+    // BUG: Es posible que el error en "uploadEvidence/id" sea por esto, busca el nombre de la evidencia, pero no hay tal atributo
     useEffect(() => {
         const fetchEvidenceName = async () => {
             try {
