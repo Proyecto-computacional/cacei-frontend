@@ -507,7 +507,9 @@ const UploadEvidence = () => {
                           month: 'long',
                           day: 'numeric',
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
+                          hour12: false,                 // <-- 24 horas
+                          timeZone: 'America/Mexico_City' // <-- Zona horaria de Ciudad de México
                         })}
                       </p>
                     </div>

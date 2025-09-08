@@ -108,7 +108,7 @@ const PersonalConfig = () => {
           </div>
 
           <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-8 mb-6">
-            Curriculum Vitae
+            Currículum Vitae
           </h1>
           <div className="bg-white p-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl">
             <CV cvData={cvData} />
