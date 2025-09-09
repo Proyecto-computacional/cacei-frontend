@@ -4,15 +4,18 @@ import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import { Plus, Edit2, Check, X, ArrowRight } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ModalAlert from "../components/ModalAlert";
+
 
 function CrearMarcoForm({ onCancel, onSaved }) {
     const [nombre, setNombre] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
     const navigate = useNavigate();
   
     const handleSave = async () => {
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para el marco");
+        setModalAlertMessage("Por favor ingrese un nombre para el marco");
         return;
       }
 
@@ -23,13 +26,14 @@ function CrearMarcoForm({ onCancel, onSaved }) {
         await onSaved();
         navigate(`/framesStructure/${frame.frame_id}`, {state: {marco: frame}});
       } catch (err) {
-        alert("Error al guardar: " + err.response?.data?.message);
+        setModalAlertMessage("Error al guardar: " + err.response?.data?.message);
       } finally {
         setIsLoading(false);
       }
     };
   
     return (
+      
       <div className="border p-6 mb-6 rounded-lg shadow-lg bg-white max-w-2xl mx-auto">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Crear Marco</h2>
         <input
@@ -60,6 +64,11 @@ function CrearMarcoForm({ onCancel, onSaved }) {
             Cancelar
           </button>
         </div>
+      <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
       </div>
     );
 }
@@ -68,10 +77,11 @@ function ModificarMarcoForm({ frame, onCancel, onSaved }) {
     const [nombre, setNombre] = useState(frame.frame_name);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
   
     const handleSave = async () => {
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para el marco");
+        setModalAlertMessage("Por favor ingrese un nombre para el marco");
         return;
       }
 
@@ -84,7 +94,7 @@ function ModificarMarcoForm({ frame, onCancel, onSaved }) {
         await onSaved();
         navigate(`/framesStructure/${frame.frame_id}`, {state: {marco: frame}});
       } catch (err) {
-        alert("Error al actualizar: " + err.response?.data?.message);
+        setModalAlertMessage("Error al actualizar: " + err.response?.data?.message);
       } finally {
         setIsLoading(false);
       }
@@ -120,6 +130,11 @@ function ModificarMarcoForm({ frame, onCancel, onSaved }) {
             Cancelar
           </button>
         </div>
+        <ModalAlert
+          isOpen={modalAlertMessage !== null}
+          message={modalAlertMessage}
+          onClose={() => setModalAlertMessage(null)}
+        />
       </div>
     );
 }
@@ -132,6 +147,7 @@ export default function FrameOfReferenceView() {
     const [isLoading, setIsLoading] = useState(true);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const navigate = useNavigate();
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
   
     useEffect(() => {
       fetchFrames();
@@ -145,7 +161,7 @@ export default function FrameOfReferenceView() {
         setSelectedFrame(null);
       } catch (error) {
         console.error("Error fetching frames:", error);
-        alert("Error al cargar los marcos de referencia");
+        setModalAlertMessage("Error al cargar los marcos de referencia");
       } finally {
         setIsLoading(false);
       }
@@ -266,6 +282,11 @@ export default function FrameOfReferenceView() {
           </div>
         </div>
         <AppFooter />
+        <ModalAlert
+          isOpen={modalAlertMessage !== null}
+          message={modalAlertMessage}
+          onClose={() => setModalAlertMessage(null)}
+        />
       </div>
     );
 }

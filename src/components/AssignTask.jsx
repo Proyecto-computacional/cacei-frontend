@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
+import ModalAlert from "../components/ModalAlert";
 
 const AssignTask = ({ onClose }) => {
   const [categories, setCategories] = useState([]);
@@ -18,6 +19,7 @@ const AssignTask = ({ onClose }) => {
   const [processes, setProcesses] = useState([]);
   const storedFrameId = localStorage.getItem('frameId');
   const storedProcessId = localStorage.getItem('currentProcessId');
+  const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   useEffect(() => {
     if (storedFrameId) {
@@ -138,11 +140,12 @@ const AssignTask = ({ onClose }) => {
           evidence_id: evidenceId,
         });
       }
-
-      alert(`Se crearon ${evidenceIds.length} evidencia(s) correctamente`);
-      onClose();
+      
+     setModalAlertMessage(`Se crearon ${evidenceIds.length} evidencia(s) correctamente`);
+     
     } catch (err) {
-      alert("Error al asignar: " + (err.response?.data?.message || err.message));
+      setModalAlertMessage("Error al asignar: " + (err.response?.data?.message || err.message));
+      
     }
   };
 
@@ -166,7 +169,28 @@ const AssignTask = ({ onClose }) => {
     );
   };
 
+  // Mostrar información sobre la asignación transversal
+  const renderTransversalInfo = () => {
+    if (!isTransversal) return null;
+    
+    return (
+      <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+        <p className="font-medium text-blue-800">Este estándar es transversal</p>
+        {processes.length > 0 ? (
+          <p className="text-sm text-blue-600">
+            Se creará una evidencia para este proceso y para {processes.length} proceso(s) adicional(es) con el mismo marco de referencia.
+          </p>
+        ) : (
+          <p className="text-sm text-blue-600">
+            Se creará una evidencia solo para este proceso (no se encontraron otros procesos con el mismo marco de referencia).
+          </p>
+        )}
+      </div>
+    );
+  };
+
   return (
+    <>
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[99999]">
       <div className="w-96 bg-white p-6 rounded-2xl shadow-lg relative z-[99999]">
         <h2 className="text-xl font-bold text-center mb-4">Asignar tarea</h2>
@@ -241,9 +265,18 @@ const AssignTask = ({ onClose }) => {
           >
             Cancelar
           </button>
+           <ModalAlert
+           isOpen={modalAlertMessage !== null}
+          message={modalAlertMessage}
+           onClose={() => {setModalAlertMessage(null); onClose();}}
+       
+         
+        />
         </div>
       </div>
     </div>
+     
+      </>
   );
 };
 

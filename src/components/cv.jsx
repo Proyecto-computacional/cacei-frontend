@@ -1,89 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
+import ModalAlert from "../components/ModalAlert";
 
-const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ...props }) => {
-    const textareaRef = useRef(null);
-    const placeholderRef = useRef(null);
-
-    const calculatePlaceholderHeight = () => {
-        if (!placeholderRef.current || !textareaRef.current) return 'auto';
-
-        const hiddenDiv = document.createElement('div');
-        hiddenDiv.style.position = 'absolute';
-        hiddenDiv.style.visibility = 'hidden';
-        hiddenDiv.style.whiteSpace = 'pre-wrap';
-        hiddenDiv.style.width = `${textareaRef.current.offsetWidth}px`;
-        hiddenDiv.style.padding = '0.5rem 0.75rem';
-        hiddenDiv.style.lineHeight = '1.5rem';
-        hiddenDiv.style.fontFamily = 'inherit';
-        hiddenDiv.style.fontSize = 'inherit';
-        hiddenDiv.textContent = placeholder;
-
-        document.body.appendChild(hiddenDiv);
-        const height = hiddenDiv.offsetHeight;
-        document.body.removeChild(hiddenDiv);
-
-        return `${Math.max(height, 24)}px`;
-    };
-
-    useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-
-            if (!value && placeholder) {
-                textareaRef.current.style.height = calculatePlaceholderHeight();
-            } else {
-                textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-            }
-        }
-    }, [value, placeholder, isEditing]);
-
-    return (
-        <div className="relative">
-            <textarea
-                ref={textareaRef}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                disabled={disabled}
-                className={`
-          w-full px-3 py-2 border rounded-lg
-          ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50'
-                        : 'border-gray-200 bg-gray-50'}
-          resize-none overflow-hidden
-          whitespace-pre-wrap
-        `}
-                style={{
-                    minHeight: '1.0rem',
-                    lineHeight: '1.0rem',
-                }}
-                {...props}
-            />
-            <div
-                ref={placeholderRef}
-                className="invisible absolute pointer-events-none whitespace-pre-wrap"
-                style={{
-                    width: '100%',
-                    padding: '0.5rem 0.75rem',
-                    lineHeight: '1.5rem'
-                }}
-            >
-                {placeholder}
-            </div>
-        </div>
-    );
-};
 
 const CV = () => {
     const [data, setData] = useState({});
     const [activeSection, setActiveSection] = useState(1);
     const [isEditing, setIsEditing] = useState(false);
     const [cvId, setCvId] = useState(null);
-    const [canEdit, setCanEdit] = useState(false);
-    const { rpe } = useParams()
-    const [loading, setLoading] = useState(true);
+    const rpe = localStorage.getItem("rpe");
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
+     
     const mapLetterToDegree = (letter) => {
         const degrees = {
             'L': 'Licenciatura',
@@ -171,8 +100,7 @@ const CV = () => {
                 10: 'awards',
                 11: 'contributions-to-pe'
             };
-
-
+    
             const response = await api.get(`/api/additionalInfo/${cvId}/${sectionEndpoints[sectionId]}`);
             return response.data;
         };
@@ -182,6 +110,7 @@ const CV = () => {
                 setIsEditing(false);
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
+
                 if (cvResponse.data.cv_id) {
                     const sectionData = await fetchSectionData(cvResponse.data.cv_id, activeSection);
 
@@ -221,10 +150,10 @@ const CV = () => {
         if (!cvId || !data[sectionId]) return;
 
         try {
+            // Mapeo de secciones a sus endpoints y transformación de datos
             const sectionConfigs = {
                 1: {
-                    endpoint: 'educations',
-                    transform: (row) => ({
+                    endpoint: 'educations', transform: (row) => ({
                         institution: row.values.institución,
                         degree_obtained: String(row.values.grado).charAt(0).toUpperCase(),
                         obtained_year: parseInt(row.values.año),
@@ -233,8 +162,7 @@ const CV = () => {
                     })
                 },
                 2: {
-                    endpoint: 'teacher-trainings',
-                    transform: (row) => ({
+                    endpoint: 'teacher-trainings', transform: (row) => ({
                         title_certification: row.values.tipodecapacitacion,
                         institution_country: row.values.institucion,
                         obtained_year: parseInt(row.values.añoobtencion),
@@ -242,8 +170,7 @@ const CV = () => {
                     })
                 },
                 3: {
-                    endpoint: 'disciplinary-updates',
-                    transform: (row) => ({
+                    endpoint: 'disciplinary-updates', transform: (row) => ({
                         title_certification: row.values.tipodeactualizacion,
                         institution_country: row.values.institucion,
                         year_certification: parseInt(row.values.añoobtencion),
@@ -251,8 +178,7 @@ const CV = () => {
                     })
                 },
                 4: {
-                    endpoint: 'academic-managements',
-                    transform: (row) => ({
+                    endpoint: 'academic-managements', transform: (row) => ({
                         job_position: row.values.puesto,
                         institution: row.values.institucion,
                         start_date: row.values.fechaInicio,
@@ -260,14 +186,12 @@ const CV = () => {
                     })
                 },
                 5: {
-                    endpoint: 'academic-products',
-                    transform: (row) => ({
+                    endpoint: 'academic-products', transform: (row) => ({
                         description: row.values.descripcion
                     })
                 },
                 6: {
-                    endpoint: 'laboral-experiences',
-                    transform: (row) => ({
+                    endpoint: 'laboral-experiences', transform: (row) => ({
                         company_name: row.values.empresa,
                         position: row.values.cargo,
                         start_date: row.values.fechaInicio,
@@ -275,36 +199,31 @@ const CV = () => {
                     })
                 },
                 7: {
-                    endpoint: 'engineering-designs',
-                    transform: (row) => ({
+                    endpoint: 'engineering-designs', transform: (row) => ({
                         institution: row.values.organismo,
                         period: row.values.periodo,
                         level_experience: row.values.nivel
                     })
                 },
                 8: {
-                    endpoint: 'professional-achievements',
-                    transform: (row) => ({
+                    endpoint: 'professional-achievements', transform: (row) => ({
                         description: row.values.descripcion
                     })
                 },
                 9: {
-                    endpoint: 'participations',
-                    transform: (row) => ({
+                    endpoint: 'participations', transform: (row) => ({
                         institution: row.values.organismo,
                         period: row.values.periodo,
                         level_participation: row.values.nivel
                     })
                 },
                 10: {
-                    endpoint: 'awards',
-                    transform: (row) => ({
+                    endpoint: 'awards', transform: (row) => ({
                         description: row.values.descripcion
                     })
                 },
                 11: {
-                    endpoint: 'contributions-to-pe',
-                    transform: (row) => ({
+                    endpoint: 'contributions-to-pe', transform: (row) => ({
                         description: row.values.descripcion
                     })
                 }
@@ -313,29 +232,31 @@ const CV = () => {
             const config = sectionConfigs[sectionId];
             if (!config) return;
 
+            // Filter out empty rows and validate payloads
             const validRows = data[sectionId].filter(row => {
                 const payload = config.transform(row);
                 const hasValues = Object.values(payload).some(value => value !== undefined && value !== null && value !== '');
                 return hasValues;
             });
 
-            if (validRows.length === 0) {
-                alert('No hay datos válidos para guardar');
-                return;
-            }
-
-            await Promise.all(validRows.map(async (row) => {
-                const payload = config.transform(row);
-                await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
-            }));
-
-            alert('¡Datos guardados correctamente!');
+          if (validRows.length === 0) {
+            alert('No hay datos válidos para guardar');
+            return;
+          }
+      
+          // Enviar datos para la sección actual
+          await Promise.all(validRows.map(async (row) => {
+            const payload = config.transform(row);
+            await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
+          }));
+      
+          alert('¡Datos guardados correctamente!');
         } catch (error) {
             console.error('Error:', error.response?.data);
             if (error.response?.status === 422) {
-                alert('Por favor ingrese los datos necesarios en las celdas');
+                setModalAlertMessage('Por favor ingrese los datos necesarios en las celdas');
             } else {
-                alert(`Error al guardar: ${error.response?.data.message || error.message}`);
+                setModalAlertMessage(`Error al guardar: ${error.response?.data.message || error.message}`);
             }
         }
     };
@@ -345,19 +266,28 @@ const CV = () => {
             const response = await api.get(`/api/cv/word/${rpe}`, {
                 responseType: 'blob'
             });
-
+            
+            // Create a blob from the response data
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+
+            // Create a URL for the blob
             const url = window.URL.createObjectURL(blob);
+            
+            // Create a temporary link element
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `CV_${rpe}.docx`);
+
+            // Append to body, click and remove
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            // Clean up the URL
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Error downloading CV:', error);
-            alert('Error al descargar el CV. Por favor intente nuevamente.');
+            setModalAlertMessage('Error al descargar el CV. Por favor intente nuevamente.');
         }
     };
 
@@ -410,7 +340,6 @@ const CV = () => {
         {
             id: 5,
             sectionName: "Productos académicos relevantes",
-            description: "Ingrese en cada celda la descripción de los productos académicos realizados, iniciando de la fecha más reciente a la más antigua. Puede incluirse más celdas de ser necesario.",
             campos: [
                 { name: "descripcion", type: "text", label: "Descripción", placeholder: "Descripción del producto en cuestión" },
             ],
@@ -523,6 +452,11 @@ const CV = () => {
 
     return (
         <div className="flex flex-col">
+            <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
             <div className="flex flex-1">
                 <aside className="w-1/4 bg-gray-100 p-4 rounded-lg">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">Secciones</h2>
@@ -531,8 +465,8 @@ const CV = () => {
                             <li
                                 key={section.id}
                                 className={`p-2 rounded-lg cursor-pointer transition-colors duration-200 ${activeSection === section.id
-                                    ? "bg-primary1 text-white"
-                                    : "hover:bg-gray-200"
+                                        ? "bg-primary1 text-white"
+                                        : "hover:bg-gray-200"
                                     }`}
                                 onClick={() => setActiveSection(section.id)}
                             >
