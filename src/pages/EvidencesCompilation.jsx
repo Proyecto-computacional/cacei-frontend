@@ -98,31 +98,33 @@ const EvidencesCompilation = () => {
         );
         const sectionsRes = await Promise.all(sectionsPromises);
 
-        // Fetch standards for each section
-        const standardsPromises = sectionsRes.flatMap(res => {
-          if (!res || !res.data) {
-            console.warn('Invalid section response:', res);
-            return [];
-          }
-          return res.data.map(sec =>
-            api.post('/api/standards', { section_id: sec.section_id })
-          );
-        });
-        const standardsRes = await Promise.all(standardsPromises);
-
-        // Build the structure
-        const structure = categories.map((cat, i) => {
+        // Build the structure - modificado para considerar is_standard
+        const structure = await Promise.all(categories.map(async (cat, i) => {
           const sectionData = sectionsRes[i]?.data || [];
-          const standardData = standardsRes[i]?.data || [];
+          
+          // Para cada sección, verificamos si necesita estándares
+          const sectionsWithCriteria = await Promise.all(sectionData.map(async (sec) => {
+            if (sec.is_standard) {
+              // Si es estándar, no buscamos criterios
+              return {
+                name: sec.section_name,
+                criteria: [] // No hay criterios para secciones estándar
+              };
+            } else {
+              // Si no es estándar, buscamos los criterios
+              const standardsRes = await api.post('/api/standards', { section_id: sec.section_id });
+              return {
+                name: sec.section_name,
+                criteria: standardsRes.data?.map(std => std.standard_name) || []
+              };
+            }
+          }));
 
           return {
             section: cat.category_name,
-            categories: sectionData.map((sec, j) => ({
-              name: sec.section_name,
-              criteria: standardData.map(std => std.standard_name)
-            }))
+            categories: sectionsWithCriteria
           };
-        });
+        }));
 
         setEvidencesStructure(structure);
         setLoading(false);

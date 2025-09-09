@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
+import { useParams } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ...props }) => {
     const textareaRef = useRef(null);
@@ -80,7 +82,9 @@ const CV = () => {
     const [activeSection, setActiveSection] = useState(1);
     const [isEditing, setIsEditing] = useState(false);
     const [cvId, setCvId] = useState(null);
-    const rpe = localStorage.getItem("rpe");
+    const [canEdit, setCanEdit] = useState(false);
+    const { rpe } = useParams()
+    const [loading, setLoading] = useState(true);
 
     const mapLetterToDegree = (letter) => {
         const degrees = {
@@ -153,6 +157,8 @@ const CV = () => {
     };
 
     useEffect(() => {
+        setCanEdit(rpe === localStorage.getItem('rpe'));
+
         const fetchSectionData = async (cvId, sectionId) => {
             const sectionEndpoints = {
                 1: 'educations',
@@ -175,7 +181,7 @@ const CV = () => {
 
         const fetchInitialData = async () => {
             try {
-                setIsEditing(false);
+                setLoading(true);
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
                 if (cvResponse.data.cv_id) {
@@ -205,6 +211,8 @@ const CV = () => {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
+            }finally{
+                setLoading(false);
             }
         };
 
@@ -537,7 +545,12 @@ const CV = () => {
                 </aside>
 
                 <main className="w-3/4 p-6">
-                    {sections.map(
+                {loading ? (
+                    <div className="col-span-full flex justify-center py-12">
+                    <LoadingSpinner />
+                    </div>
+                ):
+                (sections.map(
                         (section) =>
                             activeSection === section.id && (
                                 <div key={section.id}>
@@ -701,7 +714,8 @@ const CV = () => {
                                     )}
                                 </div>
                             )
-                    )}
+                    ))
+                }
                 </main>
             </div>
 

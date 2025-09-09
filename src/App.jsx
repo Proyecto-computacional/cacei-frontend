@@ -26,7 +26,7 @@ function App() {
         <Route path="/ReviewEvidence" element={
           <ProtectedRoute allowedRoles={["ADMINISTRADOR",
             "COORDINADOR",
-            "JEFE DE AREA"]}>
+            "JEFE DE AREA", "DIRECTIVO"]}>
             <ReviewEvidence />
           </ProtectedRoute>
         } />
@@ -35,13 +35,13 @@ function App() {
             <PersonalConfig />
           </ProtectedRoute>
         } />
-        <Route path="/personalInfo" element={
+        <Route path="/personalInfo/:rpe" element={
           <ProtectedRoute>
             <PersonalConfig />
           </ProtectedRoute>
         } />
         <Route path="/EvidencesCompilation" element={
-          <ProtectedRoute allowedRoles={["ADMINISTRADOR"]}>
+          <ProtectedRoute allowedRoles={["ADMINISTRADOR", "DIRECTIVO"]}>
             <EvidencesCompilation />
           </ProtectedRoute>
         } />
@@ -73,7 +73,7 @@ function App() {
         <Route path="/evidenceManagement" element={
           <ProtectedRoute allowedRoles={["ADMINISTRADOR",
             "COORDINADOR",
-            "JEFE DE AREA"]}>
+            "JEFE DE AREA", "DIRECTIVO"]}>
             <EvidenceManagement />
           </ProtectedRoute>
         } />

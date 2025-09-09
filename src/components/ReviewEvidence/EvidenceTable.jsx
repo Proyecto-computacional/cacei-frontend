@@ -66,19 +66,63 @@ export default function EvidenceTable() {
     const sendFeedback = async (feedbackText) => {
         try {
             const url = statusFeedback ? 'api/RevisionEvidencias/aprobar' : 'api/RevisionEvidencias/desaprobar';
-
-            const respuesta = await api.post(url, {
-                evidence_id: parseInt(idEvidenceFeedback),
-                user_rpe: statusUserRPE,
-                feedback: feedbackText
-            });
-            if (respuesta.status === 200) {
-                alert(respuesta.data?.message || 'Feedback enviado con éxito');
-                setRefresh(prev => !prev)
+        
+            // 1. Obtener la evidencia actual
+            const currentEvidence = evidences.find(ev => ev.evidence_id == idEvidenceFeedback);
+            const isTransversal = currentEvidence?.is_transversal || false;
+        
+            // 2. Si es transversal, obtener todas las evidencias del mismo criterio
+            let evidencesToProcess = [currentEvidence];
+        
+            if (isTransversal) {
+                const transversalEvidences = evidences.filter(ev => 
+                    ev.standard_id === currentEvidence.standard_id && 
+                    ev.evidence_id !== currentEvidence.evidence_id
+                );
+                evidencesToProcess = [...evidencesToProcess, ...transversalEvidences];
             }
+
+            // 3. Procesar cada evidencia individualmente
+            const results = [];
+            for (const evidence of evidencesToProcess) {
+                try {
+                    const response = await api.post(url, {
+                        evidence_id: parseInt(evidence.evidence_id),
+                        user_rpe: statusUserRPE,
+                        feedback: feedbackText
+                    });
+                    results.push({
+                        success: true,
+                        evidenceId: evidence.evidence_id,
+                        message: response.data?.message
+                    });
+                } catch (error) {
+                    results.push({
+                        success: false,
+                        evidenceId: evidence.evidence_id,
+                        message: error.response?.data?.message || error.message
+                    });
+                }
+            }
+
+            // 4. Mostrar resumen al usuario
+            const successful = results.filter(r => r.success).length;
+            const failed = results.filter(r => !r.success).length;
+            
+            if (failed === 0) {
+                alert(isTransversal 
+                    ? `Se ${statusFeedback ? 'aprobaron' : 'rechazaron'} ${successful} evidencias correctamente` 
+                    : 'Operación realizada con éxito');
+            } else {
+                alert(`Se completaron ${successful} operaciones, pero fallaron ${failed}.`);
+            }
+            
+            setRefresh(prev => !prev);
         } catch (e) {
             console.error(e);
-            alert('Error en el servidor');
+            alert('Error en el servidor: ' + (e.response?.data?.message || e.message));
+        } finally {
+            setOpenFeedback(false);
         }
     };
 
@@ -218,8 +262,10 @@ export default function EvidenceTable() {
 
     return (
         <>
-            <div className="container mx-auto p-8 bg-gray-50 min-h-screen relative">
-                {loading}
+            <div className="container mx-auto p-5 ">
+                {loading}  {/* Pantalla de carga poco elegante ¿la tienen todas las páginas? */}
+
+                {/* Cuadro de filtros */}
                 <div className="mb-8 p-6 bg-white rounded-xl shadow-md border border-gray-100">
                     <div className="flex items-center mb-6">
                         <Filter className="mr-3 text-primary1" size={24} />
