@@ -6,12 +6,14 @@ import "../app.css"
 import api from "../services/api";
 import { Search, Users, Shield, FileUser } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
+import PermissionsTable from "./permissionsTable";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UsersTable() {
     const [roles] = useState([
         { name: 'Administrador', description: 'Administración y visualización de todos los procesos de todos los procesos de acreditación' },
-        { name: 'Directivo', description: 'visualización de todos los procesos de todos los procesos de acreditación' },
+        { name: 'Directivo', description: 'Visualización de todos los procesos de todos los procesos de acreditación' },
         { name: 'Jefe de área', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su area' },
         { name: 'Coordinador de carrera', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su carrera' },
         { name: 'Profesor', description: 'Subir y visualizar las evidencias que se le asignen' },
@@ -114,6 +116,7 @@ export default function UsersTable() {
             });
         };
 
+    // HTML --------------------------------------------------------------------------------------------
     return (
         <div className="container mx-auto p-5">
             <div className="flex justify-between items-end mb-8">
@@ -153,7 +156,7 @@ export default function UsersTable() {
             <div className="overflow-x-auto overflow-y-scroll max-h-[600px] rounded-lg shadow-sm border border-gray-200">
                 <table className="min-w-full bg-white">
                     <thead className="sticky top-0 z-0">
-                        <tr className="bg-[#004A98] text-white">
+                        <tr className="bg-primary1 text-white">
                             <th className="py-4 px-6 text-left font-semibold">RPE</th>
                             <th className="py-4 px-6 text-left font-semibold">Nombre</th>
                             <th className="py-4 px-6 text-left font-semibold">Correo</th>
@@ -203,34 +206,7 @@ export default function UsersTable() {
                 </table>
             </div>
 
-            <div className="mt-8">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="bg-[#004A98] p-2 rounded-lg">
-                        <Shield className="h-6 w-6 text-white" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-800">
-                        Lista de Roles
-                    </h2>
-                </div>
-                <div className="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
-                    <table className="min-w-full bg-white">
-                        <thead>
-                            <tr className="bg-[#004A98] text-white">
-                                <th className="py-4 px-6 text-left font-semibold">Rol</th>
-                                <th className="py-4 px-6 text-left font-semibold">Permisos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {roles.map((rol) => (
-                                <tr key={rol.name} className="border-b hover:bg-gray-50 transition-colors duration-200">
-                                    <td className="py-4 px-6 font-medium">{rol.name}</td>
-                                    <td className="py-4 px-6 text-gray-600">{rol.description}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <PermissionsTable/>
         </div>
     );
 }
