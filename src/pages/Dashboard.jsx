@@ -293,7 +293,7 @@ const Dashboard = () => {
       <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
         <div className="mb-8">
           <h1 className="text-[40px] font-bold text-[#004A98] font-['Open_Sans']">
-            Dashboard
+            Proceso de Acreditación
           </h1>
           <div className="mt-2 space-y-2">
             <h2 className="text-[28px] font-bold text-gray-700">
