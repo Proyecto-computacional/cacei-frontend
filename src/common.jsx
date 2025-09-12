@@ -146,7 +146,7 @@ export function SubHeading() {
         framesAdmin: "Gestión de Formato",
         evidenceManagement: "Asignación de tareas",
         notifications: "Notificaciones",
-        dash: "Dashboard",
+        dash: "Proceso de Acreditación",
         EvidencesCompilation: "Compilación de Evidencias"
     };
 
@@ -299,7 +299,7 @@ export function SubHeading() {
                                     </span>
                                     <span className="mx-2 text-gray-400 text-lg">/</span>
                                     <span className="text-[#00B2E3] text-lg font-medium">
-                                        Dashboard
+                                        Proceso de Acreditación
                                     </span>
                                     {processName && (
                                         <>
