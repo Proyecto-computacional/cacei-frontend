@@ -137,7 +137,7 @@ const MainMenu = () => {
                 className="bg-[#00b2e3] text-white px-4 py-2 rounded-lg hover:bg-[#003d7a] transition-colors duration-300 flex items-center gap-2 shadow-sm hover:shadow-md text-sm"
               >
                 <Plus className="h-4 w-4" />
-                Crear Nuevo Proceso
+                Crear Nuevo Proceso de Acreditación
               </button>
             )}
           </div>

@@ -107,7 +107,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
       <div className="bg-white rounded-xl p-6 w-full max-w-md relative z-[99999]">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Crear Nuevo Proceso</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Crear Nuevo Proceso de Acreditación</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors"
