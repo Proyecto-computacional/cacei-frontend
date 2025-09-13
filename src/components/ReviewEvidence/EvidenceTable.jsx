@@ -267,7 +267,7 @@ export default function EvidenceTable() {
     // HTML --------------------------------------------------------------------------------------------
     return (
         <>
-            <div className="container mx-auto p-8 bg-gray-50 min-h-screen relative">
+            <div className="container mx-auto p-5 ">
                 {loading}  {/* Pantalla de carga poco elegante ¿la tienen todas las páginas? */}
 
                 {/* Cuadro de filtros */}

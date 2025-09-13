@@ -338,7 +338,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     );
   }
 
-  function ModificarSeccionForm({ seccion, onCancel, onSaved }) {
+  function ModificarSeccionForm({ seccion, onCancel, onSaved, frame_id }) {
     const [nombre, setNombre] = useState(seccion.section_name);
     const [descripcion, setDescripcion] = useState(seccion.section_description);
     const [is_standard, setStandard] = useState(seccion.is_standard);
@@ -346,9 +346,22 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [help, setHelp] = useState(seccion.standard?.help || "");
     const [isLoading, setIsLoading] = useState(false);
     const [standardId, setStandardId] = useState(null);
+    const [hasUnfinishedProcesses, setHasUnfinishedProcesses] = useState(false);
     // Cargar datos del criterio si existe
     useEffect(() => {
-        const fetchStandard = async () => {
+        const fetchData = async () => {
+          // Verificar procesos de acreditación no finalizados
+            try {
+                const processesRes = await api.post("/api/processes-by-frame", { frame_id });
+                const unfinished = processesRes.data.some(process => !process.finished);
+                setHasUnfinishedProcesses(unfinished);
+            } catch (err) {
+                console.error("Error al verificar procesos:", err);
+                // Por defecto asumimos que hay procesos no finalizados para ser conservadores
+                setHasUnfinishedProcesses(true);
+            }
+            
+            // Cargar datos del estándar si existe
             if (seccion.is_standard) {
                 try {
                     const res = await api.post("/api/standards", { section_id: seccion.section_id});
@@ -380,8 +393,8 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
               setHelp("");
             }
         };
-        fetchStandard();
-    }, [seccion.section_id, seccion.is_standard]);
+        fetchData();
+    }, [seccion.section_id, seccion.is_standard, frame_id]);
     console.log(standardId);
   
     const handleSave = async () => {
@@ -467,10 +480,16 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
                   id="standard"
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   checked={is_standard}
-                  onChange={(e) => setStandard(e.target.checked)}
+                  onChange={(e) => !hasUnfinishedProcesses && setStandard(e.target.checked)}
+                  disabled={hasUnfinishedProcesses}
                 />
                 <label htmlFor="standard" className="ml-2 text-sm font-medium text-gray-700">
                   Es criterio
+                  {hasUnfinishedProcesses && (
+                    <span className="ml-2 text-xs text-gray-500">
+                        (No se puede modificar mientras haya procesos de acreditación activos)
+                    </span>
+                )}
                 </label>
               </div>
               {is_standard && (
@@ -1039,6 +1058,7 @@ export default function EstructuraMarco() {
                                 Modificar
                               </button>
                             </div>
+                            
                           </td>
                           <td colSpan="3" className="px-6 py-4 text-sm text-gray-500 italic">
                             No hay secciones en esta categoría
@@ -1068,6 +1088,7 @@ export default function EstructuraMarco() {
                                   </button>
                                 </div>
                               </td>
+                              
                             )}
                             <td className="px-6 py-4 text-sm text-gray-600 border-r">
                               <div className="flex items-center">
@@ -1112,6 +1133,11 @@ export default function EstructuraMarco() {
                             >
                               <div className="flex items-center">
                                 <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
+                                {sec.is_standard && (
+                                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Es criterio
+                                  </span>
+                                )}
                                 <button 
                                   className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
                                   onClick={() => handleOpenEditSeccion(sec.section_id)}
@@ -1166,8 +1192,9 @@ export default function EstructuraMarco() {
                     onCancel={handleCancel}
                     onSaved={() => {
                       handleCancel();
-              fetchCategorias();
-            }}
+                      fetchCategorias();
+                    }}
+                    frame_id={marco.frame_id}
           />
         )}
 

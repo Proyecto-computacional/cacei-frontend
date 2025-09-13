@@ -49,12 +49,12 @@ const UploadEvidence = () => {
           setUploadedFiles(response.data.evidence.files);
           setJustification(response.data.evidence.justification || "");
 
-          // Sort statuses by date and time
+          // Ordena por fecha y hora más reciente
           if (response.data.evidence.status && response.data.evidence.status.length > 0) {
             response.data.evidence.status.sort((a, b) => {
               const dateA = new Date(a.created_at);
               const dateB = new Date(b.created_at);
-              return dateB - dateA; // Sort in descending order (newest first)
+              return dateB - dateA;
             });
           }
 
@@ -64,18 +64,18 @@ const UploadEvidence = () => {
               (s) => s.user.user_role === "ADMINISTRADOR"
             );
 
-            // Lock the evidence if it has been approved or is pending
+            // Bloquea la evidencia si ha sido aprobada o está pendiente
             if (adminStatus) {
               if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "PENDIENTE") {
                 setIsLocked(true);
               } else if (adminStatus.status_description === "NO APROBADA") {
-                // Only allow editing if the user is the evidence owner
+                // Solo permite la edición si el usuario es el propietario de la evidencia
                 const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
                 setIsLocked(shouldLock);
               }
             } else {
               if (firstStatus.status_description === "NO APROBADA") {
-                // Only allow editing if the user is the evidence owner
+                // Solo permite la edición si el usuario es el propietario de la evidencia
                 const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
                 setIsLocked(shouldLock);
               } else if (
@@ -274,7 +274,6 @@ const UploadEvidence = () => {
               }))
             }
           });
-        }
           // Mostrar mensaje de error más específico
           const errorMessage = error.response?.data?.message || 
                              error.response?.data?.errors?.files?.[0] || 
@@ -282,6 +281,7 @@ const UploadEvidence = () => {
                              error.message;
           alert(`Error al subir archivo: ${errorMessage}`);
           throw error;
+        }
         }
       }
 
