@@ -252,7 +252,7 @@ const AssignTask = ({ onClose }) => {
       <ModalAlert
         isOpen={modalAlertMessage !== null}
         message={modalAlertMessage}
-        onClose={() => setModalAlertMessage(onClose())}
+        onClose={() => { setModalAlertMessage(null); onClose(); }}
       />
     </>
   );
