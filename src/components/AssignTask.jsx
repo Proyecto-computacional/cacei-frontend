@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
+import ModalAlert from "../components/ModalAlert";
 
 const AssignTask = ({ onClose }) => {
   const [categories, setCategories] = useState([]);
@@ -18,6 +19,7 @@ const AssignTask = ({ onClose }) => {
   const [processes, setProcesses] = useState([]);
   const storedFrameId = localStorage.getItem('frameId');
   const storedProcessId = localStorage.getItem('currentProcessId');
+  const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   useEffect(() => {
     if (storedFrameId) {
@@ -139,10 +141,10 @@ const AssignTask = ({ onClose }) => {
         });
       }
 
-      alert(`Se crearon ${evidenceIds.length} evidencia(s) correctamente`);
-      onClose();
+      setModalAlertMessage(`Se crearon ${evidenceIds.length} evidencia(s) correctamente`);
     } catch (err) {
-      alert("Error al asignar: " + (err.response?.data?.message || err.message));
+      setModalAlertMessage("Error al asignar: " + (err.response?.data?.message || err.message));
+      
     }
   };
 
@@ -167,6 +169,7 @@ const AssignTask = ({ onClose }) => {
   };
 
   return (
+    <>
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[99999]">
       <div className="w-96 bg-white p-6 rounded-2xl shadow-lg relative z-[99999]">
         <h2 className="text-xl font-bold text-center mb-4">Asignar tarea</h2>
@@ -241,10 +244,19 @@ const AssignTask = ({ onClose }) => {
           >
             Cancelar
           </button>
+           
         </div>
       </div>
     </div>
+      {/* Modal Alert */}
+      <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(onClose())}
+      />
+    </>
   );
 };
 
+     
 export default AssignTask;
