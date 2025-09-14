@@ -3,24 +3,26 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ModalAlert from "../components/ModalAlert";
 
 function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [nombre, setNombre] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-  
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
+
     const handleSave = async () => {
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para la categoría");
+        setModalAlertMessage("Por favor ingrese un nombre para la categoría");
         return;
       }
 
       setIsLoading(true);
       try {
         const res = await api.post("/api/category", { category_name: nombre, frame_id: frame_id });
-        alert("Categoría creada exitosamente");
+        setModalAlertMessage("Categoría creada exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al crear la categoría: " + (err.response?.data?.message || "Error desconocido"));
+        setModalAlertMessage("Error al crear la categoría: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -71,6 +73,11 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
             </button>
           </div>
         </div>
+        <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
       </div>
     );
   }
@@ -78,10 +85,11 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   function ModificarCategoriaForm({ category, onCancel, onSaved }) {
     const [nombre, setNombre] = useState(category.category_name);
     const [isLoading, setIsLoading] = useState(false);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
   
     const handleSave = async () => {
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para la categoría");
+        setModalAlertMessage("Por favor ingrese un nombre para la categoría");
         return;
       }
 
@@ -91,10 +99,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           category_id: category.category_id,
           category_name: nombre
         });
-        alert("Categoría actualizada exitosamente");
+        setModalAlertMessage("Categoría actualizada exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al actualizar la categoría: " + (err.response?.data?.message || "Error desconocido"));
+        setModalAlertMessage("Error al actualizar la categoría: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -144,6 +152,11 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
             </button>
           </div>
         </div>
+        <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
       </div>
     );
   }
@@ -156,14 +169,15 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [is_transversal, setTrasnversal] = useState(false);
     const [help, setHelp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
     const handleSave = async () => {
       if (!selectedCategoryId) {
-        alert("Por favor seleccione una categoría");
+        setModalAlertMessage("Por favor seleccione una categoría");
         return;
       }
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para la sección");
+        setModalAlertMessage("Por favor ingrese un nombre para la sección");
         return;
       }
 
@@ -204,10 +218,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           }
         }
 
-        alert(is_standard ? "Sección y criterio creados exitosamente" : "Sección creada exitosamente");
+        setModalAlertMessage(is_standard ? "Sección y criterio creados exitosamente" : "Sección creada exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al crear la sección: " + (err.response?.data?.message || "Error desconocido"));
+        setModalAlertMessage("Error al crear la sección: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -334,6 +348,11 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
             </button>
           </div>
         </div>
+        <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
       </div>
     );
   }
@@ -347,6 +366,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [isLoading, setIsLoading] = useState(false);
     const [standardId, setStandardId] = useState(null);
     const [hasUnfinishedProcesses, setHasUnfinishedProcesses] = useState(false);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
     // Cargar datos del criterio si existe
     useEffect(() => {
         const fetchData = async () => {
@@ -399,7 +419,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   
     const handleSave = async () => {
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para la sección");
+        setModalAlertMessage("Por favor ingrese un nombre para la sección");
         return;
       }
 
@@ -434,10 +454,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
                 const res = await api.delete(`/api/standard/${standardId}`);
                 setStandardId(null);
             }
-        alert("Sección actualizada exitosamente");
+        setModalAlertMessage("Sección actualizada exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al actualizar la sección: " + (err.response?.data?.message || "Error desconocido"));
+        setModalAlertMessage("Error al actualizar la sección: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -548,6 +568,11 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
             </button>
           </div>
         </div>
+        <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
       </div>
     );
   }
@@ -560,6 +585,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [selectedCategoryId, setSelectedCategoryId] = useState("");
     const [selectedSectionId, setSelectedSectionId] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
     // Filter sections based on selected category
     const filteredSections = sections.filter(sec => {
@@ -568,15 +594,15 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
 
     const handleSave = async () => {
       if (!selectedCategoryId) {
-        alert("Por favor seleccione una categoría");
+        setModalAlertMessage("Por favor seleccione una categoría");
         return;
       }
       if (!selectedSectionId) {
-        alert("Por favor seleccione una sección");
+        setModalAlertMessage("Por favor seleccione una sección");
         return;
       }
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para el criterio");
+        setModalAlertMessage("Por favor ingrese un nombre para el criterio");
         return;
       }
 
@@ -589,10 +615,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           is_transversal: is_transversal, 
           help: help 
         });
-        alert("Criterio creado exitosamente");
+        setModalAlertMessage("Criterio creado exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al crear el criterio: " + (err.response?.data?.message || "Error desconocido"));
+        setModalAlertMessage("Error al crear el criterio: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -734,6 +760,11 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
             </button>
           </div>
         </div>
+        <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
       </div>
     );
   }
@@ -744,10 +775,12 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [is_transversal, setTrasnversal] = useState(criterio.is_transversal);
     const [help, setHelp] = useState(criterio.help);
     const [isLoading, setIsLoading] = useState(false);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+
   
     const handleSave = async () => {
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para el criterio");
+        setModalAlertMessage("Por favor ingrese un nombre para el criterio");
         return;
       }
 
@@ -760,10 +793,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           is_transversal: is_transversal,
           help: help
         });
-        alert("Criterio actualizado exitosamente");
+        ("Criterio actualizado exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al actualizar el criterio: " + (err.response?.data?.message || "Error desconocido"));
+        setModalAlertMessage("Error al actualizar el criterio: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -852,6 +885,11 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
             </button>
           </div>
         </div>
+        <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
       </div>
     );
   }
@@ -873,6 +911,7 @@ export default function EstructuraMarco() {
     const [editingCategoryId, setEditingCategoryId] = useState(null);
     const [editingSectionId, setEditingSectionId] = useState(null);
     const [editingCriterioId, setEditingCriterioId] = useState(null);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
   
     useEffect(() => {
       fetchCategorias();
@@ -903,7 +942,7 @@ export default function EstructuraMarco() {
         setCriterios(allCriteria);
       } catch (err) {
         console.error("Error fetching data:", err);
-        alert("Error al cargar los datos: " + (err.response?.data?.message || "Error desconocido"));
+        setModalAlertMessage("Error al cargar los datos: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -1210,6 +1249,11 @@ export default function EstructuraMarco() {
         )}
       </div>
       <AppFooter />
+      <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
     </>
     );
   }
