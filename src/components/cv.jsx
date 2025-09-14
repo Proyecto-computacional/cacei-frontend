@@ -1,86 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
-
-const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ...props }) => {
-    const textareaRef = useRef(null);
-    const placeholderRef = useRef(null);
-
-    const calculatePlaceholderHeight = () => {
-        if (!placeholderRef.current || !textareaRef.current) return 'auto';
-
-        const hiddenDiv = document.createElement('div');
-        hiddenDiv.style.position = 'absolute';
-        hiddenDiv.style.visibility = 'hidden';
-        hiddenDiv.style.whiteSpace = 'pre-wrap';
-        hiddenDiv.style.width = `${textareaRef.current.offsetWidth}px`;
-        hiddenDiv.style.padding = '0.5rem 0.75rem';
-        hiddenDiv.style.lineHeight = '1.5rem';
-        hiddenDiv.style.fontFamily = 'inherit';
-        hiddenDiv.style.fontSize = 'inherit';
-        hiddenDiv.textContent = placeholder;
-
-        document.body.appendChild(hiddenDiv);
-        const height = hiddenDiv.offsetHeight;
-        document.body.removeChild(hiddenDiv);
-
-        return `${Math.max(height, 24)}px`;
-    };
-
-    useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-
-            if (!value && placeholder) {
-                textareaRef.current.style.height = calculatePlaceholderHeight();
-            } else {
-                textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-            }
-        }
-    }, [value, placeholder, isEditing]);
-
-    return (
-        <div className="relative">
-            <textarea
-                ref={textareaRef}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                disabled={disabled}
-                className={`
-          w-full px-3 py-2 border rounded-lg
-          ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50'
-                        : 'border-gray-200 bg-gray-50'}
-          resize-none overflow-hidden
-          whitespace-pre-wrap
-        `}
-                style={{
-                    minHeight: '1.0rem',
-                    lineHeight: '1.0rem',
-                }}
-                {...props}
-            />
-            <div
-                ref={placeholderRef}
-                className="invisible absolute pointer-events-none whitespace-pre-wrap"
-                style={{
-                    width: '100%',
-                    padding: '0.5rem 0.75rem',
-                    lineHeight: '1.5rem'
-                }}
-            >
-                {placeholder}
-            </div>
-        </div>
-    );
-};
+import { useParams } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const CV = () => {
     const [data, setData] = useState({});
     const [activeSection, setActiveSection] = useState(1);
     const [isEditing, setIsEditing] = useState(false);
     const [cvId, setCvId] = useState(null);
-    const rpe = localStorage.getItem("rpe");
+    const [canEdit, setCanEdit] = useState(false);
+    const { rpe } = useParams()
+    const [loading, setLoading] = useState(true);
 
     const mapLetterToDegree = (letter) => {
         const degrees = {
@@ -153,6 +84,8 @@ const CV = () => {
     };
 
     useEffect(() => {
+        setCanEdit(rpe === localStorage.getItem('rpe'));
+
         const fetchSectionData = async (cvId, sectionId) => {
             const sectionEndpoints = {
                 1: 'educations',
@@ -175,7 +108,7 @@ const CV = () => {
 
         const fetchInitialData = async () => {
             try {
-                setIsEditing(false);
+                setLoading(true);
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
                 if (cvResponse.data.cv_id) {
@@ -205,6 +138,8 @@ const CV = () => {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
+            }finally{
+                setLoading(false);
             }
         };
 
@@ -537,171 +472,101 @@ const CV = () => {
                 </aside>
 
                 <main className="w-3/4 p-6">
-                    {sections.map(
+                {loading ? (
+                    <div className="col-span-full flex justify-center py-12">
+                    <LoadingSpinner />
+                    </div>
+                ):
+                (sections.map(
                         (section) =>
                             activeSection === section.id && (
                                 <div key={section.id}>
-                                    <div className="flex justify-between items-start mb-4 ">
-                                        <div className="flex-1 mr-4">
-                                            <h2 className="text-xl font-semibold text-gray-800">
-                                                {section.sectionName}
-                                                {!isEditing && <span className="ml-2 text-sm text-gray-500">(solo lectura)</span>}
-                                            </h2>
-                                            <p className="text-lg text-gray-600 mt-1">{section.description}</p>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            {!isEditing ? (
-                                                <button
-                                                    onClick={() => setIsEditing(true)}
-                                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                                                >
-                                                    Editar sección
-                                                </button>
-                                            ) : (
-                                                <>
-                                                    {section.id !== 11 && (
-                                                        <button
-                                                            onClick={() => addRow(section.id)}
-                                                            className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
-                                                        >
-                                                            <Plus className="w-4 h-4" />
-                                                            Agregar
-                                                        </button>
-                                                    )}
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className={`bg-white rounded-lg border ${isEditing ? 'border-blue-200' : 'border-gray-200'} overflow-hidden`}>
-                                        {section.id === 11 ? (
-                                            <div className="p-4">
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                    {section.campos[0].label}
-                                                </label>
-                                                <textarea
-                                                    value={data[11]?.[0]?.values?.descripcion || ""}
-                                                    onChange={(e) => {
-                                                        // Si no existe el registro, crear uno nuevo
-                                                        if (!data[11] || data[11].length === 0) {
-                                                            setData(prev => ({
-                                                                ...prev,
-                                                                [11]: [{
-                                                                    id: `new_${11}_${Date.now()}`,
-                                                                    values: { descripcion: e.target.value }
-                                                                }]
-                                                            }));
-                                                        } else {
-                                                            // Actualizar el registro existente
-                                                            updateRow(11, data[11][0].id, "descripcion", e.target.value);
-                                                        }
-
-                                                        // Ajustar altura del textarea
-                                                        e.target.style.height = 'auto';
-                                                        e.target.style.height = `${e.target.scrollHeight}px`;
-                                                    }}
-                                                    placeholder={section.campos[0].placeholder}
-                                                    className={`w-full px-3 py-2 border ${isEditing ? 'border-blue-300 focus:ring-2 focus:ring-blue-200' : 'border-gray-300 bg-gray-50'} rounded-lg focus:border-primary1 resize-none overflow-hidden`}
-                                                    maxLength={1200}
-                                                    style={{ height: 'auto', minHeight: '150px' }}
-                                                    rows={17}
-                                                    disabled={!isEditing}
-                                                />
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                    {data[11]?.[0]?.values?.descripcion?.length || 0}/1200 caracteres
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <table className="w-full">
-                                                <thead>
-                                                    <tr className="bg-gray-50">
-                                                        {section.campos.map((campo) => (
-                                                            <th key={campo.name} className="px-4 py-3 text-left text-sm font-medium text-gray-600">
-                                                                {campo.label}
-                                                            </th>
-                                                        ))}
-                                                        <th className="w-12"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-200">
-                                                    {(data[section.id] || []).map((row) => (
-                                                        <tr key={row.id} className="hover:bg-gray-50">
-                                                            {section.campos.map((campo) => (
-                                                                <td key={`${row.id}_${campo.name}`} className="px-3 py-2">
-                                                                    {campo.type === "select" ? (
-                                                                        <div className="relative min-w-[170px]">
-                                                                            <select
-                                                                                value={row.values[campo.name] || ""}
-                                                                                onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
-                                                                                className={`w-full px-3 py-2 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50' : 'border-gray-200 bg-gray-50'} rounded-lg focus:border-primary1`}
-                                                                                disabled={!isEditing}
-                                                                            >
-                                                                                <option value="">Seleccione</option>
-                                                                                {campo.options.map((option) => (
-                                                                                    <option key={option} value={option}>{option}</option>
-                                                                                ))}
-                                                                            </select>
-                                                                        </div>
-                                                                    ) : campo.type === "date" ? (
-                                                                        <input
-                                                                            type="date"
-                                                                            value={row.values[campo.name] || ""}
-                                                                            onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
-                                                                            className={`w-full px-3 py-2 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50' : 'border-gray-200 bg-gray-50'} rounded-lg focus:border-primary1`}
-                                                                            disabled={!isEditing}
-                                                                        />
-                                                                    ) : (
-
-                                                                        <DynamicTextarea
-                                                                            value={row.values[campo.name] || ""}
-                                                                            onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
-                                                                            placeholder={campo.placeholder}
-                                                                            disabled={!isEditing}
-                                                                            isEditing={isEditing}
-                                                                        />
-                                                                    )}
-                                                                </td>
-                                                            ))}
-                                                            <td className="px-2 py-3">
-                                                                {isEditing && isRowEmpty(row) && (
-                                                                    <button
-                                                                        onClick={() => removeRow(section.id, row.id)}
-                                                                        className="text-gray-400 hover:text-red-500 transition-colors duration-200"
-                                                                        title="Eliminar fila vacía"
-                                                                    >
-                                                                        <X className="w-5 h-5" />
-                                                                    </button>
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}</h2>
+                                        {canEdit && (
+                                            <button
+                                                onClick={() => addRow(section.id)}
+                                                className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                            >
+                                                <Plus className="w-4 h-4" />
+                                                Agregar
+                                            </button>
                                         )}
                                     </div>
-                                    {isEditing && data[section.id]?.length > 0 && (
-                                        <div className="mt-4 flex justify-end gap-2">
-                                            <button
-                                                onClick={() => { setIsEditing(false); }}
-                                                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
-                                            >
-                                                Cancelar
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    sendData(section.id);
-                                                    setIsEditing(false);
-                                                }}
-                                                className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
-                                            >
-                                                <Save className="w-4 h-4" />
-                                                Guardar Cambios
-                                            </button>
+                                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr className="bg-gray-50">
+                                                    {section.campos.map((campo) => (
+                                                        <th key={campo.name} className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                                                            {campo.label}
+                                                        </th>
+                                                    ))}
+                                                    <th className="w-12"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200">
+                                                {(data[section.id] || []).map((row) => (
+                                                    <tr key={row.id} className="hover:bg-gray-50">
+                                                        {section.campos.map((campo) => (
+                                                            <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
+                                                                {campo.type === "select" ? (
+                                                                    <select
+                                                                        disabled={!canEdit}
+                                                                        value={row.values[campo.name] || ""}
+                                                                        onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
+                                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
+                                                                    >
+                                                                        <option value="">Seleccione</option>
+                                                                        {campo.options.map((option) => (
+                                                                            <option key={option} value={option}>{option}</option>
+                                                                        ))}
+                                                                    </select>
+                                                                ) : (
+                                                                    <input
+                                                                        disabled={!canEdit}
+                                                                        type={campo.type}
+                                                                        value={row.values[campo.name] || ""}
+                                                                        onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
+                                                                        placeholder={campo.placeholder}
+                                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
+                                                                    />
+                                                                )}
+                                                            </td>
+                                                        ))}
+                                                        <td className="px-2 py-3">
+                                                            {isRowEmpty(row) && (
+                                                                <button
+                                                                    onClick={() => removeRow(section.id, row.id)}
+                                                                    className="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                                                                    title="Eliminar fila vacía"
+                                                                >
+                                                                    <X className="w-5 h-5" />
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {data[section.id]?.length > 0 && (
+                                        <div className="mt-4 flex justify-end">
+                                            {canEdit && (
+                                                <button
+                                                    onClick={() => sendData(section.id)}
+                                                    className="flex items-center gap-2 px-6 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                                >
+                                                    <Save className="w-4 h-4" />
+                                                    Guardar cambios
+                                                </button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
                             )
-                    )}
+                    ))
+                }
                 </main>
             </div>
 

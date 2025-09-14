@@ -228,7 +228,6 @@ const Dashboard = () => {
       try {
         const processId = localStorage.getItem("currentProcessId");
         if (!processId) return;
-        
         const response = await api.get(`/api/processes/${processId}`);
         setIsFinished(response.data.finished || false);
       } catch (error) {
