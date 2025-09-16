@@ -74,7 +74,7 @@ const CategoryProgress = ({ title, approved, rejected, pending, notUploaded, evi
           <table className="w-full border-collapse border border-gray-200">
             <thead>
               <tr className="bg-blue-500 text-white">
-                <th className="pl-10 pb-2 pt-2">Sección</th>
+                <th className="pl-10 pb-2 pt-2">Indicador</th>
                 <th className="p-2">Criterio</th>
                 <th className="p-2">Responsable</th>
                 <th className="p-2">Estado</th>

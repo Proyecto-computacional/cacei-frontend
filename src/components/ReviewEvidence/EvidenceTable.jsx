@@ -314,14 +314,14 @@ export default function EvidenceTable() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Sección</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Indicador</label>
                             <select
                                 name="section"
                                 value={filters.section}
                                 onChange={handleFilterChange}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1 focus:border-primary1 transition-all duration-200"
                             >
-                                <option value="">Todas las secciones</option>
+                                <option value="">Todas lo</option>
                                 {sections.map((section, index) => (
                                     <option key={`sec-${index}`} value={section}>{section}</option>
                                 ))}
