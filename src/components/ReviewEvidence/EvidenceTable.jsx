@@ -321,7 +321,7 @@ export default function EvidenceTable() {
                                 onChange={handleFilterChange}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1 focus:border-primary1 transition-all duration-200"
                             >
-                                <option value="">Todas lo</option>
+                                <option value="">Todos los indicadores</option>
                                 {sections.map((section, index) => (
                                     <option key={`sec-${index}`} value={section}>{section}</option>
                                 ))}
@@ -373,7 +373,7 @@ export default function EvidenceTable() {
                                         <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="category_name" text={"Categoría"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
-                                        <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                        <HeaderSort column="section_name" text={"Indicador"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="Justificacion" text={"Justificacion de evidencia"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-center text-sm font-semibold text-white" />
