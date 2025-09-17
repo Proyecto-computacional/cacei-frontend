@@ -47,6 +47,9 @@ const MainMenu = () => {
               "Authorization": `Bearer ${localStorage.getItem('token')}`
             },
           });
+        } else if (userRole === "CAPTURISTA"){
+          navigate("/framesAdmin");
+          return;
         } else {
           // Fetch only related processes for other roles
           response = await api.get("api/ProcesosUsuario", {

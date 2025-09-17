@@ -39,10 +39,6 @@ const Login = () => {
             if (userData.correct) {
                 const userRpe = userData.rpe;
                 localStorage.setItem('userRpe', userRpe);
-                if(userData.role === 'CAPTURISTA'){
-                    navigate("/framesAdmin");
-                    return;
-                }
                 navigate("/mainmenu");
             } else {
                 setModalAlertMessage('RPE o contraseña incorrecto');

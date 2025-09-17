@@ -21,6 +21,7 @@ export default function UsersTable() {
         { name: 'Profesor responsable', description: 'Subir y visualizar sus evidencias y revisar las evidencias que se le asignen' },
         { name: 'Departamento universitario', description: 'Subir y visualizar sus evidencias (Evidencias transversales)' },
         { name: 'Personal de apoyo', description: 'Subir y visualizar las evidencias que se les asigne' },
+        { name: 'Capturista', description: 'Crear y modificar los marcos de referencias'},
     ]);
 
     const [allUsers, setAllUsers] = useState([]);
