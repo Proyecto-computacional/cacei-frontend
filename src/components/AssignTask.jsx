@@ -169,26 +169,6 @@ const AssignTask = ({ onClose }) => {
     );
   };
 
-  // Mostrar información sobre la asignación transversal
-  const renderTransversalInfo = () => {
-    if (!isTransversal) return null;
-    
-    return (
-      <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
-        <p className="font-medium text-blue-800">Este estándar es transversal</p>
-        {processes.length > 0 ? (
-          <p className="text-sm text-blue-600">
-            Se creará una evidencia para este proceso y para {processes.length} proceso(s) adicional(es) con el mismo marco de referencia.
-          </p>
-        ) : (
-          <p className="text-sm text-blue-600">
-            Se creará una evidencia solo para este proceso (no se encontraron otros procesos con el mismo marco de referencia).
-          </p>
-        )}
-      </div>
-    );
-  };
-
   return (
     <>
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[99999]">

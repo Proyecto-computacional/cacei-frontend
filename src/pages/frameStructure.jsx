@@ -347,11 +347,11 @@ function ModificarCategoriaForm({ category, onCancel, onSaved }) {
           </button>
         </div>
       </div>
-      <ModalAlert
+      {/*<ModalAlert
         isOpen={modalAlertMessage !== null}
         message={modalAlertMessage}
         onClose={() => setModalAlertMessage(null)}
-      />
+      />*/}
     </div>
   );
 }
@@ -365,6 +365,7 @@ function ModificarCategoriaForm({ category, onCancel, onSaved }) {
     const [isLoading, setIsLoading] = useState(false);
     const [standardId, setStandardId] = useState(null);
     const [hasUnfinishedProcesses, setHasUnfinishedProcesses] = useState(false);
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
     // Cargar datos del criterio si existe
     useEffect(() => {
         const fetchData = async () => {

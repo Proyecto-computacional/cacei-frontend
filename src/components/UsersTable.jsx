@@ -52,6 +52,7 @@ export default function UsersTable() {
         ]);
 
             setAllUsers(responseUsers.data.usuarios);
+            console.log(responseUsers);
             setAreas(responseAreas.data);
         
             setFilteredUsers(responseUsers.data.usuarios);
@@ -111,11 +112,13 @@ export default function UsersTable() {
 
             axios.get(nextPage).then(({ data }) => {
                 const newUsers = data.usuarios.data;
+                console.log(newUsers);
                 setAllUsers(prev => [...prev, ...newUsers]);
                 setFilteredUsers(prev => [...prev, ...newUsers]);
                 setNextPage(data.usuarios.next_page_url);
                 setLoading(false);
             });
+            console.log(item);
         };
 
     // HTML --------------------------------------------------------------------------------------------

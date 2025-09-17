@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
 import ModalAlert from "../components/ModalAlert";
 
 
@@ -11,6 +12,8 @@ const CV = () => {
     const [cvId, setCvId] = useState(null);
     const rpe = localStorage.getItem("rpe");
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [canEdit, setCanEdit] = useState(false);
 
      
     const mapLetterToDegree = (letter) => {
@@ -100,7 +103,8 @@ const CV = () => {
                 10: 'awards',
                 11: 'contributions-to-pe'
             };
-    
+
+
             const response = await api.get(`/api/additionalInfo/${cvId}/${sectionEndpoints[sectionId]}`);
             return response.data;
         };
@@ -239,18 +243,17 @@ const CV = () => {
                 return hasValues;
             });
 
-          if (validRows.length === 0) {
-            alert('No hay datos válidos para guardar');
-            return;
-          }
-      
-          // Enviar datos para la sección actual
-          await Promise.all(validRows.map(async (row) => {
-            const payload = config.transform(row);
-            await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
-          }));
-      
-          alert('¡Datos guardados correctamente!');
+            if (validRows.length === 0) {
+                alert('No hay datos válidos para guardar');
+                return;
+            }
+
+            await Promise.all(validRows.map(async (row) => {
+                const payload = config.transform(row);
+                await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
+            }));
+
+            alert('¡Datos guardados correctamente!');
         } catch (error) {
             console.error('Error:', error.response?.data);
             if (error.response?.status === 422) {
@@ -266,13 +269,13 @@ const CV = () => {
             const response = await api.get(`/api/cv/word/${rpe}`, {
                 responseType: 'blob'
             });
-            
+
             // Create a blob from the response data
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 
             // Create a URL for the blob
             const url = window.URL.createObjectURL(blob);
-            
+
             // Create a temporary link element
             const link = document.createElement('a');
             link.href = url;
@@ -282,7 +285,7 @@ const CV = () => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             // Clean up the URL
             window.URL.revokeObjectURL(url);
         } catch (error) {
