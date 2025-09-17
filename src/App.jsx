@@ -78,12 +78,12 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/framesAdmin" element={
-          <ProtectedRoute allowedRoles={["ADMINISTRADOR"]}>
+          <ProtectedRoute allowedRoles={["ADMINISTRADOR", "CAPTURISTA"]}>
             <FrameOfReferenceView />
           </ProtectedRoute>
         } />
         <Route path="/framesStructure/:frameID" element={
-          <ProtectedRoute allowedRoles={["ADMINISTRADOR"]}>
+          <ProtectedRoute allowedRoles={["ADMINISTRADOR", "CAPTURISTA"]}>
             <EstructuraMarco />
           </ProtectedRoute>
         } />
