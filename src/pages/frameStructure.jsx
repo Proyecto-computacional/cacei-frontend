@@ -170,15 +170,15 @@ function ModificarCategoriaForm({ category, onCancel, onSaved }) {
     const [help, setHelp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-  const handleSave = async () => {
-    if (!selectedCategoryId) {
-      setModalAlertMessage("Por favor seleccione una categoría");
-      return;
-    }
-    if (!nombre.trim()) {
-      setModalAlertMessage("Por favor ingrese un nombre para la sección");
-      return;
-    }
+    const handleSave = async () => {
+      if (!selectedCategoryId) {
+        alert("Por favor seleccione una categoría");
+        return;
+      }
+      if (!nombre.trim()) {
+        alert("Por favor ingrese un nombre para el indicador");
+        return;
+      }
 
       setIsLoading(true);
       try {
@@ -190,7 +190,7 @@ function ModificarCategoriaForm({ category, onCancel, onSaved }) {
         });
 
         if(!res.data || !res.data.data){
-          throw new Error("No se recibio respuesta válida al crear la sección");
+          throw new Error("No se recibio respuesta válida al crear el indicador");
         }
         // Obtenemos el ID de la sección creada desde la respuesta
         const createdSection = res.data.data; // Accedemos a data.data según tu estructura de respuesta
@@ -213,14 +213,14 @@ function ModificarCategoriaForm({ category, onCancel, onSaved }) {
             console.error("Error al crear criterio:", standardError);
             // Si falla la creación del criterio pero la sección ya está creada,
             // podrías decidir eliminarla o mostrar un mensaje específico
-            throw new Error("Sección creada pero falló la creación del criterio");
+            throw new Error("Indicador creado pero falló la creación del criterio");
           }
         }
 
-        alert(is_standard ? "Sección y criterio creados exitosamente" : "Sección creada exitosamente");
+        alert(is_standard ? "Indicador y criterio creados exitosamente" : "Indicador creado exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al crear la sección: " + (err.response?.data?.message || "Error desconocido"));
+        alert("Error al crear el indicador: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -230,7 +230,7 @@ function ModificarCategoriaForm({ category, onCancel, onSaved }) {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Sección</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Indicador</h2>
             <div className="space-y-4">
               <div>
                 <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
@@ -251,28 +251,28 @@ function ModificarCategoriaForm({ category, onCancel, onSaved }) {
                 </select>
               </div>
 
-            <div>
-              <label htmlFor="nombreSeccion" className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre de la sección
-              </label>
-              <input
-                type="text"
-                id="nombreSeccion"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                placeholder="Ingrese el nombre de la sección"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-              />
-            </div>
+              <div>
+        <label htmlFor="nombreSeccion" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre del indicador
+        </label>
+        <input
+          type="text"
+                  id="nombreSeccion"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  placeholder="Ingrese el nombre del indicador"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+        />
+              </div>
 
               <div>
                 <label htmlFor="descripcionSeccion" className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción de la sección
+                  Descripción del indicador
                 </label>
                 <textarea
                   id="descripcionSeccion"
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  placeholder="Ingrese la descripción de la sección"
+                  placeholder="Ingrese la descripción del indicador"
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
                   rows="3"
@@ -418,7 +418,7 @@ function ModificarCategoriaForm({ category, onCancel, onSaved }) {
   
     const handleSave = async () => {
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para la sección");
+        alert("Por favor ingrese un nombre para el indicador");
         return;
       }
 
@@ -453,37 +453,37 @@ function ModificarCategoriaForm({ category, onCancel, onSaved }) {
                 const res = await api.delete(`/api/standard/${standardId}`);
                 setStandardId(null);
             }
-      setModalAlertMessage("Sección actualizada exitosamente");
-      onSaved();
-    } catch (err) {
-      setModalAlertMessage("Error al actualizar la sección: " + (err.response?.data?.message || "Error desconocido"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
-        <div className="p-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Sección</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="nombreSeccion" className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre de la sección
-              </label>
-              <input
-                type="text"
-                id="nombreSeccion"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-              />
-            </div>
+        alert("Indicador actualizado exitosamente");
+        onSaved();
+      } catch (err) {
+        alert("Error al actualizar el indicador: " + (err.response?.data?.message || "Error desconocido"));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
+          <div className="p-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Indicador</h2>
+            <div className="space-y-4">
+              <div>
+        <label htmlFor="nombreSeccion" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre del indicador
+        </label>
+        <input
+          type="text"
+                  id="nombreSeccion"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+        />
+              </div>
 
               <div>
         <label htmlFor="descripcionSeccion" className="block text-sm font-medium text-gray-700 mb-1">
-          Descripción de la sección
+          Descripción del indicador
         </label>
                 <textarea
                   id="descripcionSeccion"
@@ -591,19 +591,19 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories }) {
     return String(sec.category_id) === selectedCategoryId;
   });
 
-  const handleSave = async () => {
-    if (!selectedCategoryId) {
-      setModalAlertMessage("Por favor seleccione una categoría");
-      return;
-    }
-    if (!selectedSectionId) {
-      setModalAlertMessage("Por favor seleccione una sección");
-      return;
-    }
-    if (!nombre.trim()) {
-      setModalAlertMessage("Por favor ingrese un nombre para el criterio");
-      return;
-    }
+    const handleSave = async () => {
+      if (!selectedCategoryId) {
+        alert("Por favor seleccione una categoría");
+        return;
+      }
+      if (!selectedSectionId) {
+        alert("Por favor seleccione un indicador");
+        return;
+      }
+      if (!nombre.trim()) {
+        alert("Por favor ingrese un nombre para el criterio");
+        return;
+      }
 
     setIsLoading(true);
     try {
@@ -659,30 +659,30 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories }) {
               </select>
             </div>
 
-            <div>
-              <label htmlFor="seccion" className="block text-sm font-medium text-gray-700 mb-1">
-                Sección
-              </label>
-              <select
-                id="seccion"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                value={selectedSectionId}
-                onChange={(e) => setSelectedSectionId(e.target.value)}
-                disabled={!selectedCategoryId}
-              >
-                <option value="">Seleccione una sección</option>
-                {filteredSections.map((sec) => (
-                  <option key={sec.section_id} value={sec.section_id}>
-                    {sec.indice}. {sec.section_name}
-                  </option>
-                ))}
-              </select>
-              {!selectedCategoryId && (
-                <p className="mt-1 text-sm text-gray-500">
-                  Primero seleccione una categoría
-                </p>
-              )}
-            </div>
+              <div>
+                <label htmlFor="seccion" className="block text-sm font-medium text-gray-700 mb-1">
+                  Indicador
+                </label>
+                <select
+                  id="seccion"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  value={selectedSectionId}
+                  onChange={(e) => setSelectedSectionId(e.target.value)}
+                  disabled={!selectedCategoryId}
+                >
+                  <option value="">Seleccione un indicador</option>
+                  {filteredSections.map((sec) => (
+                    <option key={sec.section_id} value={sec.section_id}>
+                      {sec.indice}. {sec.section_name}
+                    </option>
+                  ))}
+                </select>
+                {!selectedCategoryId && (
+                  <p className="mt-1 text-sm text-gray-500">
+                    Primero seleccione una categoría
+                  </p>
+                )}
+              </div>
 
             <div>
               <label htmlFor="nombreCriterio" className="block text-sm font-medium text-gray-700 mb-1">
@@ -1019,7 +1019,7 @@ export default function EstructuraMarco() {
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
               onClick={handleOpenCreateSeccion}
             >
-              Crear Sección
+              Crear Indicador
             </button>
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
@@ -1063,7 +1063,7 @@ export default function EstructuraMarco() {
               <thead>
                 <tr className="bg-gray-50 border-b">
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Categoría</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Sección</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Indicador</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/3">Criterio</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/6"></th>
                 </tr>
@@ -1099,7 +1099,7 @@ export default function EstructuraMarco() {
                             
                           </td>
                           <td colSpan="3" className="px-6 py-4 text-sm text-gray-500 italic">
-                            No hay secciones en esta categoría
+                            No hay indicadores en esta categoría
                           </td>
                         </tr>
                       );
@@ -1140,7 +1140,7 @@ export default function EstructuraMarco() {
                               </div>
                             </td>
                             <td colSpan="2" className="px-6 py-4 text-sm text-gray-500 italic">
-                              No hay criterios en esta sección
+                              No hay criterios en este indicador
                             </td>
                           </tr>
                         );
