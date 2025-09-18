@@ -635,7 +635,7 @@ const CV = () => {
                                                     disabled={!isEditing}
                                                 />
                                                 <div className="text-xs text-gray-500 mt-1">
-                                                    {data[11]?.[0]?.values?.descripcion?.length || 0}/1200 caracteres
+                                                    {data[11]?.[0]?.values?.descripcion?.length || 0}/2000 caracteres
                                                 </div>
                                             </div>
                                         ) : (
