@@ -169,6 +169,7 @@ const UploadEvidence = () => {
     refInputFiles.current.value = "";
   };
 
+  // Sube los archivos y la justificación
   const handleUpload = async () => {
     if (isFinished) {
       alert("No se pueden subir archivos porque el proceso ha finalizado");
@@ -328,6 +329,8 @@ const UploadEvidence = () => {
       alert(`Error al subir archivo: ${error.response?.data?.message || error.message}`);
     }
   };
+
+  // Elimina un archivo subido
   const handleDeleteUploadedFile = async (fileId) => {
     if (!window.confirm("¿Seguro que quieres eliminar este archivo?")) return;
     setIsLocked(true);
@@ -346,10 +349,14 @@ const UploadEvidence = () => {
     setIsLocked(false);
   };
 
+  // Elimina el archivo a subir
   const handleRemoveFile = (fileName) => {
     setFiles((prev) => prev.filter((file) => file.name !== fileName));
   };
 
+  // Obtiene la clase CSS según el estado
+  
+  
   const getEstadoClass = (estado) => {
     switch (estado) {
       case "NO CARGADA":
@@ -365,6 +372,7 @@ const UploadEvidence = () => {
     }
   };
 
+  // Obtiene el ícono (del archivo a subir) según la extensión
   const getIcon = (name) => {
     const extension = name.split('.').pop();
 
@@ -374,6 +382,7 @@ const UploadEvidence = () => {
 
   };
 
+  // Revisa si el usuario puede ver la página
   const canViewPage = () => {
     if (!user || !evidence) return false;
 
@@ -387,23 +396,29 @@ const UploadEvidence = () => {
     return false;
   };
 
+  // Revisa si actualmente el usuario puede ver la página
   useEffect(() => {
     if (user && evidence && !canViewPage()) {
       navigate("/mainmenu");
     }
   }, [user, evidence]);
 
+  // Revisa si el proceso ha finalizado (y bloquear interacciones)
   useEffect(() => {
     if (Finished == 'true'){
       setIsFinished(true);
     }
   })
 
+  // HTML ------------------------------------------------------------------------------------------------------------------------------
   return (
     <>
       <AppHeader />
       <SubHeading />
+
       <div className="h-fit p-10 flex justify-around items-stretch relative gap-6" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
+        
+        {/* Cuadro de asignaciones */}
         <div className="w-1/4 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
           <div className="bg-primary1 p-3">
             <h2 className="text-lg font-semibold text-white text-center">Mis asignaciones</h2>
@@ -412,8 +427,9 @@ const UploadEvidence = () => {
             <div className="relative min-h-[200px]" style={{ paddingTop: "10px" }}>
               <LoadingSpinner />
             </div>
-          ) : asignaciones.length > 0 ? (
+          ) : asignaciones.length > 0 ? ( 
             <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+              {/* Lista de asignaciones */}
               {asignaciones.map((item, index) => (
                 <Link
                   key={index}
@@ -432,7 +448,12 @@ const UploadEvidence = () => {
                     }`}>{item.criterio}</p>
                     <span className={`px-2 py-0.5 rounded-full text-sm font-medium whitespace-nowrap ${getEstadoClass(item.estado)}`}>
                       {item.estado}
+                      {/*DEBUGGING*/}
+                      <script>
+                        console.log("item.estado:", item.estado);
+                      </script>
                     </span>
+                    
                   </div>
                 </Link>
               ))}
@@ -446,6 +467,7 @@ const UploadEvidence = () => {
             </div>
           )}
         </div>
+        {/* Cuadro donde interactúa con la evidencia */}
         {evidence_id && evidence ? (
           <div className="bg-white p-6 rounded-xl shadow-md flex flex-wrap flex-row w-3/4 min-h-[500px]">
             <div className="flex flex-col flex-1 mr-10 w-1/2">
@@ -458,6 +480,7 @@ const UploadEvidence = () => {
                   <p>No se pueden subir más evidencias porque el proceso de evaluación ha concluido.</p>
                 </div>
               )}
+              {/* Información de la evidencia */}
               <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
                 Proceso: {evidence.process.process_name}
               </h2>
@@ -467,6 +490,7 @@ const UploadEvidence = () => {
                 {evidence.standard.standard_name}
               </h2>
               <p className="text-black text-lg font-semibold">Justificación</p>
+              {/* Editor integrado de CKEditor (en EditorCacei.jsx) */}
               <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
               {user?.user_rpe === evidence.user_rpe && (
                 <div className="mt-4 flex">
@@ -484,6 +508,7 @@ const UploadEvidence = () => {
                   <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
                 </div>
               )}
+              {/* Para subir archivos */}
               {files && files.map((file) => (
                 <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
                   <span className="text-2xl">{getIcon(file.name)}</span>
@@ -503,6 +528,7 @@ const UploadEvidence = () => {
                 <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={isLocked}>Guardar</button>
               )}
             </div>
+            {/* Cuadro de revisión (la info del revisor, pues) */}
             <div className="w-1/2 overflow-y-auto max-h-[700px]">
               <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
                 Revisión
@@ -532,10 +558,16 @@ const UploadEvidence = () => {
                   </div>
                   <div className="space-y-3">
                     <div>
+                      {/* Obtiene el estado de la revisión */}
                       <p className="text-sm font-medium text-gray-600 mb-1">Estado de la revisión</p>
                       <p className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium ${getEstadoClass(item.status_description)}`}>
                         {item.status_description}
+                        {/*DEBUGGING*/}
+                        <script>
+                        console.log("item.status_description:", item.status_description);
+                        </script>
                       </p>
+                      
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-600 mb-1">Retroalimentación</p>
