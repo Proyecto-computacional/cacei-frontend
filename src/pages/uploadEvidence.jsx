@@ -28,6 +28,7 @@ const UploadEvidence = () => {
 
   const navigate = useNavigate();
 
+  // Obtener información del usuario
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -40,6 +41,7 @@ const UploadEvidence = () => {
     fetchUser();
   }, []);
 
+  // Obtener información de la evidencia
   useEffect(() => {
     if (evidence_id) {
       api.get(`api/evidences/${evidence_id}`).then(
@@ -100,6 +102,7 @@ const UploadEvidence = () => {
     }
   }, [evidence_id, user]);
 
+  // ¿Revisa si el usuario tiene asignaciones?
   useEffect(() => {
     async function fetchData() {
       try {
@@ -117,6 +120,7 @@ const UploadEvidence = () => {
     fetchData();
   }, []);
 
+  // ¿Obtiene las evidencias transversales?
   useEffect(() => {
   if (evidence?.standard?.is_transversal) {
     const fetchRelatedEvidences = async () => {
@@ -131,6 +135,7 @@ const UploadEvidence = () => {
   }
 }, [evidence]);
 
+  // Revisa la información del archivo a subir ¿¡¿Esto no lo hacía ya backend?!?!
   const handleFileChange = (event) => {
     const allowedExtensions = ['rar', 'zip', 'xls', 'xlsx', 'csv', 'pdf', 'doc', 'docx', 'csv'];
     const maxFileSize = 50 * 1024 * 1024;
