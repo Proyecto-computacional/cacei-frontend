@@ -66,19 +66,63 @@ export default function EvidenceTable() {
     const sendFeedback = async (feedbackText) => {
         try {
             const url = statusFeedback ? 'api/RevisionEvidencias/aprobar' : 'api/RevisionEvidencias/desaprobar';
-
-            const respuesta = await api.post(url, {
-                evidence_id: parseInt(idEvidenceFeedback),
-                user_rpe: statusUserRPE,
-                feedback: feedbackText
-            });
-            if (respuesta.status === 200) {
-                alert(respuesta.data?.message || 'Feedback enviado con éxito');
-                setRefresh(prev => !prev)
+        
+            // 1. Obtener la evidencia actual
+            const currentEvidence = evidences.find(ev => ev.evidence_id == idEvidenceFeedback);
+            const isTransversal = currentEvidence?.is_transversal || false;
+        
+            // 2. Si es transversal, obtener todas las evidencias del mismo criterio
+            let evidencesToProcess = [currentEvidence];
+        
+            if (isTransversal) {
+                const transversalEvidences = evidences.filter(ev => 
+                    ev.standard_id === currentEvidence.standard_id && 
+                    ev.evidence_id !== currentEvidence.evidence_id
+                );
+                evidencesToProcess = [...evidencesToProcess, ...transversalEvidences];
             }
+
+            // 3. Procesar cada evidencia individualmente
+            const results = [];
+            for (const evidence of evidencesToProcess) {
+                try {
+                    const response = await api.post(url, {
+                        evidence_id: parseInt(evidence.evidence_id),
+                        user_rpe: statusUserRPE,
+                        feedback: feedbackText
+                    });
+                    results.push({
+                        success: true,
+                        evidenceId: evidence.evidence_id,
+                        message: response.data?.message
+                    });
+                } catch (error) {
+                    results.push({
+                        success: false,
+                        evidenceId: evidence.evidence_id,
+                        message: error.response?.data?.message || error.message
+                    });
+                }
+            }
+
+            // 4. Mostrar resumen al usuario
+            const successful = results.filter(r => r.success).length;
+            const failed = results.filter(r => !r.success).length;
+            
+            if (failed === 0) {
+                alert(isTransversal 
+                    ? `Se ${statusFeedback ? 'aprobaron' : 'rechazaron'} ${successful} evidencias correctamente` 
+                    : 'Operación realizada con éxito');
+            } else {
+                alert(`Se completaron ${successful} operaciones, pero fallaron ${failed}.`);
+            }
+            
+            setRefresh(prev => !prev);
         } catch (e) {
             console.error(e);
-            alert('Error en el servidor');
+            alert('Error en el servidor: ' + (e.response?.data?.message || e.message));
+        } finally {
+            setOpenFeedback(false);
         }
     };
 
@@ -218,8 +262,10 @@ export default function EvidenceTable() {
 
     return (
         <>
-            <div className="container mx-auto p-8 bg-gray-50 min-h-screen relative">
-                {loading}
+            <div className="container mx-auto p-5 ">
+                {loading}  {/* Pantalla de carga poco elegante ¿la tienen todas las páginas? */}
+
+                {/* Cuadro de filtros */}
                 <div className="mb-8 p-6 bg-white rounded-xl shadow-md border border-gray-100">
                     <div className="flex items-center mb-6">
                         <Filter className="mr-3 text-primary1" size={24} />
@@ -268,14 +314,14 @@ export default function EvidenceTable() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Sección</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Indicador</label>
                             <select
                                 name="section"
                                 value={filters.section}
                                 onChange={handleFilterChange}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1 focus:border-primary1 transition-all duration-200"
                             >
-                                <option value="">Todas las secciones</option>
+                                <option value="">Todos los indicadores</option>
                                 {sections.map((section, index) => (
                                     <option key={`sec-${index}`} value={section}>{section}</option>
                                 ))}
@@ -327,7 +373,7 @@ export default function EvidenceTable() {
                                         <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="category_name" text={"Categoría"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
-                                        <HeaderSort column="section_name" text={"Sección"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                        <HeaderSort column="section_name" text={"Indicador"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="file_id" text={"Archivo(s)"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="Justificacion" text={"Justificacion de evidencia"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-center text-sm font-semibold text-white" />

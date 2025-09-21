@@ -152,6 +152,9 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
     const [selectedCategoryId, setSelectedCategoryId] = useState("");
+    const [is_standard, setStandard] = useState("");
+    const [is_transversal, setTrasnversal] = useState(false);
+    const [help, setHelp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSave = async () => {
@@ -160,7 +163,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
         return;
       }
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para la sección");
+        alert("Por favor ingrese un nombre para el indicador");
         return;
       }
 
@@ -169,12 +172,42 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
         const res = await api.post("/api/section", { 
           section_name: nombre, 
           category_id: selectedCategoryId, 
-          section_description: descripcion 
+          section_description: descripcion ,
+          is_standard: is_standard,
         });
-        alert("Sección creada exitosamente");
+
+        if(!res.data || !res.data.data){
+          throw new Error("No se recibio respuesta válida al crear el indicador");
+        }
+        // Obtenemos el ID de la sección creada desde la respuesta
+        const createdSection = res.data.data; // Accedemos a data.data según tu estructura de respuesta
+        const sectionId = createdSection.section_id;
+        // Si es un criterio, creamos también el standard asociado
+        if (is_standard) {
+          try{
+          const res = await api.post("/api/standard", {
+            section_id: sectionId,
+            standard_name: nombre,
+            standard_description: descripcion,
+            is_transversal: is_transversal,
+            help: help
+          });
+          if(!res.data){
+            console.error("Error al crear criterio:", res);
+            throw new Error("No se recibio respuesta vlaida al crear el criterio");
+          }
+          } catch (standardError) {
+            console.error("Error al crear criterio:", standardError);
+            // Si falla la creación del criterio pero la sección ya está creada,
+            // podrías decidir eliminarla o mostrar un mensaje específico
+            throw new Error("Indicador creado pero falló la creación del criterio");
+          }
+        }
+
+        alert(is_standard ? "Indicador y criterio creados exitosamente" : "Indicador creado exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al crear la sección: " + (err.response?.data?.message || "Error desconocido"));
+        alert("Error al crear el indicador: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -184,7 +217,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Sección</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Indicador</h2>
             <div className="space-y-4">
               <div>
                 <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
@@ -207,30 +240,73 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
 
               <div>
         <label htmlFor="nombreSeccion" className="block text-sm font-medium text-gray-700 mb-1">
-          Nombre de la sección
+          Nombre del indicador
         </label>
         <input
           type="text"
                   id="nombreSeccion"
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  placeholder="Ingrese el nombre de la sección"
+                  placeholder="Ingrese el nombre del indicador"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
               </div>
 
               <div>
-        <label htmlFor="descripcionSeccion" className="block text-sm font-medium text-gray-700 mb-1">
-          Descripción de la sección
-        </label>
+                <label htmlFor="descripcionSeccion" className="block text-sm font-medium text-gray-700 mb-1">
+                  Descripción del indicador
+                </label>
                 <textarea
                   id="descripcionSeccion"
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  placeholder="Ingrese la descripción de la sección"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
+                  placeholder="Ingrese la descripción del indicador"
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
                   rows="3"
                 />
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="standard"
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  checked={is_standard}
+                  onChange={(e) => setStandard(e.target.checked)}
+                />
+                <label htmlFor="standard" className="ml-2 text-sm font-medium text-gray-700">
+                  Es criterio
+                </label>
+                {/* Campos adicionales que aparecen solo cuando is_standard es true */}
+              {is_standard && (
+                <>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="transversal"
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      checked={is_transversal}
+                      onChange={(e) => setTrasnversal(e.target.checked)}
+                    />
+                    <label htmlFor="transversal" className="ml-2 text-sm font-medium text-gray-700">
+                      Criterio transversal
+                    </label>
+                  </div>
+
+                  <div>
+                    <label htmlFor="ayudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+                      Ayuda del criterio
+                    </label>
+                    <textarea
+                      id="ayudaCriterio"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      placeholder="Ingrese la ayuda del criterio"
+                      value={help}
+                      onChange={(e) => setHelp(e.target.value)}
+                      rows="3"
+                    />
+                  </div>
+                </>
+              )}
               </div>
             </div>
           </div>
@@ -262,28 +338,106 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     );
   }
 
-  function ModificarSeccionForm({ seccion, onCancel, onSaved }) {
+  function ModificarSeccionForm({ seccion, onCancel, onSaved, frame_id }) {
     const [nombre, setNombre] = useState(seccion.section_name);
     const [descripcion, setDescripcion] = useState(seccion.section_description);
+    const [is_standard, setStandard] = useState(seccion.is_standard);
+    const [is_transversal, setTrasnversal] = useState(seccion.standard?.is_transversal || false);
+    const [help, setHelp] = useState(seccion.standard?.help || "");
     const [isLoading, setIsLoading] = useState(false);
+    const [standardId, setStandardId] = useState(null);
+    const [hasUnfinishedProcesses, setHasUnfinishedProcesses] = useState(false);
+    // Cargar datos del criterio si existe
+    useEffect(() => {
+        const fetchData = async () => {
+          // Verificar procesos de acreditación no finalizados
+            try {
+                const processesRes = await api.post("/api/processes-by-frame", { frame_id });
+                const unfinished = processesRes.data.some(process => !process.finished);
+                setHasUnfinishedProcesses(unfinished);
+            } catch (err) {
+                console.error("Error al verificar procesos:", err);
+                // Por defecto asumimos que hay procesos no finalizados para ser conservadores
+                setHasUnfinishedProcesses(true);
+            }
+            
+            // Cargar datos del estándar si existe
+            if (seccion.is_standard) {
+                try {
+                    const res = await api.post("/api/standards", { section_id: seccion.section_id});
+                    if (res.data && res.data.length > 0) {
+                        const firstStandard = res.data[0];
+                        setStandardId(firstStandard.standard_id);
+                        setTrasnversal(firstStandard.is_transversal);
+                        setHelp(firstStandard.help);
+                    }
+                    else{
+                      // No existe estándar para esta sección
+                      setStandardId(null);
+                      setTrasnversal(false);
+                      setHelp("");
+                    }
+                } catch (err) {
+                    console.error("Error al cargar criterio:", {
+                    error: err.message,
+                    response: err.response?.data
+                  });
+                  setStandardId(null);
+                  setTrasnversal(false);
+                  setHelp("");
+                }
+            } else {
+              // Resetear si no es estándar
+              setStandardId(null);
+              setTrasnversal(false);
+              setHelp("");
+            }
+        };
+        fetchData();
+    }, [seccion.section_id, seccion.is_standard, frame_id]);
+    console.log(standardId);
   
     const handleSave = async () => {
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para la sección");
+        alert("Por favor ingrese un nombre para el indicador");
         return;
       }
 
       setIsLoading(true);
       try {
-        await api.put("/api/section-update", {
+        const res = await api.put("/api/section-update", {
           section_id: seccion.section_id,
           section_name: nombre,
-          section_description: descripcion
+          section_description: descripcion,
+          is_standard: is_standard
         });
-        alert("Sección actualizada exitosamente");
+        // 2. Manejar el criterio según el estado del checkbox
+        if (is_standard) {
+          // Usamos PUT para actualizar o POST para crear si no existe standardId
+                const standardData = {
+                    section_id: seccion.section_id,
+                    standard_id: standardId,
+                    standard_name: nombre,
+                    standard_description: descripcion,
+                    is_transversal: is_transversal,
+                    help: help
+                };
+
+                if (standardId) {
+                    const res = await api.put("/api/standard-update/", standardData);
+                } else {
+                    const res = await api.post("/api/standard", standardData);
+                    setStandardId(res.data.data.standard_id);
+                }
+            } else if (standardId) {
+                // Ahora sí podemos eliminar el criterio
+                const res = await api.delete(`/api/standard/${standardId}`);
+                setStandardId(null);
+            }
+        alert("Indicador actualizado exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al actualizar la sección: " + (err.response?.data?.message || "Error desconocido"));
+        alert("Error al actualizar el indicador: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -293,11 +447,11 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Sección</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Indicador</h2>
             <div className="space-y-4">
               <div>
         <label htmlFor="nombreSeccion" className="block text-sm font-medium text-gray-700 mb-1">
-          Nombre de la sección
+          Nombre del indicador
         </label>
         <input
           type="text"
@@ -310,7 +464,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
 
               <div>
         <label htmlFor="descripcionSeccion" className="block text-sm font-medium text-gray-700 mb-1">
-          Descripción de la sección
+          Descripción del indicador
         </label>
                 <textarea
                   id="descripcionSeccion"
@@ -320,6 +474,54 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
                   rows="3"
                 />
               </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="standard"
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  checked={is_standard}
+                  onChange={(e) => !hasUnfinishedProcesses && setStandard(e.target.checked)}
+                  disabled={hasUnfinishedProcesses}
+                />
+                <label htmlFor="standard" className="ml-2 text-sm font-medium text-gray-700">
+                  Es criterio
+                  {hasUnfinishedProcesses && (
+                    <span className="ml-2 text-xs text-gray-500">
+                        (No se puede modificar mientras haya procesos de acreditación activos)
+                    </span>
+                )}
+                </label>
+              </div>
+              {is_standard && (
+                <>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="transversal"
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      checked={is_transversal}
+                      onChange={(e) => setTrasnversal(e.target.checked)}
+                    />
+                    <label htmlFor="transversal" className="ml-2 text-sm font-medium text-gray-700">
+                      Criterio transversal
+                    </label>
+                  </div>
+
+                  <div>
+                    <label htmlFor="ayudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+                      Ayuda del criterio
+                    </label>
+                    <textarea
+                      id="ayudaCriterio"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      placeholder="Ingrese la ayuda del criterio"
+                      value={help}
+                      onChange={(e) => setHelp(e.target.value)}
+                      rows="3"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
           <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
@@ -370,7 +572,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
         return;
       }
       if (!selectedSectionId) {
-        alert("Por favor seleccione una sección");
+        alert("Por favor seleccione un indicador");
         return;
       }
       if (!nombre.trim()) {
@@ -429,7 +631,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
 
               <div>
                 <label htmlFor="seccion" className="block text-sm font-medium text-gray-700 mb-1">
-                  Sección
+                  Indicador
                 </label>
                 <select
                   id="seccion"
@@ -438,7 +640,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
                   onChange={(e) => setSelectedSectionId(e.target.value)}
                   disabled={!selectedCategoryId}
                 >
-                  <option value="">Seleccione una sección</option>
+                  <option value="">Seleccione un indicador</option>
                   {filteredSections.map((sec) => (
                     <option key={sec.section_id} value={sec.section_id}>
                       {sec.indice}. {sec.section_name}
@@ -779,7 +981,7 @@ export default function EstructuraMarco() {
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
               onClick={handleOpenCreateSeccion}
             >
-              Crear Sección
+              Crear Indicador
             </button>
             <button 
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
@@ -823,7 +1025,7 @@ export default function EstructuraMarco() {
               <thead>
                 <tr className="bg-gray-50 border-b">
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Categoría</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Sección</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Indicador</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/3">Criterio</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/6"></th>
                 </tr>
@@ -856,9 +1058,10 @@ export default function EstructuraMarco() {
                                 Modificar
                               </button>
                             </div>
+                            
                           </td>
                           <td colSpan="3" className="px-6 py-4 text-sm text-gray-500 italic">
-                            No hay secciones en esta categoría
+                            No hay indicadores en esta categoría
                           </td>
                         </tr>
                       );
@@ -885,6 +1088,7 @@ export default function EstructuraMarco() {
                                   </button>
                                 </div>
                               </td>
+                              
                             )}
                             <td className="px-6 py-4 text-sm text-gray-600 border-r">
                               <div className="flex items-center">
@@ -898,7 +1102,7 @@ export default function EstructuraMarco() {
                               </div>
                             </td>
                             <td colSpan="2" className="px-6 py-4 text-sm text-gray-500 italic">
-                              No hay criterios en esta sección
+                              No hay criterios en este indicador
                             </td>
                           </tr>
                         );
@@ -929,6 +1133,11 @@ export default function EstructuraMarco() {
                             >
                               <div className="flex items-center">
                                 <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
+                                {sec.is_standard && (
+                                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Es criterio
+                                  </span>
+                                )}
                                 <button 
                                   className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
                                   onClick={() => handleOpenEditSeccion(sec.section_id)}
@@ -983,8 +1192,9 @@ export default function EstructuraMarco() {
                     onCancel={handleCancel}
                     onSaved={() => {
                       handleCancel();
-              fetchCategorias();
-            }}
+                      fetchCategorias();
+                    }}
+                    frame_id={marco.frame_id}
           />
         )}
 

@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
+import { useParams } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const CV = () => {
     const [data, setData] = useState({});
     const [activeSection, setActiveSection] = useState(1);
     const [cvId, setCvId] = useState(null);
-    const rpe = localStorage.getItem("rpe");
+    const [canEdit, setCanEdit] = useState(false);
+    const { rpe } = useParams()
+    const [loading, setLoading] = useState(true);
 
     const mapLetterToDegree = (letter) => {
         const degrees = {
@@ -80,6 +84,8 @@ const CV = () => {
     };
 
     useEffect(() => {
+        setCanEdit(rpe === localStorage.getItem('rpe'));
+
         const fetchSectionData = async (cvId, sectionId) => {
             const sectionEndpoints = {
                 1: 'educations',
@@ -101,6 +107,7 @@ const CV = () => {
     
         const fetchInitialData = async () => {
             try {
+                setLoading(true);
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
         
@@ -117,6 +124,8 @@ const CV = () => {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
+            }finally{
+                setLoading(false);
             }
         };
     
@@ -398,7 +407,7 @@ const CV = () => {
         <div className="flex flex-col">
             <div className="flex flex-1">
                 <aside className="w-1/4 bg-gray-100 p-4 rounded-lg">
-                    <h2 className="text-lg font-semibold mb-4 text-gray-800">Secciones</h2>
+                    <h2 className="text-lg font-semibold mb-4 text-gray-800">Indicadores</h2>
                     <ul className="space-y-2">
                         {sections.map((section) => (
                             <li
@@ -417,19 +426,26 @@ const CV = () => {
                 </aside>
 
                 <main className="w-3/4 p-6">
-                    {sections.map(
+                {loading ? (
+                    <div className="col-span-full flex justify-center py-12">
+                    <LoadingSpinner />
+                    </div>
+                ):
+                (sections.map(
                         (section) =>
                             activeSection === section.id && (
                                 <div key={section.id}>
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}</h2>
-                                        <button
-                                            onClick={() => addRow(section.id)}
-                                            className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
-                                        >
-                                            <Plus className="w-4 h-4" />
-                                            Agregar
-                                        </button>
+                                        {canEdit && (
+                                            <button
+                                                onClick={() => addRow(section.id)}
+                                                className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                            >
+                                                <Plus className="w-4 h-4" />
+                                                Agregar
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                                         <table className="w-full">
@@ -450,6 +466,7 @@ const CV = () => {
                                                             <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
                                                                 {campo.type === "select" ? (
                                                                     <select
+                                                                        disabled={!canEdit}
                                                                         value={row.values[campo.name] || ""}
                                                                         onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
                                                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
@@ -461,6 +478,7 @@ const CV = () => {
                                                                     </select>
                                                                 ) : (
                                                                     <input
+                                                                        disabled={!canEdit}
                                                                         type={campo.type}
                                                                         value={row.values[campo.name] || ""}
                                                                         onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
@@ -488,18 +506,21 @@ const CV = () => {
                                     </div>
                                     {data[section.id]?.length > 0 && (
                                         <div className="mt-4 flex justify-end">
-                                            <button
-                                                onClick={() => sendData(section.id)}
-                                                className="flex items-center gap-2 px-6 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
-                                            >
-                                                <Save className="w-4 h-4" />
-                                                Guardar cambios
-                                            </button>
+                                            {canEdit && (
+                                                <button
+                                                    onClick={() => sendData(section.id)}
+                                                    className="flex items-center gap-2 px-6 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                                >
+                                                    <Save className="w-4 h-4" />
+                                                    Guardar cambios
+                                                </button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
                             )
-                    )}
+                    ))
+                }
                 </main>
             </div>
             
