@@ -90,8 +90,27 @@ const DashboardWidgets = () => {
           </button>
         </div>
       )}
+      
+      {/* Upload Evidence Card */}
+      <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
+        <div>
+          <h2 className="text-2xl font-bold mb-2 flex items-center">
+            <Upload className="w-6 h-6 mr-2" />
+            Carga de Evidencias
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Sube y gestiona las evidencias necesarias para el proceso de acreditación.
+          </p>
+        </div>
+        <button 
+          onClick={() => navigate('/uploadEvidence')}
+          className="bg-blue-700 text-white mt-4 py-2 rounded-xl hover:bg-blue-800 transition-colors duration-300"
+        >
+          Ir a Carga de Evidencias
+        </button>
+      </div>
 
-            {/* Task Assignments Card (Admin Only) */}
+            {/* Consult CV's of process */}
       {(['ADMINISTRADOR', 'COORDINADOR', 'JEFE DE AREA', 'DIRECTIVO'].includes(userRole)) && (
         <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
           <div>
@@ -112,24 +131,6 @@ const DashboardWidgets = () => {
         </div>
       )}
 
-      {/* Upload Evidence Card */}
-      <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
-        <div>
-          <h2 className="text-2xl font-bold mb-2 flex items-center">
-            <Upload className="w-6 h-6 mr-2" />
-            Carga de Evidencias
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Sube y gestiona las evidencias necesarias para el proceso de acreditación.
-          </p>
-        </div>
-        <button 
-          onClick={() => navigate('/uploadEvidence')}
-          className="bg-blue-700 text-white mt-4 py-2 rounded-xl hover:bg-blue-800 transition-colors duration-300"
-        >
-          Ir a Carga de Evidencias
-        </button>
-      </div>
 
       {/* Progress Card */}
       <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center">

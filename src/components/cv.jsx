@@ -407,7 +407,7 @@ const CV = () => {
         <div className="flex flex-col">
             <div className="flex flex-1">
                 <aside className="w-1/4 bg-gray-100 p-4 rounded-lg">
-                    <h2 className="text-lg font-semibold mb-4 text-gray-800">Secciones</h2>
+                    <h2 className="text-lg font-semibold mb-4 text-gray-800">Indicadores</h2>
                     <ul className="space-y-2">
                         {sections.map((section) => (
                             <li
