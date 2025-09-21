@@ -148,14 +148,15 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     );
   }
 
-  function CrearSeccionForm({ onCancel, onSaved, categories }) {
+function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) {
     const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
-    const [selectedCategoryId, setSelectedCategoryId] = useState("");
-    const [is_standard, setStandard] = useState("");
+    const [selectedCategoryId, setSelectedCategoryId] = useState(defaultCategoryId ? String(defaultCategoryId) : "");
+    const [is_standard, setStandard] = useState(false);
     const [is_transversal, setTrasnversal] = useState(false);
     const [help, setHelp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const isCategoryFixed = Boolean(defaultCategoryId);
 
     const handleSave = async () => {
       if (!selectedCategoryId) {
@@ -220,22 +221,31 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Indicador</h2>
             <div className="space-y-4">
               <div>
-                <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
-                  Categoría
-                </label>
-                <select
-                  id="categoria"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  value={selectedCategoryId}
-                  onChange={(e) => setSelectedCategoryId(e.target.value)}
-                >
-                  <option value="">Seleccione una categoría</option>
-                  {categories.map((cat) => (
-                    <option key={cat.category_id} value={cat.category_id}>
-                      {cat.indice}. {cat.category_name}
-                    </option>
-                  ))}
-                </select>
+                {!isCategoryFixed ? (
+                  <>
+                    <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
+                      Categoría
+                    </label>
+                    <select
+                      id="categoria"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      value={selectedCategoryId}
+                      onChange={(e) => setSelectedCategoryId(e.target.value)}
+                    >
+                      <option value="">Seleccione una categoría</option>
+                      {categories.map((cat) => (
+                        <option key={cat.category_id} value={cat.category_id}>
+                          {cat.indice}. {cat.category_name}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                ) : (
+                  <div className="text-sm text-gray-600"><span className="font-medium">Categoría seleccionada:</span> {(() => {
+                    const c = categories.find(c => String(c.category_id) === String(selectedCategoryId));
+                    return c ? `${c.indice}. ${c.category_name}` : selectedCategoryId;
+                  })()}</div>
+                )}
               </div>
 
               <div>
@@ -552,14 +562,16 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     );
   }
 
-  function CrearCriterioForm({ onCancel, onSaved, sections, categories }) {
+function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCategoryId, defaultSectionId }) {
     const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
     const [is_transversal, setTrasnversal] = useState(false);
     const [help, setHelp] = useState("");
-    const [selectedCategoryId, setSelectedCategoryId] = useState("");
-    const [selectedSectionId, setSelectedSectionId] = useState("");
+    const [selectedCategoryId, setSelectedCategoryId] = useState(defaultCategoryId ? String(defaultCategoryId) : "");
+    const [selectedSectionId, setSelectedSectionId] = useState(defaultSectionId ? String(defaultSectionId) : "");
     const [isLoading, setIsLoading] = useState(false);
+    const isCategoryFixed = Boolean(defaultCategoryId);
+    const isSectionFixed = Boolean(defaultSectionId);
 
     // Filter sections based on selected category
     const filteredSections = sections.filter(sec => {
@@ -611,46 +623,64 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Criterio</h2>
             <div className="space-y-4">
               <div>
-                <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
-                  Categoría
-                </label>
-                <select
-                  id="categoria"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  value={selectedCategoryId}
-                  onChange={handleCategoryChange}
-                >
-                  <option value="">Seleccione una categoría</option>
-                  {categories.map((cat) => (
-                    <option key={cat.category_id} value={cat.category_id}>
-                      {cat.indice}. {cat.category_name}
-                    </option>
-                  ))}
-                </select>
+                {!isCategoryFixed ? (
+                  <>
+                    <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
+                      Categoría
+                    </label>
+                    <select
+                      id="categoria"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      value={selectedCategoryId}
+                      onChange={handleCategoryChange}
+                    >
+                      <option value="">Seleccione una categoría</option>
+                      {categories.map((cat) => (
+                        <option key={cat.category_id} value={cat.category_id}>
+                          {cat.indice}. {cat.category_name}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                ) : (
+                  <div className="text-sm text-gray-600"><span className="font-medium">Categoría seleccionada:</span> {(() => {
+                    const c = categories.find(c => String(c.category_id) === String(selectedCategoryId));
+                    return c ? `${c.indice}. ${c.category_name}` : selectedCategoryId;
+                  })()}</div>
+                )}
               </div>
 
               <div>
-                <label htmlFor="seccion" className="block text-sm font-medium text-gray-700 mb-1">
-                  Indicador
-                </label>
-                <select
-                  id="seccion"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  value={selectedSectionId}
-                  onChange={(e) => setSelectedSectionId(e.target.value)}
-                  disabled={!selectedCategoryId}
-                >
-                  <option value="">Seleccione un indicador</option>
-                  {filteredSections.map((sec) => (
-                    <option key={sec.section_id} value={sec.section_id}>
-                      {sec.indice}. {sec.section_name}
-                    </option>
-                  ))}
-                </select>
-                {!selectedCategoryId && (
-                  <p className="mt-1 text-sm text-gray-500">
-                    Primero seleccione una categoría
-                  </p>
+                {!isSectionFixed ? (
+                  <>
+                    <label htmlFor="seccion" className="block text-sm font-medium text-gray-700 mb-1">
+                      Indicador
+                    </label>
+                    <select
+                      id="seccion"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      value={selectedSectionId}
+                      onChange={(e) => setSelectedSectionId(e.target.value)}
+                      disabled={!selectedCategoryId}
+                    >
+                      <option value="">Seleccione un indicador</option>
+                      {filteredSections.map((sec) => (
+                        <option key={sec.section_id} value={sec.section_id}>
+                          {sec.indice}. {sec.section_name}
+                        </option>
+                      ))}
+                    </select>
+                    {!selectedCategoryId && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        Primero seleccione una categoría
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-sm text-gray-600"><span className="font-medium">Indicador seleccionado:</span> {(() => {
+                    const s = sections.find(s => String(s.section_id) === String(selectedSectionId));
+                    return s ? `${s.indice}. ${s.section_name}` : selectedSectionId;
+                  })()}</div>
                 )}
               </div>
 
@@ -869,6 +899,8 @@ export default function EstructuraMarco() {
     const [showCreateCategoria, setShowCreateCategoria] = useState(false);
     const [showCreateSeccion, setShowCreateSeccion] = useState(false);
     const [showCreateCriterio, setShowCreateCriterio] = useState(false);
+    const [defaultCategoryForCreate, setDefaultCategoryForCreate] = useState(null);
+    const [defaultSectionForCreate, setDefaultSectionForCreate] = useState(null);
 
     const [editingCategoryId, setEditingCategoryId] = useState(null);
     const [editingSectionId, setEditingSectionId] = useState(null);
@@ -915,16 +947,19 @@ export default function EstructuraMarco() {
         setShowCreateCriterio(false);
     };
 
-    const handleOpenCreateSeccion = () => {
+    const handleOpenCreateSeccion = (categoryId = null) => {
         setShowCreateCategoria(false);
         setShowCreateSeccion(true);
         setShowCreateCriterio(false);
+        setDefaultCategoryForCreate(categoryId);
     };
 
-    const handleOpenCreateCriterio = () => {
+    const handleOpenCreateCriterio = (categoryId = null, sectionId = null) => {
         setShowCreateCategoria(false);
         setShowCreateSeccion(false);
         setShowCreateCriterio(true);
+        setDefaultCategoryForCreate(categoryId);
+        setDefaultSectionForCreate(sectionId);
     };
 
     const handleCancel = () => {
@@ -934,6 +969,8 @@ export default function EstructuraMarco() {
       setShowCreateCategoria(false);
       setShowCreateSeccion(false);
       setShowCreateCriterio(false);
+      setDefaultCategoryForCreate(null);
+      setDefaultSectionForCreate(null);
     };
 
     const handleOpenEditCategoria = (categoryId) => {
@@ -977,18 +1014,6 @@ export default function EstructuraMarco() {
             >
               Crear Categoría
             </button>
-            <button 
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
-              onClick={handleOpenCreateSeccion}
-            >
-              Crear Indicador
-            </button>
-            <button 
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
-              onClick={handleOpenCreateCriterio}
-            >
-              Crear Criterio
-            </button>
           </div>
         </div>
 
@@ -1005,6 +1030,7 @@ export default function EstructuraMarco() {
             onCancel={handleCancel} 
             onSaved={() => { handleCancel(); fetchCategorias(); }} 
             categories={categorias}
+            defaultCategoryId={defaultCategoryForCreate}
           />
         )}
 
@@ -1014,6 +1040,8 @@ export default function EstructuraMarco() {
             onSaved={() => { handleCancel(); fetchCategorias(); }} 
             sections={secciones}
             categories={categorias}
+            defaultCategoryId={defaultCategoryForCreate}
+            defaultSectionId={defaultSectionForCreate}
           />
         )}
   
@@ -1024,7 +1052,14 @@ export default function EstructuraMarco() {
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b">
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Categoría</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Categoría
+                    <button 
+                      className="ml-2 inline-flex items-center text-xs text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 rounded px-2 py-1 border border-green-200"
+                      onClick={() => handleOpenCreateCategoria()}
+                    >
+                      + Agregar
+                    </button>
+                  </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Indicador</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/3">Criterio</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/6"></th>
@@ -1049,16 +1084,25 @@ export default function EstructuraMarco() {
                       return (
                         <tr key={cat.category_id} className="border-b hover:bg-gray-50">
                           <td className="px-6 py-4 text-sm text-gray-600 border-r">
-                            <div className="flex items-center">
-                              <span className="font-medium">{cat.indice}. {cat.category_name}</span>
-                              <button 
-                                className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                                onClick={() => handleOpenEditCategoria(cat.category_id)}
-                              >
-                                Modificar
-                              </button>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <span className="font-medium">{cat.indice}. {cat.category_name}</span>
+                                <button 
+                                  className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                                  onClick={() => handleOpenEditCategoria(cat.category_id)}
+                                >
+                                  Modificar
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button 
+                                  className="text-xs text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 rounded px-2 py-1 border border-green-200"
+                                  onClick={() => handleOpenCreateSeccion(cat.category_id)}
+                                >
+                                  + Indicador
+                                </button>
+                              </div>
                             </div>
-                            
                           </td>
                           <td colSpan="3" className="px-6 py-4 text-sm text-gray-500 italic">
                             No hay indicadores en esta categoría
@@ -1078,27 +1122,47 @@ export default function EstructuraMarco() {
                                 rowSpan={totalRows}
                                 className="px-6 py-4 text-sm text-gray-600 align-top border-r"
                               >
-                                <div className="flex items-center">
-                                  <span className="font-medium">{cat.indice}. {cat.category_name}</span>
-                                  <button 
-                                    className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                                    onClick={() => handleOpenEditCategoria(cat.category_id)}
-                                  >
-                                    Modificar
-                                  </button>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center">
+                                    <span className="font-medium">{cat.indice}. {cat.category_name}</span>
+                                    <button 
+                                      className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                                      onClick={() => handleOpenEditCategoria(cat.category_id)}
+                                    >
+                                      Modificar
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <button 
+                                      className="text-xs text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 rounded px-2 py-1 border border-green-200"
+                                      onClick={() => handleOpenCreateSeccion(cat.category_id)}
+                                    >
+                                      + Indicador
+                                    </button>
+                                  </div>
                                 </div>
                               </td>
                               
                             )}
                             <td className="px-6 py-4 text-sm text-gray-600 border-r">
-                              <div className="flex items-center">
-                                <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
-                                <button 
-                                  className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                                  onClick={() => handleOpenEditSeccion(sec.section_id)}
-                                >
-                                  Modificar
-                                </button>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
+                                  <button 
+                                    className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                                    onClick={() => handleOpenEditSeccion(sec.section_id)}
+                                  >
+                                    Modificar
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button 
+                                    className="text-xs text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 rounded px-2 py-1 border border-green-200"
+                                    onClick={() => handleOpenCreateCriterio(cat.category_id, sec.section_id)}
+                                  >
+                                    + Criterio
+                                  </button>
+                                </div>
                               </div>
                             </td>
                             <td colSpan="2" className="px-6 py-4 text-sm text-gray-500 italic">
@@ -1115,14 +1179,24 @@ export default function EstructuraMarco() {
                               rowSpan={totalRows}
                               className="px-6 py-4 text-sm text-gray-600 align-top border-r"
                             >
-                              <div className="flex items-center">
-                                <span className="font-medium">{cat.indice}. {cat.category_name}</span>
-                                <button 
-                                  className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                                  onClick={() => handleOpenEditCategoria(cat.category_id)}
-                                >
-                                  Modificar
-                                </button>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <span className="font-medium">{cat.indice}. {cat.category_name}</span>
+                                  <button 
+                                    className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                                    onClick={() => handleOpenEditCategoria(cat.category_id)}
+                                  >
+                                    Modificar
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button 
+                                    className="text-xs text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 rounded px-2 py-1 border border-green-200"
+                                    onClick={() => handleOpenCreateSeccion(cat.category_id)}
+                                  >
+                                    + Indicador
+                                  </button>
+                                </div>
                               </div>
                             </td>
                           )}
