@@ -17,24 +17,13 @@ export default function EditorCacei({ setJustification, value, readOnly }) {
           toolbar: readOnly
             ? []
             : [
-                'heading',
-                '|',
                 'bold',
                 'italic',
                 'underline',
-                'link',
+                '|',
                 'bulletedList',
                 'numberedList',
-                '|',
-                'insertTable',
-                'undo',
-                'redo'
               ],
-          table: {
-            contentToolbar: readOnly
-              ? []
-              : ['tableColumn', 'tableRow', 'mergeTableCells']
-          },
           readOnly: readOnly
         }}
         onReady={(editor) => {
