@@ -268,7 +268,7 @@ export default function FrameOfReferenceView() {
                           onClick={() => handleRowClick(frame)}
                           className="text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
                         >
-                          Ver secciones
+                          Ver indicadores
                           <ArrowRight className="w-4 h-4" />
                         </button>
                       </td>

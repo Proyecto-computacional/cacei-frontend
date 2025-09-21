@@ -141,14 +141,14 @@ const EvidenceManagement = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Sección</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Indicador</label>
                   <select
                     name="section"
                     value={filters.section}
                     onChange={handleFilterChange}
                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#004A98] focus:ring-[#004A98] sm:text-sm"
                   >
-                    <option value="">Todas las secciones</option>
+                    <option value="">Todas los indicadores</option>
                     {sections.map((section, index) => (
                       <option key={index} value={section}>{section}</option>
                     ))}
@@ -198,7 +198,7 @@ const EvidenceManagement = () => {
                       Categoría
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                      Sección
+                      Indicador
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                       Criterio

@@ -185,9 +185,9 @@ const AssignTask = ({ onClose }) => {
         </div>
   
         <div className="mb-4">
-          <label className="block mb-1 font-medium">Sección:</label>
+          <label className="block mb-1 font-medium">Indicador:</label>
           <select className="w-full p-2 border rounded" value={selectedSection} onChange={(e) => setSelectedSection(e.target.value)}>
-            <option value="">Selecciona una sección</option>
+            <option value="">Selecciona un indicador</option>
             {sections.map(sec => (
               <option key={sec.section_id} value={sec.section_id}>{sec.section_name}</option>
             ))}
