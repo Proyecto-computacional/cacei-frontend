@@ -68,11 +68,7 @@ const DashboardWidgets = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-21 mr-21 mb-21">
-<<<<<<< HEAD
-       {/* Task Assignments Card (Admin Only) */}
-=======
       {/* Task Assignments Card (Admin Only) */}
->>>>>>> origin/main
       {(userRole === "ADMINISTRADOR" || userRole === "COORDINADOR" || userRole === "JEFE DE AREA") && (
         <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
           <div>

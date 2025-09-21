@@ -300,11 +300,7 @@ const Dashboard = () => {
       <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
         <div className="mb-8">
           <h1 className="text-[40px] font-bold text-[#004A98] font-['Open_Sans']">
-<<<<<<< HEAD
-            Proceso de Acreditación
-=======
             {processInfo.name}
->>>>>>> origin/main
           </h1>
           <h2 className="text-[24px] font-bold text-gray-800 pt-2">
               Marco de referencia: {processInfo.frameName}

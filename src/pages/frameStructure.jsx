@@ -177,11 +177,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
         return;
       }
       if (!nombre.trim()) {
-<<<<<<< HEAD
         setModalAlertMessage("Por favor ingrese un nombre para la sección");
-=======
-        alert("Por favor ingrese un nombre para el indicador");
->>>>>>> origin/main
         return;
       }
 
@@ -222,17 +218,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
           }
         }
 
-<<<<<<< HEAD
         setModalAlertMessage(is_standard ? "Sección y criterio creados exitosamente" : "Sección creada exitosamente");
         onSaved();
       } catch (err) {
         setModalAlertMessage("Error al crear la sección: " + (err.response?.data?.message || "Error desconocido"));
-=======
-        alert(is_standard ? "Indicador y criterio creados exitosamente" : "Indicador creado exitosamente");
-        onSaved();
-      } catch (err) {
-        alert("Error al crear el indicador: " + (err.response?.data?.message || "Error desconocido"));
->>>>>>> origin/main
       } finally {
         setIsLoading(false);
       }
@@ -430,11 +419,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   
     const handleSave = async () => {
       if (!nombre.trim()) {
-<<<<<<< HEAD
         setModalAlertMessage("Por favor ingrese un nombre para la sección");
-=======
-        alert("Por favor ingrese un nombre para el indicador");
->>>>>>> origin/main
         return;
       }
 
@@ -469,17 +454,10 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
                 const res = await api.delete(`/api/standard/${standardId}`);
                 setStandardId(null);
             }
-<<<<<<< HEAD
         setModalAlertMessage("Sección actualizada exitosamente");
         onSaved();
       } catch (err) {
         setModalAlertMessage("Error al actualizar la sección: " + (err.response?.data?.message || "Error desconocido"));
-=======
-        alert("Indicador actualizado exitosamente");
-        onSaved();
-      } catch (err) {
-        alert("Error al actualizar el indicador: " + (err.response?.data?.message || "Error desconocido"));
->>>>>>> origin/main
       } finally {
         setIsLoading(false);
       }
@@ -620,11 +598,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
         return;
       }
       if (!selectedSectionId) {
-<<<<<<< HEAD
         setModalAlertMessage("Por favor seleccione una sección");
-=======
-        alert("Por favor seleccione un indicador");
->>>>>>> origin/main
         return;
       }
       if (!nombre.trim()) {
