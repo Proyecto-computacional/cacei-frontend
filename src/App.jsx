@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import FrameOfReferenceView from "./pages/framesAdmin";
 import EstructuraMarco from "./pages/frameStructure";
 import EvidencesCompilation from "./pages/EvidencesCompilation";
+import CVsOfProcess from "./pages/CVsOfProcess";
 
 function App() {
   return (
@@ -75,6 +76,13 @@ function App() {
             "COORDINADOR",
             "JEFE DE AREA", "DIRECTIVO"]}>
             <EvidenceManagement />
+          </ProtectedRoute>
+        } />
+        <Route path="/CVsOfProcess/:processId" element={
+          <ProtectedRoute allowedRoles={["ADMINISTRADOR",
+            "COORDINADOR",
+            "JEFE DE AREA", "DIRECTIVO"]}>
+            <CVsOfProcess />
           </ProtectedRoute>
         } />
         <Route path="/framesAdmin" element={
