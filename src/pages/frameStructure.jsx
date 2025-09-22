@@ -1205,19 +1205,29 @@ export default function EstructuraMarco() {
                               rowSpan={sectionCriteria.length}
                               className="px-6 py-4 text-sm text-gray-600 align-top border-r"
                             >
-                              <div className="flex items-center">
-                                <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
-                                {sec.is_standard && (
-                                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    Es criterio
-                                  </span>
-                                )}
-                                <button 
-                                  className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                                  onClick={() => handleOpenEditSeccion(sec.section_id)}
-                                >
-                                  Modificar
-                                </button>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
+                                  {sec.is_standard && (
+                                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                      Criterio
+                                    </span>
+                                  )}
+                                  <button 
+                                    className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                                    onClick={() => handleOpenEditSeccion(sec.section_id)}
+                                  >
+                                    Modificar
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button 
+                                    className="text-xs text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 rounded px-2 py-1 border border-green-200"
+                                    onClick={() => handleOpenCreateCriterio(cat.category_id, sec.section_id)}
+                                  >
+                                    + Criterio
+                                  </button>
+                                </div>
                               </div>
                             </td>
                           )}
