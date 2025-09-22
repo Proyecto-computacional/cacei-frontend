@@ -6,6 +6,7 @@ import "../app.css"
 import api from "../services/api";
 import { Search, Users, Shield, FileUser } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
+import ModalAlert from "../components/ModalAlert";
 import PermissionsTable from "./permissionsTable";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -20,6 +21,7 @@ export default function UsersTable() {
         { name: 'Profesor responsable', description: 'Subir y visualizar sus evidencias y revisar las evidencias que se le asignen' },
         { name: 'Departamento universitario', description: 'Subir y visualizar sus evidencias (Evidencias transversales)' },
         { name: 'Personal de apoyo', description: 'Subir y visualizar las evidencias que se les asigne' },
+        { name: 'Capturista', description: 'Crear y modificar los marcos de referencias'},
     ]);
 
     const [allUsers, setAllUsers] = useState([]);
@@ -30,7 +32,8 @@ export default function UsersTable() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedArea, setSelectedArea] = useState("-1");
 
-    
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
+
     const fetchUsers = async () => {
         try {
             setLoading(true);
@@ -50,23 +53,24 @@ export default function UsersTable() {
         ]);
 
             setAllUsers(responseUsers.data.usuarios);
+            console.log(responseUsers);
             setAreas(responseAreas.data);
         
             setFilteredUsers(responseUsers.data.usuarios);
             //setNextPage(responseUsers.data.usuarios.next_page_url);
         } catch (error) {
             if (error.response) {
-                if (error.response.status === 403 ) {
-                    alert("No tienes permisos para acceder a esta sección.");
+                if (error.response.status === 403) {
+                    setModalAlertMessage("No tienes permisos para acceder a esta sección.");
                     window.location.href = "/PersonalConfig";
                 } else if (error.response.status === 401) {
-                    alert("Sesión expirada. Inicia sesión de nuevo.");
+                    setModalAlertMessage("Sesión expirada. Inicia sesión de nuevo.");
                     window.location.href = "/";
                 } else {
-                    alert("Error desconocido al obtener los usuarios.");
+                    setModalAlertMessage("Error desconocido al obtener los usuarios.");
                 }
             } else {
-                alert("Error de conexión con el servidor.");
+                setModalAlertMessage("Error de conexión con el servidor.");
             }
             console.error("Error al obtener los usuarios:", error);
         } finally {
@@ -109,11 +113,13 @@ export default function UsersTable() {
 
             axios.get(nextPage).then(({ data }) => {
                 const newUsers = data.usuarios.data;
+                console.log(newUsers);
                 setAllUsers(prev => [...prev, ...newUsers]);
                 setFilteredUsers(prev => [...prev, ...newUsers]);
                 setNextPage(data.usuarios.next_page_url);
                 setLoading(false);
             });
+            console.log(item);
         };
 
     // HTML --------------------------------------------------------------------------------------------
@@ -143,9 +149,9 @@ export default function UsersTable() {
                 <div className="relative">
                     <label className="p-2">Buscar</label>
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <input 
-                        type="text" 
-                        placeholder="Buscar por RPE, nombre o correo..." 
+                    <input
+                        type="text"
+                        placeholder="Buscar por RPE, nombre o correo..."
                         className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004A98] focus:border-transparent w-96"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
