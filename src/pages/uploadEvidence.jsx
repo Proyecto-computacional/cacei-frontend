@@ -54,8 +54,8 @@ const UploadEvidence = () => {
           // Ordena por fecha y hora más reciente
           if (response.data.evidence.status && response.data.evidence.status.length > 0) {
             response.data.evidence.status.sort((a, b) => {
-              const dateA = new Date(a.created_at);
-              const dateB = new Date(b.created_at);
+              const dateA = new Date(a.created_at ?? a.status_date ?? 0);
+              const dateB = new Date(b.created_at ?? b.status_date ?? 0);
               return dateB - dateA;
             });
           }
