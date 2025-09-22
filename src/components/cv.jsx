@@ -396,7 +396,7 @@ const CV = () => {
             campos: [
                 { name: "tipodecapacitacion", type: "text", label: "Tipo de capacitación", placeholder: "Nombre de la capacitación", maxLength: 50 },
                 { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del país", maxLength: 50 },
-                { name: "añoobtencion", type: "text", label: "Año de obtención", placeholder: "DD/MM/AAAA", maxLength: 10 },
+                { name: "añoobtencion", type: "number", label: "Año de obtención", placeholder: "AAAA", maxLength: 4 , min: 1900, max: new Date().getFullYear()},
                 { name: "horas", type: "number", label: "Horas", placeholder: "Horas hechas", min: 0, max: 100, step: 1, maxLength: 3 },
             ],
         },
