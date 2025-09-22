@@ -385,7 +385,7 @@ const CV = () => {
                 { name: "grado", type: "select", options: ["Licenciatura", "Especialidad", "Maestría", "Doctorado"], label: "Grado" },
                 { name: "titulo", type: "text", label: "Nombre del título", placeholder: "Título (Incluir especialidad)", maxLength: 100 },
                 { name: "institución", type: "text", label: "Nombre de la institución", placeholder: "Nombre de la institución", maxLength: 30 },
-                { name: "año", type: "text", label: "Año de obtención", placeholder: "DD/MM/AAAA", maxLength: 10 },
+                { name: "año", type: "number", label: "Año de obtención", placeholder: "AAAA", maxLength: 4 , min: 1900, max: new Date().getFullYear()},
                 { name: "cedula", type: "text", label: "Cédula profesional", placeholder: "Cédula profesional", maxLength: 10 },
             ],
         },
