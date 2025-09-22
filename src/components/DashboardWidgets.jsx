@@ -1,7 +1,7 @@
 import React from "react";
 //import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 //import "react-circular-progressbar/dist/styles.css";
-import { Bell, Upload, ClipboardList } from "lucide-react";
+import { Bell, Upload, ClipboardList, FileUser } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../services/api";  // Importa la API configurada
@@ -17,6 +17,7 @@ const DashboardWidgets = () => {
   const rpe = localStorage.getItem("rpe");
   const frameName = localStorage.getItem("frameName");
   const careerName = localStorage.getItem("careerName");
+  const processId = localStorage.getItem("currentProcessId");
 
   const fetchUserRole = async () => {
     try {
@@ -67,25 +68,7 @@ const DashboardWidgets = () => {
   const pendientesPercentage = total > 0 ? (pendientes / total) * 100 : 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-21 mr-21 mb-21">
-      {/* Upload Evidence Card */}
-      <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
-        <div>
-          <h2 className="text-2xl font-bold mb-2 flex items-center">
-            <Upload className="w-6 h-6 mr-2" />
-            Carga de Evidencias
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Sube y gestiona las evidencias necesarias para el proceso de acreditación.
-          </p>
-        </div>
-        <button 
-          onClick={() => navigate('/uploadEvidence')}
-          className="bg-blue-700 text-white mt-4 py-2 rounded-xl hover:bg-blue-800 transition-colors duration-300"
-        >
-          Ir a Carga de Evidencias
-        </button>
-      </div>
+    <div className="grid grid-cols-4 md:grid-cols-4 gap-6 ml-21 mr-21 mb-21">
 
       {/* Task Assignments Card (Admin Only) */}
       {(userRole === "ADMINISTRADOR" || userRole === "COORDINADOR" || userRole === "JEFE DE AREA") && (
@@ -107,6 +90,47 @@ const DashboardWidgets = () => {
           </button>
         </div>
       )}
+      
+      {/* Upload Evidence Card */}
+      <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
+        <div>
+          <h2 className="text-2xl font-bold mb-2 flex items-center">
+            <Upload className="w-6 h-6 mr-2" />
+            Carga de Evidencias
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Sube y gestiona las evidencias necesarias para el proceso de acreditación.
+          </p>
+        </div>
+        <button 
+          onClick={() => navigate('/uploadEvidence')}
+          className="bg-blue-700 text-white mt-4 py-2 rounded-xl hover:bg-blue-800 transition-colors duration-300"
+        >
+          Ir a Carga de Evidencias
+        </button>
+      </div>
+
+            {/* Consult CV's of process */}
+      {(['ADMINISTRADOR', 'COORDINADOR', 'JEFE DE AREA', 'DIRECTIVO'].includes(userRole)) && (
+        <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
+          <div>
+            <h2 className="text-2xl font-bold mb-2 flex items-center">
+            <FileUser className="w-6 h-6 mr-2" />
+              CV's de profesores.
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Consulta los CV's de los profesores que el sistema anexara para este proceso de acreditación en base a los horarios del semestre en el que se lleva a cabo.
+            </p>
+          </div>
+          <button 
+            onClick={() => navigate(`/CVsOfProcess/${processId}`)}
+            className="bg-blue-700 text-white mt-4 py-2 rounded-xl hover:bg-blue-800 transition-colors duration-300"
+          >
+            Ir a Lista de CV's.
+          </button>
+        </div>
+      )}
+
 
       {/* Progress Card */}
       <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center">
