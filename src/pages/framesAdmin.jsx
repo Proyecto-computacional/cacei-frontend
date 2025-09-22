@@ -206,18 +206,6 @@ export default function FrameOfReferenceView() {
                 <Plus className="w-5 h-5" />
                 Crear Marco
               </button>
-              <button
-                className={`px-6 py-2 rounded-md flex items-center gap-2 transition-colors ${
-                  selectedFrame 
-                    ? "bg-cyan-500 text-white hover:bg-cyan-600" 
-                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                }`}
-                onClick={handleOpenEdit}
-                disabled={!selectedFrame}
-              >
-                <Edit2 className="w-5 h-5" />
-                Modificar Marco
-              </button>
             </div>
           </div>
   
