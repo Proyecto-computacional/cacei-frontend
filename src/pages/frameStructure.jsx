@@ -1005,15 +1005,28 @@ export default function EstructuraMarco() {
       <AppHeader />
       <SubHeading />
       <div className="p-4 max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Estructura del {marco.frame_name}</h1>
-          <div className="flex gap-3">
-            <button 
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
-              onClick={handleOpenCreateCategoria}
-            >
-              Crear Categoría
-            </button>
+        <div className="mb-6">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-[#004A98] text-white rounded p-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                    <path fillRule="evenodd" d="M10 2a2 2 0 00-2 2v2H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V8a2 2 0 00-2-2h-2V4a2 2 0 00-2-2zm-1 8a1 1 0 112 0v3a1 1 0 11-2 0v-3z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-xl font-semibold text-gray-800">Estructura del {marco.frame_name}</h1>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200">{categorias.length} categorías</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200">{secciones.length} indicadores</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200">{criterios.length} criterios</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="mt-3 text-sm text-gray-600">
+              Agrega categorías, indicadores y criterios desde sus respectivas filas con “+”. Usa “Modificar” para editar elementos ya existentes.
+            </p>
           </div>
         </div>
 
@@ -1052,7 +1065,7 @@ export default function EstructuraMarco() {
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b">
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Categoría
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/3">Categoría
                     <button 
                       className="ml-2 inline-flex items-center text-xs text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 rounded px-2 py-1 border border-green-200"
                       onClick={() => handleOpenCreateCategoria()}
@@ -1060,15 +1073,14 @@ export default function EstructuraMarco() {
                       + Agregar
                     </button>
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/4">Indicador</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/3">Indicador</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/3">Criterio</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/6"></th>
                 </tr>
               </thead>
               <tbody>
                 {categorias.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan="3" className="px-6 py-8 text-center text-gray-500">
                       No hay categorías disponibles
                     </td>
                   </tr>
@@ -1104,7 +1116,7 @@ export default function EstructuraMarco() {
                               </div>
                             </div>
                           </td>
-                          <td colSpan="3" className="px-6 py-4 text-sm text-gray-500 italic">
+                          <td colSpan="2" className="px-6 py-4 text-sm text-gray-500 italic">
                             No hay indicadores en esta categoría
                           </td>
                         </tr>
@@ -1146,10 +1158,10 @@ export default function EstructuraMarco() {
                             )}
                             <td className="px-6 py-4 text-sm text-gray-600 border-r">
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center">
+                                <div className="flex items-center gap-2 flex-wrap">
                                   <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
                                   <button 
-                                    className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                                    className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
                                     onClick={() => handleOpenEditSeccion(sec.section_id)}
                                   >
                                     Modificar
@@ -1165,7 +1177,7 @@ export default function EstructuraMarco() {
                                 </div>
                               </div>
                             </td>
-                            <td colSpan="2" className="px-6 py-4 text-sm text-gray-500 italic">
+                            <td colSpan="1" className="px-6 py-4 text-sm text-gray-500 italic">
                               No hay criterios en este indicador
                             </td>
                           </tr>
@@ -1206,15 +1218,15 @@ export default function EstructuraMarco() {
                               className="px-6 py-4 text-sm text-gray-600 align-top border-r"
                             >
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center">
+                                <div className="flex items-center gap-2 flex-wrap">
                                   <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
                                   {sec.is_standard && (
-                                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
                                       Criterio
                                     </span>
                                   )}
                                   <button 
-                                    className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                                    className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
                                     onClick={() => handleOpenEditSeccion(sec.section_id)}
                                   >
                                     Modificar
@@ -1232,8 +1244,15 @@ export default function EstructuraMarco() {
                             </td>
                           )}
                           <td className="px-6 py-4 text-sm text-gray-600 border-r">
-                            <div className="flex items-center justify-between">
-                              <span>{cat.indice}.{sec.indice}.{cri.indice}. {cri.standard_name}</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span>{cat.indice}.{sec.indice}.{cri.indice}. {cri.standard_name}</span>
+                                {cri.is_transversal && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                                    Transversal
+                                  </span>
+                                )}
+                              </div>
                               <button 
                                 className="text-blue-600 hover:text-blue-800 transition-colors"
                                 onClick={() => handleOpenEditCriterio(cri.standard_id)}
@@ -1241,13 +1260,6 @@ export default function EstructuraMarco() {
                                 Modificar
                               </button>
                             </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {cri.is_transversal && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                Transversal
-                              </span>
-                            )}
                           </td>
                         </tr>
                       ));
