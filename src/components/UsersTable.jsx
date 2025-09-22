@@ -182,7 +182,7 @@ export default function UsersTable() {
                                 <td className="py-4 px-6">
                                     <SelectRol userId={item.user_rpe} initialRole={item.user_role} AllRoles={roles} />
                                 </td>
-                                <td className="py-4 px-6 text-gray-600">{item.area.area_name}</td>
+                                <td className="py-4 px-6 text-gray-600">{item.area.area_name || 'No especificado'}</td>
                                 <td className="py-4 px-6">
                                     <Link to={`/personalInfo/${item.user_rpe}`}>
                                         <div className="bg-[#004A98] p-2 rounded-lg w-fit cursor-pointer">
