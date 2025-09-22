@@ -481,14 +481,73 @@ const UploadEvidence = () => {
                 </div>
               )}
               {/* Información de la evidencia */}
-              <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
-                Proceso: {evidence.process.process_name}
-              </h2>
-              <h2 className="text-[25px] font-light text-black font-['Open_Sans'] mb-4 self-start">
-                {evidence.standard.section.category.category_name}/
-                {evidence.standard.section.section_name}/
-                {evidence.standard.standard_name}
-              </h2>
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3 mt-4 mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="bg-[#004A98] p-1.5 rounded">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-800">Información de la Evidencia</h2>
+                </div>
+                
+                <div className="space-y-3">
+                  {/* Proceso */}
+                  <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <span className="text-xs font-medium text-gray-600">Proceso:</span>
+                      <span className="ml-1 font-semibold text-gray-900 text-sm">{evidence.process.process_name}</span>
+                    </div>
+                  </div>
+
+                  {/* Jerarquía de la evidencia */}
+                  <div>
+                    <div className="flex items-center gap-1 text-xs text-gray-600 mb-1.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="font-medium">Ubicación:</span>
+                    </div>
+                    
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0h8v12H6V4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-xs text-gray-500">Categoría</span>
+                        <span className="font-semibold text-gray-900 text-xs">{evidence.standard.section.category.category_name}</span>
+                      </div>
+                      
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                      
+                      <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-xs text-gray-500">Indicador</span>
+                        <span className="font-semibold text-gray-900 text-xs">{evidence.standard.section.section_name}</span>
+                      </div>
+                      
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                      
+                      <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-xs text-gray-500">Criterio</span>
+                        <span className="font-semibold text-gray-900 text-xs">{evidence.standard.standard_name}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <p className="text-black text-lg font-semibold">Justificación</p>
               {/* Editor integrado de CKEditor (en EditorCacei.jsx) */}
               <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
