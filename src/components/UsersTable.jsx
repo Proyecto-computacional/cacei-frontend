@@ -16,9 +16,8 @@ export default function UsersTable() {
         { name: 'Directivo', description: 'Visualización de todos los procesos de todos los procesos de acreditación' },
         { name: 'Jefe de área', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su area' },
         { name: 'Coordinador de carrera', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su carrera' },
-        { name: 'Profesor', description: 'Subir y visualizar las evidencias que se le asignen' },
         { name: 'Profesor responsable', description: 'Subir y visualizar sus evidencias y revisar las evidencias que se le asignen' },
-        { name: 'Departamento universitario', description: 'Subir y visualizar sus evidencias (Evidencias transversales)' },
+        { name: 'Departamento de apoyo', description: 'Subir y visualizar sus evidencias (Evidencias transversales)' },
         { name: 'Personal de apoyo', description: 'Subir y visualizar las evidencias que se les asigne' },
     ]);
 
