@@ -31,8 +31,8 @@ const PermissionsTable = () => {
 
       const mappedData = response.data.map(role => {
           let displayName = role.role_name;
-          if (role.role_name === "profesor") displayName = "profesor responsable";
-          if (role.role_name === "departamento universitario") displayName = "departamento de apoyo";
+          if (role.role_name === "PROFESOR") displayName = "PROFESOR RESPONSABLE";
+          if (role.role_name === "DEPARTAMENTO UNIVERSITARIO") displayName = "DEPARTAMENTO DE APOYO";
 
           return { ...role, role_name: displayName };
         });
