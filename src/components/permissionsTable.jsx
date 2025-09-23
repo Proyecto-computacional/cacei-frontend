@@ -29,7 +29,15 @@ const PermissionsTable = () => {
         },
       });
 
-      setRolesData(response.data);
+      const mappedData = response.data.map(role => {
+          let displayName = role.role_name;
+          if (role.role_name === "profesor") displayName = "profesor responsable";
+          if (role.role_name === "departamento universitario") displayName = "departamento de apoyo";
+
+          return { ...role, role_name: displayName };
+        });
+
+      setRolesData(mappedData);
 
     } catch (error) {
       if (error.response) {
