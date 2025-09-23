@@ -13,7 +13,7 @@ const CVsOfProcess = () => {
 const[teachers, setTeachers] = useState();
 
 const params = useParams();
-const
+const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
 useEffect(() => {
     try {
