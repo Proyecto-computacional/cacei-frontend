@@ -142,6 +142,7 @@ const EvidencesCompilation = () => {
     fetchStructure();
   }, []);
 
+  // HTML ------------------------------------------------------------------------------------------------------------------------------
   return (
     <>
       <AppHeader />
@@ -153,12 +154,16 @@ const EvidencesCompilation = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
+              {/* Titulo de página */}
               <h1 className="text-[34px] font-semibold text-[#004A98] font-['Open_Sans']">
                 Compilación de evidencias
               </h1>
               <p className="text-gray-600 mt-2">
                 Genera una compilación de todas las evidencias aprobadas en el proceso
               </p>
+              <div className="mt-2">
+                <p className="text-gray-500"> Genere y descargue una compilación de todas las evidencias aprobadas en el proceso </p>
+              </div>
             </div>
 
             

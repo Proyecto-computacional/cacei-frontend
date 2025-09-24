@@ -416,237 +416,251 @@ const UploadEvidence = () => {
       <AppHeader />
       <SubHeading />
 
-      <div className="h-fit p-10 flex justify-around items-stretch relative gap-6" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
-        
-        {/* Cuadro de asignaciones */}
-        <div className="w-1/4 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-          <div className="bg-primary1 p-3">
-            <h2 className="text-lg font-semibold text-white text-center">Mis asignaciones</h2>
-          </div>
-          {isLoading ? (
-            <div className="relative min-h-[200px]" style={{ paddingTop: "10px" }}>
-              <LoadingSpinner />
-            </div>
-          ) : asignaciones.length > 0 ? ( 
-            <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
-              {/* Lista de asignaciones */}
-              {asignaciones.map((item, index) => (
-                <Link
-                  key={index}
-                  to={`/uploadEvidence/${item.evidence_id}`}
-                  className={`block p-3 transition-colors duration-200 no-underline ${
-                    evidence_id === item.evidence_id.toString()
-                      ? 'bg-primary1/10 border-l-4 border-primary1'
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className={`font-medium text-base flex-1 truncate ${
-                      evidence_id === item.evidence_id.toString()
-                        ? 'text-primary1'
-                        : 'text-gray-800'
-                    }`}>{item.criterio}</p>
-                    <span className={`px-2 py-0.5 rounded-full text-sm font-medium whitespace-nowrap ${getEstadoClass(item.estado)}`}>
-                      {item.estado}
-                      {/*DEBUGGING*/}
-                      <script>
-                        console.log("item.estado:", item.estado);
-                      </script>
-                    </span>
-                    
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="p-6 text-center">
-              <p className="text-gray-500 text-lg mb-2">No tienes asignaciones</p>
-              <p className="text-gray-400 text-sm">
-                No hay evidencias asignadas para revisar en este momento.
-              </p>
-            </div>
-          )}
+      
+      <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
+        {/* Titulo de página */}
+        <h1 className="text-3xl font-bold text-black">
+              Carga de evidencias
+        </h1>
+        <div className="mt-2">
+          <p className="text-gray-500"> Consulte las tareas asignadas a los usuarios en base a una categoría, indicador y criterios </p>
         </div>
-        {/* Cuadro donde interactúa con la evidencia */}
-        {evidence_id && evidence ? (
-          <div className="bg-white p-6 rounded-xl shadow-md flex flex-wrap flex-row w-3/4 min-h-[500px]">
-            <div className="flex flex-col flex-1 mr-10 w-1/2">
-              <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
-                Subir Evidencia
-              </h1>
-              {isFinished && (
-                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
-                  <p className="font-bold">Proceso finalizado</p>
-                  <p>No se pueden subir más evidencias porque el proceso de evaluación ha concluido.</p>
-                </div>
-              )}
-              {/* Información de la evidencia */}
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3 mt-4 mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="bg-[#004A98] p-1.5 rounded">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <h2 className="text-lg font-bold text-gray-800">Información de la Evidencia</h2>
-                </div>
-                
-                <div className="space-y-3">
-                  {/* Proceso */}
-                  <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <div>
-                      <span className="text-xs font-medium text-gray-600">Proceso:</span>
-                      <span className="ml-1 font-semibold text-gray-900 text-sm">{evidence.process.process_name}</span>
-                    </div>
-                  </div>
 
-                  {/* Jerarquía de la evidencia */}
-                  <div>
-                    <div className="flex items-center gap-1 text-xs text-gray-600 mb-1.5">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="font-medium">Ubicación:</span>
-                    </div>
-                    
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0h8v12H6V4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-xs text-gray-500">Categoría</span>
-                        <span className="font-semibold text-gray-900 text-xs">{evidence.standard.section.category.category_name}</span>
-                      </div>
-                      
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
-                      
-                      <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-xs text-gray-500">Indicador</span>
-                        <span className="font-semibold text-gray-900 text-xs">{evidence.standard.section.section_name}</span>
-                      </div>
-                      
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
-                      
-                      <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-xs text-gray-500">Criterio</span>
-                        <span className="font-semibold text-gray-900 text-xs">{evidence.standard.standard_name}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <p className="text-black text-lg font-semibold">Justificación</p>
-              {/* Editor integrado de CKEditor (en EditorCacei.jsx) */}
-              <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
-              {user?.user_rpe === evidence.user_rpe && (
-                <div className="mt-4 flex">
-                  <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
-                    Ingresa el archivo aquí
-                    <input
-                      type="file"
-                      className="hidden"
-                      multiple
-                      onChange={handleFileChange}
-                      ref={refInputFiles}
-                      disabled={isLocked || isFinished}
-                    />
-                  </label>
-                  <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
-                </div>
-              )}
-              {/* Para subir archivos */}
-              {files && files.map((file) => (
-                <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
-                  <span className="text-2xl">{getIcon(file.name)}</span>
-                  <p className="font-semibold text-left flex-grow">{file.name}</p>
-                  {!isLocked && !isFinished && (<X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />)}
-                </div>
-              ))}
-              {uploadedFiles && uploadedFiles.map((file) => (
-                <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
-                  <span className="text-2xl">{getIcon(file.file_name)}</span>
-                  <p className="font-semibold text-left flex-grow">{file.file_name}</p>
-                  <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
-                  {!isLocked && !isFinished && (<X className="cursor-pointer" onClick={() => { handleDeleteUploadedFile(file.file_id) }} />)}
-                </div>
-              ))}
-              {user?.user_rpe === evidence.user_rpe && !isLocked && !isFinished && (
-                <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={isLocked}>Guardar</button>
-              )}
+
+        <div className="h-fit p-10 flex justify-around items-stretch relative gap-6" >
+          
+
+          {/* Cuadro de asignaciones */}
+          <div className="w-1/4 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            <div className="bg-primary1 p-3">
+              <h2 className="text-lg font-semibold text-white text-center">Mis asignaciones</h2>
             </div>
-            {/* Cuadro de revisión (la info del revisor, pues) */}
-            <div className="w-1/2 overflow-y-auto max-h-[700px]">
-              <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
-                Revisión
-              </h1>
-              {evidence.status.map((item, index) => (
-                <div key={index} className="border rounded-lg bg-white shadow-sm p-4 my-4">
-                  <div className="border-b pb-3 mb-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <p className="text-sm text-gray-500">Revisor:</p>
-                      <p className="text-gray-800 font-semibold">{item.user.user_name}</p>
-                      <span className="px-2 py-0.5 text-xs font-medium bg-primary1/10 text-primary1 rounded-full">
-                        {item.user.user_role}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm text-gray-500">Fecha y hora de revisión:</p>
-                      <p className="text-gray-800">
-                        {new Date(item.status_date).toLocaleDateString('es-MX', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: false,                 // <-- 24 horas
-                          timeZone: 'America/Mexico_City' // <-- Zona horaria de Ciudad de México
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      {/* Obtiene el estado de la revisión */}
-                      <p className="text-sm font-medium text-gray-600 mb-1">Estado de la revisión</p>
-                      <p className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium ${getEstadoClass(item.status_description)}`}>
-                        {item.status_description}
+            {isLoading ? (
+              <div className="relative min-h-[200px]" style={{ paddingTop: "10px" }}>
+                <LoadingSpinner />
+              </div>
+            ) : asignaciones.length > 0 ? ( 
+              <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+                {/* Lista de asignaciones */}
+                {asignaciones.map((item, index) => (
+                  <Link
+                    key={index}
+                    to={`/uploadEvidence/${item.evidence_id}`}
+                    className={`block p-3 transition-colors duration-200 no-underline ${
+                      evidence_id === item.evidence_id.toString()
+                        ? 'bg-primary1/10 border-l-4 border-primary1'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={`font-medium text-base flex-1 truncate ${
+                        evidence_id === item.evidence_id.toString()
+                          ? 'text-primary1'
+                          : 'text-gray-800'
+                      }`}>{item.criterio}</p>
+                      <span className={`px-2 py-0.5 rounded-full text-sm font-medium whitespace-nowrap ${getEstadoClass(item.estado)}`}>
+                        {item.estado}
                         {/*DEBUGGING*/}
                         <script>
-                        console.log("item.status_description:", item.status_description);
+                          console.log("item.estado:", item.estado);
                         </script>
-                      </p>
+                      </span>
                       
                     </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="p-6 text-center">
+                <p className="text-gray-500 text-lg mb-2">No tienes asignaciones</p>
+                <p className="text-gray-400 text-sm">
+                  No hay evidencias asignadas para revisar en este momento.
+                </p>
+              </div>
+            )}
+          </div>
+          {/* Cuadro donde interactúa con la evidencia */}
+          {evidence_id && evidence ? (
+            <div className="bg-white p-6 rounded-xl shadow-md flex flex-wrap flex-row w-3/4 min-h-[500px]">
+              <div className="flex flex-col flex-1 mr-10 w-1/2">
+                <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
+                  Subir Evidencia
+                </h1>
+                {isFinished && (
+                  <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                    <p className="font-bold">Proceso finalizado</p>
+                    <p>No se pueden subir más evidencias porque el proceso de evaluación ha concluido.</p>
+                  </div>
+                )}
+                {/* Información de la evidencia */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3 mt-4 mb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="bg-[#004A98] p-1.5 rounded">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <h2 className="text-lg font-bold text-gray-800">Información de la Evidencia</h2>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {/* Proceso */}
+                    <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <span className="text-xs font-medium text-gray-600">Proceso:</span>
+                        <span className="ml-1 font-semibold text-gray-900 text-sm">{evidence.process.process_name}</span>
+                      </div>
+                    </div>
+
+                    {/* Jerarquía de la evidencia */}
                     <div>
-                      <p className="text-sm font-medium text-gray-600 mb-1">Retroalimentación</p>
-                      <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-                        <p className="text-gray-700 whitespace-pre-wrap">{item.feedback || "Sin retroalimentación"}</p>
+                      <div className="flex items-center gap-1 text-xs text-gray-600 mb-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span className="font-medium">Ubicación:</span>
+                      </div>
+                      
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0h8v12H6V4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-xs text-gray-500">Categoría</span>
+                          <span className="font-semibold text-gray-900 text-xs">{evidence.standard.section.category.category_name}</span>
+                        </div>
+                        
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                        
+                        <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span className="text-xs text-gray-500">Indicador</span>
+                          <span className="font-semibold text-gray-900 text-xs">{evidence.standard.section.section_name}</span>
+                        </div>
+                        
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                        
+                        <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-xs text-gray-500">Criterio</span>
+                          <span className="font-semibold text-gray-900 text-xs">{evidence.standard.standard_name}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              ))}
+                <p className="text-black text-lg font-semibold">Justificación</p>
+                {/* Editor integrado de CKEditor (en EditorCacei.jsx) */}
+                <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
+                {user?.user_rpe === evidence.user_rpe && (
+                  <div className="mt-4 flex">
+                    <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
+                      Ingresa el archivo aquí
+                      <input
+                        type="file"
+                        className="hidden"
+                        multiple
+                        onChange={handleFileChange}
+                        ref={refInputFiles}
+                        disabled={isLocked || isFinished}
+                      />
+                    </label>
+                    <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
+                  </div>
+                )}
+                {/* Para subir archivos */}
+                {files && files.map((file) => (
+                  <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
+                    <span className="text-2xl">{getIcon(file.name)}</span>
+                    <p className="font-semibold text-left flex-grow">{file.name}</p>
+                    {!isLocked && !isFinished && (<X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />)}
+                  </div>
+                ))}
+                {uploadedFiles && uploadedFiles.map((file) => (
+                  <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
+                    <span className="text-2xl">{getIcon(file.file_name)}</span>
+                    <p className="font-semibold text-left flex-grow">{file.file_name}</p>
+                    <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
+                    {!isLocked && !isFinished && (<X className="cursor-pointer" onClick={() => { handleDeleteUploadedFile(file.file_id) }} />)}
+                  </div>
+                ))}
+                {user?.user_rpe === evidence.user_rpe && !isLocked && !isFinished && (
+                  <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={isLocked}>Guardar</button>
+                )}
+              </div>
+              {/* Cuadro de revisión (la info del revisor, pues) */}
+              <div className="w-1/2 overflow-y-auto max-h-[700px]">
+                <h1 className="text-[40px] font-semibold text-black font-['Open_Sans'] mt-2 self-start">
+                  Revisión
+                </h1>
+                {evidence.status.map((item, index) => (
+                  <div key={index} className="border rounded-lg bg-white shadow-sm p-4 my-4">
+                    <div className="border-b pb-3 mb-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <p className="text-sm text-gray-500">Revisor:</p>
+                        <p className="text-gray-800 font-semibold">{item.user.user_name}</p>
+                        <span className="px-2 py-0.5 text-xs font-medium bg-primary1/10 text-primary1 rounded-full">
+                          {item.user.user_role}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-gray-500">Fecha y hora de revisión:</p>
+                        <p className="text-gray-800">
+                          {new Date(item.status_date).toLocaleDateString('es-MX', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false,                 // <-- 24 horas
+                            timeZone: 'America/Mexico_City' // <-- Zona horaria de Ciudad de México
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        {/* Obtiene el estado de la revisión */}
+                        <p className="text-sm font-medium text-gray-600 mb-1">Estado de la revisión</p>
+                        <p className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium ${getEstadoClass(item.status_description)}`}>
+                          {item.status_description}
+                          {/*DEBUGGING*/}
+                          <script>
+                          console.log("item.status_description:", item.status_description);
+                          </script>
+                        </p>
+                        
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600 mb-1">Retroalimentación</p>
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                          <p className="text-gray-700 whitespace-pre-wrap">{item.feedback || "Sin retroalimentación"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="w-7/10"></div>
-        )}
+          ) : (
+            <div className="w-7/10"></div>
+          )}
+        </div>
       </div>
       <AppFooter />
       {showCriteriaGuide && <CriteriaGuide onClose={() => setShowCriteriaGuide(false)} help={evidence?.standard?.help} />}
+    
     </>
   );
 };

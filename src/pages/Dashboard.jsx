@@ -293,18 +293,27 @@ const Dashboard = () => {
     );
   }
 
+  // HTML -----------------------------------------------------------------------------------------------------------------------------
   return (
     <>
       <AppHeader />
       <SubHeading />
+  
       <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
         <div className="mb-8">
+
+          {/* Titulo de página */}
+
           <h1 className="text-[40px] font-bold text-[#004A98] font-['Open_Sans']">
             {processInfo.name}
           </h1>
           <h2 className="text-[24px] font-bold text-gray-800 pt-2">
               Marco de referencia: {processInfo.frameName}
-            </h2>
+          </h2>
+          <div className="mt-2">
+            <p className="text-gray-500"> Consulte la información relevante del proceso, y acceda a las secciones relacionadas </p>
+          </div>
+
           <div className="mt-4 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <h3 className="text-lg font-bold text-gray-800">Información del proceso</h3>
             <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-gray-700">

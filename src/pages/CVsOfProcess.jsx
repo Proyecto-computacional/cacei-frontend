@@ -44,11 +44,19 @@ useEffect(() => {
         }
 },[]);
 
+// HTML ------------------------------------------------------------------------------------------------------------------------------
   return (
     <>
       <AppHeader />
       <SubHeading />
       <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
+        {/* Titulo de página */}
+        <h1 className="text-3xl font-bold text-black">
+              Curriculums Vitae de Profesores
+        </h1>
+        <div className="mt-2">
+          <p className="text-gray-500"> Consulte los curriculums vitae de los profesores relacionados al programa académico del proceso </p>
+        </div>
 
         {teachers && (
             <div className="w-8/10 mx-auto">
