@@ -29,6 +29,7 @@ function CrearMarcoForm({ onCancel, onSaved }) {
       }
     };
   
+    
     return (
       <div className="border p-6 mb-6 rounded-lg shadow-lg bg-white max-w-2xl mx-auto">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Crear Marco</h2>
@@ -176,6 +177,7 @@ export default function FrameOfReferenceView() {
       navigate(`/framesStructure/${frame.frame_id}`, {state: {marco: frame}});
     };
   
+    // HTML ------------------------------------------------------------------------------------------------------------------------------
     return (
       <div className="min-h-screen bg-gray-50">
         <AppHeader />
@@ -183,6 +185,7 @@ export default function FrameOfReferenceView() {
         <div className="container mx-auto px-4 py-8">
           {isLoading}
           <div className="flex justify-between items-center mb-6">
+            {/* Titulo de página */}
             <h1 className="text-3xl font-bold text-gray-800">Marcos de Referencia</h1>
             <div className="flex gap-3">
               <button 
@@ -194,6 +197,10 @@ export default function FrameOfReferenceView() {
               </button>
             </div>
           </div>
+
+          <p className="text-gray-600 mt-6">
+                Consulte los marcos de referencia, y cree nuevos marcos para nuevas versiones
+          </p>
   
           {showCreateForm && (
             <CrearMarcoForm onCancel={handleCancel} onSaved={handleSaved} />

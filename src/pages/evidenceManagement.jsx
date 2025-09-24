@@ -85,6 +85,7 @@ const EvidenceManagement = () => {
     fetchRevisers(); // Reload the table data
   };
 
+  // HTML -----------------------------------------------------------------------------------------------------------------------------
   return (
     <>
       <AppHeader />
@@ -92,6 +93,7 @@ const EvidenceManagement = () => {
       <div className="min-h-screen bg-gradient-to-b from-gray-200 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex justify-between items-center mb-8">
+            {/* Titulo de página */}
             <h1 className="text-3xl font-bold text-black">
               Asignación de Tareas
             </h1>
@@ -104,6 +106,9 @@ const EvidenceManagement = () => {
               Asignar tarea
             </button>
           </div>
+          <div className="mt-2">
+              <p className="text-gray-500"> Consulte las tareas asignadas a los usuarios en base a una categoría, indicador y criterios </p>
+            </div>
           
           {/* Filtros de búsqueda */}
           <div className="bg-white rounded-lg shadow mb-8">

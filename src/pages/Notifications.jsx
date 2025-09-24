@@ -171,6 +171,7 @@ const Notification = () => {
     });
 
 
+  // HTML BODY ------------------------------------------------------------------------------------------------------------------------------
   return (
     <>
       <AppHeader />
@@ -185,6 +186,7 @@ const Notification = () => {
               <div className="bg-[#004A98] p-2 rounded-lg">
                 <Bell className="h-6 w-6 text-white" />
               </div>
+              {/* Titulo de página */}
               <h1 className="text-[34px] font-bold text-gray-800">
                 Mis Notificaciones
               </h1>
@@ -214,6 +216,9 @@ const Notification = () => {
               </div>
             </div>
           </div>
+          <p className="text-gray-600 mt-6">
+                Consulte sus notificaciones con respecto a sus procesos y tareas asignadas.
+          </p>
 
           {/* ¿Mini panel de las notificaciones (la del header)? */}
           <div className="space-y-4">
