@@ -5,6 +5,78 @@ import { useParams } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ModalAlert from "./ModalAlert";
 
+const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ...props }) => {
+    const textareaRef = useRef(null);
+    const placeholderRef = useRef(null);
+
+    const calculatePlaceholderHeight = () => {
+        if (!placeholderRef.current || !textareaRef.current) return 'auto';
+
+        const hiddenDiv = document.createElement('div');
+        hiddenDiv.style.position = 'absolute';
+        hiddenDiv.style.visibility = 'hidden';
+        hiddenDiv.style.whiteSpace = 'pre-wrap';
+        hiddenDiv.style.width = `${textareaRef.current.offsetWidth}px`;
+        hiddenDiv.style.padding = '0.5rem 0.75rem';
+        hiddenDiv.style.lineHeight = '1.5rem';
+        hiddenDiv.style.fontFamily = 'inherit';
+        hiddenDiv.style.fontSize = 'inherit';
+        hiddenDiv.textContent = placeholder;
+
+        document.body.appendChild(hiddenDiv);
+        const height = hiddenDiv.offsetHeight;
+        document.body.removeChild(hiddenDiv);
+
+        return `${Math.max(height, 24)}px`;
+    };
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+
+            if (!value && placeholder) {
+                textareaRef.current.style.height = calculatePlaceholderHeight();
+            } else {
+                textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+            }
+        }
+    }, [value, placeholder, isEditing]);
+
+    return (
+        <div className="relative">
+            <textarea
+                ref={textareaRef}
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+                disabled={disabled}
+                className={`
+          w-full px-3 py-2 border rounded-lg
+          ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50'
+                        : 'border-gray-200 bg-gray-50'}
+          resize-none overflow-hidden
+          whitespace-pre-wrap
+        `}
+                style={{
+                    minHeight: '1.0rem',
+                    lineHeight: '1.0rem',
+                }}
+                {...props}
+            />
+            <div
+                ref={placeholderRef}
+                className="invisible absolute pointer-events-none whitespace-pre-wrap"
+                style={{
+                    width: '100%',
+                    padding: '0.5rem 0.75rem',
+                    lineHeight: '1.5rem'
+                }}
+            >
+                {placeholder}
+            </div>
+        </div>
+    );
+};
 
 const CV = () => {
     const [data, setData] = useState({});
