@@ -86,7 +86,7 @@ const CV = () => {
     const { rpe } = useParams()
     const [loading, setLoading] = useState(true);
      const [modalAlertMessage, setModalAlertMessage] = useState(null);
-
+    const [reload, setReload] = useState(false); // Nueva variable para forzar recarga
 
     const mapLetterToDegree = (letter) => {
         const degrees = {
@@ -220,7 +220,7 @@ const CV = () => {
         };
 
         if (rpe) fetchInitialData();
-    }, [rpe, activeSection]);
+    }, [rpe, activeSection, reload]);
 
     const sendData = async (sectionId) => {
         if (!cvId || !data[sectionId]) return;
@@ -724,7 +724,11 @@ const CV = () => {
                                     {isEditing && data[section.id]?.length > 0 && (
                                         <div className="mt-4 flex justify-end gap-2">
                                                 <button
-                                                onClick={() => { setIsEditing(false); }}
+                                                onClick={() => {
+                                                    setIsEditing(false);
+                                                    setReload(r => !r); // Cambia reload para forzar recarga
+                                                }}
+
                                                 className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
                                             >
                                                 Cancelar
