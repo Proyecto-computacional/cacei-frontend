@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import UserCVTable from "../components/usersCVTable";
 import '../app.css'
+import ModalAlert from "../components/ModalAlert";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 const CVsOfProcess = () => {
@@ -11,6 +13,7 @@ const CVsOfProcess = () => {
 const[teachers, setTeachers] = useState();
 
 const params = useParams();
+const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
 useEffect(() => {
     try {
@@ -27,16 +30,16 @@ useEffect(() => {
         } catch (error) {
             if (error.response) {
                 if (error.response.status === 403 ) {
-                    alert("No tienes permisos para acceder a esta sección.");
+                    setModalAlertMessage("No tienes permisos para acceder a esta sección.");
                     window.location.href = "/PersonalConfig";
                 } else if (error.response.status === 401) {
-                    alert("Sesión expirada. Inicia sesión de nuevo.");
+                    setModalAlertMessage("Sesión expirada. Inicia sesión de nuevo.");
                     window.location.href = "/";
                 } else {
-                    alert("Error desconocido al obtener los usuarios.");
+                    setModalAlertMessage("Error desconocido al obtener los usuarios.");
                 }
             } else {
-                alert("Error de conexión con el servidor.");
+                setModalAlertMessage("Error de conexión con el servidor.");
             }
             console.error("Error al obtener los usuarios:", error);
         } finally {
@@ -71,6 +74,11 @@ useEffect(() => {
         )}
       </div>
       <AppFooter></AppFooter>
+       <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
     </>
   );
 };
