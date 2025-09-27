@@ -185,6 +185,7 @@ const CV = () => {
         const fetchInitialData = async () => {
             try {
                 setLoading(true);
+                setIsEditing(false);// Resetear isEditing al cambiar de sección
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
                 if (cvResponse.data.cv_id) {
