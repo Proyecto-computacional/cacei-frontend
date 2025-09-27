@@ -386,10 +386,10 @@ const CV = () => {
             description: "Ingrese los nombres de los grados académicos, e indique especialidad en su caso. Además ingrese institución y país, año de obtención del título o grado académico y número de cédula obtenida, según aplique para cada caso. Si no cuenta con esta, señalar ND. Si está en trámite poner EP.",
             campos: [
                 { name: "grado", type: "select", options: ["Licenciatura", "Especialidad", "Maestría", "Doctorado"], label: "Grado" },
-                { name: "titulo", type: "text", label: "Nombre del título", placeholder: "Título (Incluir especialidad)" },
-                { name: "institución", type: "text", label: "Nombre de la institución", placeholder: "Nombre de la institución" },
-                { name: "año", type: "text", label: "Año de obtención", placeholder: "Año de obtención" },
-                { name: "cedula", type: "text", label: "Cédula profesional", placeholder: "Cédula profesional" },
+                { name: "titulo", type: "text", label: "Nombre del título", placeholder: "Título (Incluir especialidad)", maxLength: 100},
+                { name: "institución", type: "text", label: "Nombre de la institución", placeholder: "Nombre de la institución", maxLength: 30 },
+                { name: "año", type: "text", label: "Año de obtención", placeholder: "AAAA", maxLength: 4 , min: 1900, max: new Date().getFullYear()},
+                { name: "cedula", type: "text", label: "Cédula profesional", placeholder: "Cédula profesional", maxLength: 10 },
             ],
         },
         {
