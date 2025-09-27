@@ -577,7 +577,7 @@ const CV = () => {
                                     <div className="flex justify-between items-start mb-4">
                                          <div className="flex-1 mr-4">
                                         <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}{!isEditing && <span className="ml-2 text-sm text-gray-500">(solo lectura)</span>}</h2>
-                                        <p className="text-gray-600 mt-1">{section.description}</p>
+                                        <p className="text-lg text-gray-600 mt-1">{section.description}</p>
                                     </div>
                                     <div className="flex gap-2">
                                       {!isEditing ? (
