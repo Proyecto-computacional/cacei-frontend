@@ -160,7 +160,7 @@ const CV = () => {
     };
 
     useEffect(() => {
-        setCanEdit(rpe === localStorage.getItem('rpe'));
+        setIsEditing(rpe === localStorage.getItem('rpe'));
 
         const fetchSectionData = async (cvId, sectionId) => {
             const sectionEndpoints = {
