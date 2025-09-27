@@ -576,16 +576,29 @@ const CV = () => {
                             activeSection === section.id && (
                                 <div key={section.id}>
                                     <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}</h2>
-                                        {canEdit && (
-                                            <button
-                                                onClick={() => addRow(section.id)}
-                                                className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
-                                            >
-                                                <Plus className="w-4 h-4" />
-                                                Agregar
-                                            </button>
-                                        )}
+                                        <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}{!isEditing && <span className="ml-2 text-sm text-gray-500">(solo lectura)</span>}</h2>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      {!isEditing ? (
+                                                <button
+                                                    onClick={() => setIsEditing(true)}
+                                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                                >
+                                                    Editar sección
+                                                </button>
+                                            ) : (
+                                                <>
+                                                    {section.id !== 11 && (
+                                                        <button
+                                                            onClick={() => addRow(section.id)}
+                                                            className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                                        >
+                                                            <Plus className="w-4 h-4" />
+                                                            Agregar
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}  
                                     </div>
                                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                                         <table className="w-full">
@@ -648,7 +661,7 @@ const CV = () => {
                                                             </td>
                                                         ))}
                                                         <td className="px-2 py-3">
-                                                            {isRowEmpty(row) && (
+                                                            {isEditing && isRowEmpty(row) && (
                                                                 <button
                                                                     onClick={() => removeRow(section.id, row.id)}
                                                                     className="text-gray-400 hover:text-red-500 transition-colors duration-200"
@@ -663,17 +676,21 @@ const CV = () => {
                                             </tbody>
                                         </table>
                                     </div>
-                                    {data[section.id]?.length > 0 && (
-                                        <div className="mt-4 flex justify-end">
-                                            {canEdit && (
+                                    {isEditing && data[section.id]?.length > 0 && (
+                                        <div className="mt-4 flex justify-end gap 2">
                                                 <button
-                                                    onClick={() => sendData(section.id)}
-                                                    className="flex items-center gap-2 px-6 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                                onClick={() => { setIsEditing(false); }}
+                                                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
+                                            >
+                                                Cancelar
+                                            </button>
+                                                <button
+                                                    onClick={() => {sendData(section.id); setIsEditing(false);}} // Desactivar edición al guardar
+                                                className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
                                                 >
                                                     <Save className="w-4 h-4" />
                                                     Guardar cambios
                                                 </button>
-                                            )}
                                         </div>
                                     )}
                                 </div>
