@@ -388,7 +388,7 @@ const CV = () => {
                 { name: "grado", type: "select", options: ["Licenciatura", "Especialidad", "Maestría", "Doctorado"], label: "Grado" },
                 { name: "titulo", type: "text", label: "Nombre del título", placeholder: "Título (Incluir especialidad)", maxLength: 100},
                 { name: "institución", type: "text", label: "Nombre de la institución", placeholder: "Nombre de la institución", maxLength: 30 },
-                { name: "año", type: "text", label: "Año de obtención", placeholder: "AAAA", maxLength: 4 , min: 1900, max: new Date().getFullYear()},
+                { name: "año", type: "number", label: "Año de obtención", placeholder: "AAAA", maxLength: 4 , min: 1900, max: new Date().getFullYear()},
                 { name: "cedula", type: "text", label: "Cédula profesional", placeholder: "Cédula profesional", maxLength: 10 },
             ],
         },
@@ -616,6 +616,25 @@ const CV = () => {
                                                                             <option key={option} value={option}>{option}</option>
                                                                         ))}
                                                                     </select>
+                                                                ) :  campo.type === "number" ? (
+                                                                      <input
+                                                                            type="number"
+                                                                            value={row.values[campo.name] || ""}
+                                                                            onChange={(e) => {
+                                                                                const maxLen = campo.maxLength || 10;
+                                                                                const value = e.target.value.slice(0, maxLen);
+                                                                                updateRow(section.id, row.id, campo.name, value);
+                                                                            }}
+                                                                            placeholder={campo.placeholder}
+                                                                            min={campo.min}
+                                                                            max={campo.max}
+                                                                            className={`w-full px-3 py-2 border ${isEditing
+                                                                                    ? "border-gray-300 focus:ring-2 focus:ring-primary1/50"
+                                                                                    : "border-gray-200 bg-gray-50"
+                                                                                } rounded-lg focus:border-primary1`}
+                                                                            disabled={!isEditing}
+                                                                        />
+
                                                                 ) : (
                                                                     <input
                                                                         disabled={!canEdit}
