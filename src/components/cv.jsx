@@ -600,8 +600,46 @@ const CV = () => {
                                                 </>
                                             )}  
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                                        <table className="w-full">
+                                    <div className={`bg-white rounded-lg border ${isEditing ? 'border-blue-200' : 'border-gray-200'} overflow-hidden`}>
+                                        {section.id === 11 ? (
+                                            <div className="p-4">
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    {section.campos[0].label}
+                                                </label>
+                                                <textarea
+                                                    value={data[11]?.[0]?.values?.descripcion || ""}
+                                                    onChange={(e) => {
+                                                        // Si no existe el registro, crear uno nuevo
+                                                        if (!data[11] || data[11].length === 0) {
+                                                            setData(prev => ({
+                                                                ...prev,
+                                                                [11]: [{
+                                                                    id: `new_${11}_${Date.now()}`,
+                                                                    values: { descripcion: e.target.value }
+                                                                }]
+                                                            }));
+                                                        } else {
+                                                            // Actualizar el registro existente
+                                                            updateRow(11, data[11][0].id, "descripcion", e.target.value);
+                                                        }
+
+                                                        // Ajustar altura del textarea
+                                                        e.target.style.height = 'auto';
+                                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                                    }}
+                                                    placeholder={section.campos[0].placeholder}
+                                                    className={`w-full px-3 py-2 border ${isEditing ? 'border-blue-300 focus:ring-2 focus:ring-blue-200' : 'border-gray-300 bg-gray-50'} rounded-lg focus:border-primary1 resize-none overflow-hidden`}
+                                                    maxLength={2000}
+                                                    style={{ height: 'auto', minHeight: '150px' }}
+                                                    rows={17}
+                                                    disabled={!isEditing}
+                                                />
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                    {data[11]?.[0]?.values?.descripcion?.length || 0}/2000 caracteres
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <table className="w-full">
                                             <thead>
                                                 <tr className="bg-gray-50">
                                                     {section.campos.map((campo) => (
@@ -679,6 +717,7 @@ const CV = () => {
                                                 ))}
                                             </tbody>
                                         </table>
+                                        )}
                                     </div>
                                     {isEditing && data[section.id]?.length > 0 && (
                                         <div className="mt-4 flex justify-end gap-2">
