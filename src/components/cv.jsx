@@ -656,14 +656,14 @@ const CV = () => {
                                                 {(data[section.id] || []).map((row) => (
                                                     <tr key={row.id} className="hover:bg-gray-50">
                                                         {section.campos.map((campo) => (
-                                                            <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
+                                                            <td key={`${row.id}_${campo.name}`} className="px-1 py-2"> {/* className="px-4 py-3" o "px-3 py-2" Modificas el grosor de las columnas */}
                                                                 {campo.type === "select" ? (
                                                                     <div className="relative min-w-[170px]">
                                                                     <select
                                                                         disabled={!isEditing}
                                                                         value={row.values[campo.name] || ""}
                                                                         onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
-                                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
+                                                                        className={`w-full px-3 py-2 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50' : 'border-gray-200 bg-gray-50'} rounded-lg focus:border-primary1`}
                                                                     >
                                                                         <option value="">Seleccione</option>
                                                                         {campo.options.map((option) => (
