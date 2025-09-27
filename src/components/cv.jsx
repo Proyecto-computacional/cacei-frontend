@@ -319,6 +319,18 @@ const CV = () => {
             const config = sectionConfigs[sectionId];
             if (!config) return;
 
+              // Validación específica para formación académica (id: 1)
+            if (sectionId === 1) {
+                const invalid = data[sectionId].some(row => {
+                    const grado = row.values["grado"];
+                    return !grado || grado === "" || grado === "Seleccione";
+                });
+                if (invalid) {
+                    setModalAlertMessage('No hay datos válidos para guardar');
+                    return;
+                }
+            }
+
             const validRows = data[sectionId].filter(row => {
                 const payload = config.transform(row);
                 const hasValues = Object.values(payload).some(value => value !== undefined && value !== null && value !== '');
