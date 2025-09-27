@@ -619,7 +619,7 @@ const CV = () => {
                                                             <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
                                                                 {campo.type === "select" ? (
                                                                     <select
-                                                                        disabled={!canEdit}
+                                                                        disabled={!isEditing}
                                                                         value={row.values[campo.name] || ""}
                                                                         onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
                                                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
@@ -677,7 +677,7 @@ const CV = () => {
                                         </table>
                                     </div>
                                     {isEditing && data[section.id]?.length > 0 && (
-                                        <div className="mt-4 flex justify-end gap 2">
+                                        <div className="mt-4 flex justify-end gap-2">
                                                 <button
                                                 onClick={() => { setIsEditing(false); }}
                                                 className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
