@@ -574,8 +574,10 @@ const CV = () => {
                         (section) =>
                             activeSection === section.id && (
                                 <div key={section.id}>
-                                    <div className="flex justify-between items-center mb-4">
+                                    <div className="flex justify-between items-start mb-4">
+                                         <div className="flex-1 mr-4">
                                         <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}{!isEditing && <span className="ml-2 text-sm text-gray-500">(solo lectura)</span>}</h2>
+                                        <p className="text-gray-600 mt-1">{section.description}</p>
                                     </div>
                                     <div className="flex gap-2">
                                       {!isEditing ? (
@@ -598,6 +600,7 @@ const CV = () => {
                                                     )}
                                                 </>
                                             )}  
+                                    </div>
                                     </div>
                                     <div className={`bg-white rounded-lg border ${isEditing ? 'border-blue-200' : 'border-gray-200'} overflow-hidden`}>
                                         {section.id === 11 ? (
