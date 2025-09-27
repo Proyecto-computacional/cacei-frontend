@@ -649,13 +649,15 @@ const CV = () => {
                                                                         />
 
                                                                 ) : (
-                                                                    <input
-                                                                        disabled={!canEdit}
+                                                                    <DynamicTextarea
+                                                                        isEditing={isEditing}
+                                                                        disabled={!isEditing}
                                                                         type={campo.type}
                                                                         value={row.values[campo.name] || ""}
                                                                         onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
                                                                         placeholder={campo.placeholder}
-                                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
+                                                                        maxLength={campo.maxLength}
+                                                                        //className="w-full px-3 py-2  border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
                                                                     />
                                                                 )}
                                                             </td>
