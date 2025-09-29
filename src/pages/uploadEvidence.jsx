@@ -184,12 +184,12 @@ const UploadEvidence = () => {
       return;
     }
 
+    // TODO EL PROCESO DE SUBIDA
     try {
       // Actualizar justificación en todas las evidencias relacionadas si es transversal
       if(evidence.standard.is_transversal && relatedEvidences.length>0){
         const allEvidences = [evidence, ...relatedEvidences];
 
-        // Actualizar justificaciones en paralelo
         await Promise.all(
           allEvidences.map(ev =>
             api.put(`/api/evidences/${ev.evidence_id}`, {
@@ -204,7 +204,7 @@ const UploadEvidence = () => {
         );
       } else {
 
-      // Primero actualizar la justificación de la evidencia
+      // Actualiza la justificación de la evidencia
       const response = await api.put(`/api/evidences/${evidence.evidence_id}`, {
         justification: justification
       }, {
@@ -213,85 +213,81 @@ const UploadEvidence = () => {
           "Content-Type": "application/json",
         },
       });
-    }
+      }
 
-      
 
       if (files.length > 0) {
-        // Subir archivos a la evidencia principal y a las relacionadas si es transversal
-      if (evidence.standard.is_transversal && relatedEvidences.length > 0) {
-        // Subir a todas las evidencias (incluyendo la principal)
-        const allEvidences = [evidence, ...relatedEvidences];
-        
-        for (const targetEvidence of allEvidences) {
+          // Subir archivos a la evidencia principal y a las evidencias relacionadas si es transversal
+        if (evidence.standard.is_transversal && relatedEvidences.length > 0) { // ¿No se está saltando todo el proceso que hace el "else"?
+          const allEvidences = [evidence, ...relatedEvidences];
+          
+          for (const targetEvidence of allEvidences) {
+            const formData = new FormData();
+
+            // Agregar evidence_id a los datos de los archivos
+            formData.append("evidence_id", targetEvidence.evidence_id);
+            
+            Array.from(files).forEach((file, index) => {
+              formData.append(`files[${index}]`, file);
+            });
+
+            await api.post("/api/file", formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            });
+          }
+        } else {
           const formData = new FormData();
-          formData.append("evidence_id", targetEvidence.evidence_id);
+          
+          // Agregar evidence_id a los datos de los archivos
+          formData.append("evidence_id", evidence.evidence_id);
           
           Array.from(files).forEach((file, index) => {
             formData.append(`files[${index}]`, file);
           });
 
-          await api.post("/api/file", formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-        }
-      } else {
-        const formData = new FormData();
-        
-        // Agregar evidence_id
-        formData.append("evidence_id", evidence.evidence_id);
-        
-        // Agregar archivos - Modificar la forma de agregar archivos
-        Array.from(files).forEach((file, index) => {
-          // Usar 'files' en lugar de 'files[]' y agregar el índice
-          formData.append(`files[${index}]`, file);
-        });
 
+          try { // Envía la solicitud de subida a Backend
+            const response = await api.post("/api/file", formData, {
+              headers: {
+                "Authorization": `Bearer ${localStorage.getItem('token')}`,
+                "Content-Type": "multipart/form-data",
+              },
+              maxContentLength: Infinity,
+              maxBodyLength: Infinity,
+              onUploadProgress: (progressEvent) => {
+                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              }
+            });
 
-        try {
-          const response = await api.post("/api/file", formData, {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem('token')}`,
-              "Content-Type": "multipart/form-data",
-            },
-            // Agregar configuración para manejar archivos grandes
-            maxContentLength: Infinity,
-            maxBodyLength: Infinity,
-            onUploadProgress: (progressEvent) => {
-              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            }
-          });
-        } catch (error) {
-          // Log detallado del error
-          console.error('UploadEvidence - Error detallado:', {
-            status: error.response?.status,
-            statusText: error.response?.statusText,
-            data: error.response?.data,
-            errors: error.response?.data?.errors,
-            message: error.message,
-            requestData: {
-              evidenceId: evidence.evidence_id,
-              files: Array.from(files).map(file => ({
-                name: file.name,
-                type: file.type,
-                size: file.size
-              }))
-            }
-          });
-          // Mostrar mensaje de error más específico
-          const errorMessage = error.response?.data?.message || 
-                             error.response?.data?.errors?.files?.[0] || 
-                             error.response?.data?.errors?.evidence_id?.[0] ||
-                             error.message;
-          alert(`Error al subir archivo: ${errorMessage}`);
-          throw error;
-        }
+          } catch (error) {
+            console.error('UploadEvidence - Error detallado:', {
+              status: error.response?.status,
+              statusText: error.response?.statusText,
+              data: error.response?.data,
+              errors: error.response?.data?.errors,
+              message: error.message,
+              requestData: {
+                evidenceId: evidence.evidence_id,
+                files: Array.from(files).map(file => ({
+                  name: file.name,
+                  type: file.type,
+                  size: file.size
+                }))
+              }
+            });
+            const errorMessage = error.response?.data?.message || 
+                              error.response?.data?.errors?.files?.[0] || 
+                              error.response?.data?.errors?.evidence_id?.[0] ||
+                              error.message;
+            alert(`Error al subir archivo: ${errorMessage}`); // SE REPITE EL MENSAJE DE ERROR
+            throw error;
+          }
         }
       }
 
-      for (const revisor of firstRevisor) {
+      for (const revisor of firstRevisor) { // ¿Cambia las evidencias a revisar?
         await api.post(`/api/RevisionEvidencias/pendiente`, {
           user_rpe: evidence.user_rpe,
           reviser_rpe: revisor,
@@ -306,6 +302,7 @@ const UploadEvidence = () => {
 
       alert("Cambios guardados con éxito");
 
+      // Actualiza la información de la evidencia
       await api.get(`api/evidences/${evidence_id}`).then(
         (response) => {
           setEvidence(response.data.evidence);
@@ -326,11 +323,12 @@ const UploadEvidence = () => {
         message: error.message,
         stack: error.stack
       });
-      alert(`Error al subir archivo: ${error.response?.data?.message || error.message}`);
+      alert(`Error al subir archivo: ${error.response?.data?.message || error.message}`); // SE REPITE EL MENSAJE DE ERROR
     }
   };
 
-  // Elimina un archivo subido
+
+  // handleDeleteUploadedFile - Elimina un archivo subido
   const handleDeleteUploadedFile = async (fileId) => {
     if (!window.confirm("¿Seguro que quieres eliminar este archivo?")) return;
     setIsLocked(true);
