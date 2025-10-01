@@ -31,6 +31,7 @@ function CrearMarcoForm({ onCancel, onSaved }) {
       }
     };
   
+    
     return (
       <div className="border p-6 mb-6 rounded-lg shadow-lg bg-white max-w-2xl mx-auto">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Crear Marco</h2>
@@ -190,23 +191,27 @@ export default function FrameOfReferenceView() {
       navigate(`/framesStructure/${frame.frame_id}`, {state: {marco: frame}});
     };
   
+    // HTML ------------------------------------------------------------------------------------------------------------------------------
     return (
       <div className="min-h-screen bg-gray-50">
         <AppHeader />
         <SubHeading />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 w-7/8">
           {isLoading}
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">Marcos de Referencia</h1>
-            <div className="flex gap-3">
-              <button 
-                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
-                onClick={handleOpenCreate}
-              >
-                <Plus className="w-5 h-5" />
-                Crear Marco
-              </button>
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 pt-4 pb-2 pl-8 pr-8 w-full">
+            <div className="flex items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
+                  Marcos de Referencia
+                </h1>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                Gestione de forma centralizada todos los marcos de referencia disponibles. Acceda a cada uno para administrar sus categorías, indicadores y criterios.
+              </p>
+              </div>
             </div>
+          </div>
+            
           </div>
   
           {showCreateForm && (
