@@ -85,6 +85,7 @@ const EvidenceManagement = () => {
     fetchRevisers(); // Reload the table data
   };
 
+  // HTML -----------------------------------------------------------------------------------------------------------------------------
   return (
     <>
       <AppHeader />
@@ -92,21 +93,32 @@ const EvidenceManagement = () => {
       <div className="min-h-screen bg-gradient-to-b from-gray-200 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-black">
-              Asignación de Tareas
-            </h1>
-            <button
-              onClick={() => setShowAssignTask(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#004A98] transition-colors"
-              style={{ backgroundColor: '#004A98' }}
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              Asignar tarea
-            </button>
+          </div>
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 pt-4 pb-2 pl-8 pr-8 w-full">
+            <div className="flex items-center gap-4 mb-6">
+              <div>
+                <div className="flex items-center gap-160">
+                <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
+                  Asignación de Tareas
+                </h1>
+                    <button
+                  onClick={() => setShowAssignTask(true)}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#004A98] transition-colors"
+                  style={{ backgroundColor: '#004A98' }}
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  Asignar tarea
+                </button>
+                </div>                
+                <p className="text-lg text-gray-700 leading-relaxed">
+                Gestiona y asigna tareas a los miembros del equipo para el proceso de acreditación.
+              </p>
+              </div>
+            </div>
           </div>
           
           {/* Filtros de búsqueda */}
-          <div className="bg-white rounded-lg shadow mb-8">
+          <div className="bg-white rounded-lg shadow mb-8 mt-6">
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">

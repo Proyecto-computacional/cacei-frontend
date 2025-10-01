@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import UserCVTable from "../components/usersCVTable";
 import '../app.css'
+import ModalAlert from "../components/ModalAlert";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 const CVsOfProcess = () => {
@@ -11,6 +13,7 @@ const CVsOfProcess = () => {
 const[teachers, setTeachers] = useState();
 
 const params = useParams();
+const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
 useEffect(() => {
     try {
@@ -27,16 +30,16 @@ useEffect(() => {
         } catch (error) {
             if (error.response) {
                 if (error.response.status === 403 ) {
-                    alert("No tienes permisos para acceder a esta sección.");
+                    setModalAlertMessage("No tienes permisos para acceder a esta sección.");
                     window.location.href = "/PersonalConfig";
                 } else if (error.response.status === 401) {
-                    alert("Sesión expirada. Inicia sesión de nuevo.");
+                    setModalAlertMessage("Sesión expirada. Inicia sesión de nuevo.");
                     window.location.href = "/";
                 } else {
-                    alert("Error desconocido al obtener los usuarios.");
+                    setModalAlertMessage("Error desconocido al obtener los usuarios.");
                 }
             } else {
-                alert("Error de conexión con el servidor.");
+                setModalAlertMessage("Error de conexión con el servidor.");
             }
             console.error("Error al obtener los usuarios:", error);
         } finally {
@@ -44,11 +47,25 @@ useEffect(() => {
         }
 },[]);
 
+// HTML ------------------------------------------------------------------------------------------------------------------------------
   return (
     <>
       <AppHeader />
       <SubHeading />
       <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 pt-4 pb-2 pl-8 pr-8 w-full mb-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
+                  Curríulums de Profesores
+                </h1>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                Consulte los currículums vitae de los profesores vinculados al programa académico del proceso.
+              </p>
+              </div>
+            </div>
+          </div>
+
 
         {teachers && (
             <div className="w-8/10 mx-auto">
@@ -71,6 +88,11 @@ useEffect(() => {
         )}
       </div>
       <AppFooter></AppFooter>
+       <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
     </>
   );
 };

@@ -171,6 +171,7 @@ const Notification = () => {
     });
 
 
+  // HTML BODY ------------------------------------------------------------------------------------------------------------------------------
   return (
     <>
       <AppHeader />
@@ -180,16 +181,19 @@ const Notification = () => {
         style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}
       >
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <div className="bg-[#004A98] p-2 rounded-lg">
-                <Bell className="h-6 w-6 text-white" />
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 pt-4 pb-2 pl-8 pr-8 w-full">
+            <div className="flex items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
+                  Mis Notificaciones
+                </h1>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                Consulte sus notificaciones con respecto a sus procesos y tareas asignadas.
+              </p>
               </div>
-              <h1 className="text-[34px] font-bold text-gray-800">
-                Mis Notificaciones
-              </h1>
             </div>
-            <div className="flex items-center gap-4">
+          </div>
+          <div className="flex items-center gap-4 mt-6 mb-3 w-full">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
@@ -213,7 +217,6 @@ const Notification = () => {
                 </button>
               </div>
             </div>
-          </div>
 
           {/* ¿Mini panel de las notificaciones (la del header)? */}
           <div className="space-y-4">

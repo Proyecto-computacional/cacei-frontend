@@ -82,6 +82,7 @@ const DashboardWidgets = () => {
               Gestiona y asigna tareas a los miembros del equipo para el proceso de acreditación.
             </p>
           </div>
+          
           <button 
             onClick={() => navigate('/evidenceManagement')}
             className="bg-blue-700 text-white mt-4 py-2 rounded-xl hover:bg-blue-800 transition-colors duration-300"
