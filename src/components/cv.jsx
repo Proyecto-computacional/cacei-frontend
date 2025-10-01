@@ -3,6 +3,8 @@ import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
 import { useParams } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ModalAlert from "./ModalAlert";
+
 
 const CV = () => {
     const [data, setData] = useState({});
@@ -12,6 +14,8 @@ const CV = () => {
     const [canEdit, setCanEdit] = useState(false);
     const { rpe } = useParams()
     const [loading, setLoading] = useState(true);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+
 
     const mapLetterToDegree = (letter) => {
         const degrees = {
@@ -249,7 +253,7 @@ const CV = () => {
             });
 
             if (validRows.length === 0) {
-                alert('No hay datos válidos para guardar');
+                setModalAlertMessage('No hay datos válidos para guardar');
                 return;
             }
 
@@ -258,13 +262,13 @@ const CV = () => {
                 await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
             }));
 
-            alert('¡Datos guardados correctamente!');
+            setModalAlertMessage('¡Datos guardados correctamente!');
         } catch (error) {
             console.error('Error:', error.response?.data);
             if (error.response?.status === 422) {
-                alert('Por favor ingrese los datos necesarios en las celdas');
+                setModalAlertMessage('Por favor ingrese los datos necesarios en las celdas');
             } else {
-                alert(`Error al guardar: ${error.response?.data.message || error.message}`);
+                setModalAlertMessage(`Error al guardar: ${error.response?.data.message || error.message}`);
             }
         }
     };
@@ -286,7 +290,7 @@ const CV = () => {
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Error downloading CV:', error);
-            alert('Error al descargar el CV. Por favor intente nuevamente.');
+            setModalAlertMessage('Error al descargar el CV. Por favor intente nuevamente.');
         }
     };
 
@@ -452,6 +456,11 @@ const CV = () => {
 
     return (
         <div className="flex flex-col">
+              <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
             <div className="flex flex-1">
                 <aside className="w-1/4 bg-gray-100 p-4 rounded-lg">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">Indicadores</h2>

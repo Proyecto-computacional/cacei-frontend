@@ -8,6 +8,7 @@ import api from "../services/api";
 import { FileQuestion, Sheet, FileText, FolderArchive, X } from "lucide-react";
 import EditorCacei from "../components/EditorCacei";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ModalAlert from "../components/ModalAlert";
 
 const UploadEvidence = () => {
   const [files, setFiles] = useState([]);
@@ -25,6 +26,7 @@ const UploadEvidence = () => {
   const Finished = localStorage.getItem('finished');
   const [isFinished, setIsFinished] = useState(false);
   const [relatedEvidences, setRelatedEvidences] = useState([]);
+  const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   const navigate = useNavigate();
 
@@ -148,11 +150,13 @@ const UploadEvidence = () => {
       const ext = file.name.split('.').pop().toLowerCase();
       const sizeOk = file.size <= maxFileSize;
       const typeOk = allowedExtensions.includes(ext);
+      const [modalAlertMessage, setModalAlertMessage] = useState(null);
+
 
       if (!typeOk) {
-        alert(`Archivo rechazado: ${file.name}. Solo se permiten archivos RAR, ZIP, Excel, PDF y Word.`);
+        setModalAlertMessage(`Archivo rechazado: ${file.name}. Solo se permiten archivos RAR, ZIP, Excel, PDF y Word.`);
       } else if (!sizeOk) {
-        alert(`Archivo rechazado: ${file.name}. El tamaño máximo permitido es 50 MB.`);
+        setModalAlertMessage(`Archivo rechazado: ${file.name}. El tamaño máximo permitido es 50 MB.`);
       } else {
         validFiles.push(file);
       }
@@ -172,14 +176,14 @@ const UploadEvidence = () => {
   // Sube los archivos y la justificación
   const handleUpload = async () => {
     if (isFinished) {
-      alert("No se pueden subir archivos porque el proceso ha finalizado");
+      setModalAlertMessage("No se pueden subir archivos porque el proceso ha finalizado");
       return;
     }
     setIsLocked(true);
 
     // Si no hay archivos nuevos y no hay archivos subidos previamente, mostrar error
     if (!files.length && (!uploadedFiles || uploadedFiles.length === 0)) {
-      alert("Por favor, selecciona al menos un archivo.");
+      setModalAlertMessage("Por favor, selecciona al menos un archivo.");
       setIsLocked(false);
       return;
     }
@@ -239,10 +243,10 @@ const UploadEvidence = () => {
         }
       } else {
         const formData = new FormData();
-        
+
         // Agregar evidence_id
         formData.append("evidence_id", evidence.evidence_id);
-        
+
         // Agregar archivos - Modificar la forma de agregar archivos
         Array.from(files).forEach((file, index) => {
           // Usar 'files' en lugar de 'files[]' y agregar el índice
@@ -281,11 +285,11 @@ const UploadEvidence = () => {
             }
           });
           // Mostrar mensaje de error más específico
-          const errorMessage = error.response?.data?.message || 
-                             error.response?.data?.errors?.files?.[0] || 
-                             error.response?.data?.errors?.evidence_id?.[0] ||
-                             error.message;
-          alert(`Error al subir archivo: ${errorMessage}`);
+          const errorMessage = error.response?.data?.message ||
+            error.response?.data?.errors?.files?.[0] ||
+            error.response?.data?.errors?.evidence_id?.[0] ||
+            error.message;
+          setModalAlertMessage(`Error al subir archivo: ${errorMessage}`);
           throw error;
         }
         }
@@ -304,7 +308,7 @@ const UploadEvidence = () => {
         });
       }
 
-      alert("Cambios guardados con éxito");
+      setModalAlertMessage("Cambios guardados con éxito");
 
       await api.get(`api/evidences/${evidence_id}`).then(
         (response) => {
@@ -326,7 +330,7 @@ const UploadEvidence = () => {
         message: error.message,
         stack: error.stack
       });
-      alert(`Error al subir archivo: ${error.response?.data?.message || error.message}`);
+      setModalAlertMessage(`Error al subir archivo: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -340,11 +344,11 @@ const UploadEvidence = () => {
           "Authorization": `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      alert("Archivo eliminado correctamente.");
+      setModalAlertMessage("Archivo eliminado correctamente.");
       setUploadedFiles((prev) => prev.filter((f) => f.file_id !== fileId));
     } catch (error) {
       console.error(error);
-      alert("Error al eliminar archivo.");
+      setModalAlertMessage("Error al eliminar archivo.");
     }
     setIsLocked(false);
   };
@@ -405,7 +409,7 @@ const UploadEvidence = () => {
 
   // Revisa si el proceso ha finalizado (y bloquear interacciones)
   useEffect(() => {
-    if (Finished == 'true'){
+    if (Finished == 'true') {
       setIsFinished(true);
     }
   })
@@ -434,18 +438,16 @@ const UploadEvidence = () => {
                 <Link
                   key={index}
                   to={`/uploadEvidence/${item.evidence_id}`}
-                  className={`block p-3 transition-colors duration-200 no-underline ${
-                    evidence_id === item.evidence_id.toString()
+                  className={`block p-3 transition-colors duration-200 no-underline ${evidence_id === item.evidence_id.toString()
                       ? 'bg-primary1/10 border-l-4 border-primary1'
                       : 'hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <p className={`font-medium text-base flex-1 truncate ${
-                      evidence_id === item.evidence_id.toString()
+                    <p className={`font-medium text-base flex-1 truncate ${evidence_id === item.evidence_id.toString()
                         ? 'text-primary1'
                         : 'text-gray-800'
-                    }`}>{item.criterio}</p>
+                      }`}>{item.criterio}</p>
                     <span className={`px-2 py-0.5 rounded-full text-sm font-medium whitespace-nowrap ${getEstadoClass(item.estado)}`}>
                       {item.estado}
                       {/*DEBUGGING*/}
@@ -647,6 +649,12 @@ const UploadEvidence = () => {
       </div>
       <AppFooter />
       {showCriteriaGuide && <CriteriaGuide onClose={() => setShowCriteriaGuide(false)} help={evidence?.standard?.help} />}
+      <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
+
     </>
   );
 };

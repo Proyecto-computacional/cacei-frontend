@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import api from "../services/api"
 import LoadingSpinner from "../components/LoadingSpinner";
+import ModalAlert from "../components/ModalAlert";
 
 const EvidencesCompilation = () => {
   const [showModal, setShowModal] = useState(false);
@@ -12,6 +13,7 @@ const EvidencesCompilation = () => {
   const [evidencesStructure, setEvidencesStructure] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processData, setProcessData] = useState(null);
+  const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   const toggleSection = (sectionIndex) => {
     setOpenSections((prev) => ({
@@ -40,7 +42,7 @@ const EvidencesCompilation = () => {
       .then((response) => {
         // Check if the response is empty or has no content
         if (response.data.size === 0) {
-          alert("No hay evidencias para compilar en este proceso.");
+          setModalAlertMessage("No hay evidencias para compilar en este proceso.");
           setShowModal(false);
           return;
         }
@@ -51,9 +53,9 @@ const EvidencesCompilation = () => {
       .catch((error) => {
         console.error("Error al compilar las evidencias:", error);
         if (error.response && error.response.status === 404) {
-          alert("No se encontraron evidencias para compilar en este proceso.");
+          setModalAlertMessage("No se encontraron evidencias para compilar en este proceso.");
         } else {
-          alert("Error al compilar las evidencias. Por favor, intente nuevamente.");
+          setModalAlertMessage("Error al compilar las evidencias. Por favor, intente nuevamente.");
         }
         setShowModal(false);
       });
@@ -76,7 +78,6 @@ const EvidencesCompilation = () => {
         if (!processId) {
           throw new Error('No process ID found');
         }
-
         // First get the process details to get the frame_id
         const processRes = await api.get(`/api/processes/${processId}`);
         if (!processRes || !processRes.data) {
@@ -371,6 +372,11 @@ const EvidencesCompilation = () => {
       )}
 
       <AppFooter />
+       <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
     </>
   );
 };
