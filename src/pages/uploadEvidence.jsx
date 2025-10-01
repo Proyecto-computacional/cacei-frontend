@@ -418,15 +418,18 @@ const UploadEvidence = () => {
 
       
       <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
-        {/* Titulo de página */}
-        <h1 className="text-3xl font-bold text-black">
-              Carga de evidencias
-        </h1>
-        <div className="mt-2">
-          <p className="text-gray-500"> Consulte las tareas asignadas a los usuarios en base a una categoría, indicador y criterios </p>
-        </div>
-
-
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 pt-4 pb-2 pl-8 pr-8 w-full">
+            <div className="flex items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
+                  Carga de evidencias
+                </h1>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                Consulte y cargue sus tareas asignadas en base a una categoría, indicador y criterios
+              </p>
+              </div>
+            </div>
+          </div>
         <div className="h-fit p-10 flex justify-around items-stretch relative gap-6" >
           
 
