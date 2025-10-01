@@ -72,14 +72,12 @@ const EvidencesCompilation = () => {
 
   // Obtiene toda la información relativa al proceso
   useEffect(() => {
-     const [modalAlertMessage, setModalAlertMessage] = useState(null);
     const fetchStructure = async () => {
       try {
         const processId = localStorage.getItem("currentProcessId");
         if (!processId) {
           throw new Error('No process ID found');
         }
-
         // First get the process details to get the frame_id
         const processRes = await api.get(`/api/processes/${processId}`);
         if (!processRes || !processRes.data) {
