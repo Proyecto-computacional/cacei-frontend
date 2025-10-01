@@ -1006,27 +1006,22 @@ export default function EstructuraMarco() {
       <SubHeading />
       <div className="p-4 max-w-7xl mx-auto">
         <div className="mb-6">
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="bg-[#004A98] text-white rounded p-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-                    <path fillRule="evenodd" d="M10 2a2 2 0 00-2 2v2H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V8a2 2 0 00-2-2h-2V4a2 2 0 00-2-2zm-1 8a1 1 0 112 0v3a1 1 0 11-2 0v-3z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-800">Estructura del {marco.frame_name}</h1>
-                  <div className="mt-1 flex flex-wrap items-center gap-2">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 pt-4 pb-2 pl-8 pr-8 w-full">
+            <div className="flex items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
+                Estructura del {marco.frame_name}
+                </h1>
+                <div className="mb-2 flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200">{categorias.length} categorías</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200">{secciones.length} indicadores</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200">{criterios.length} criterios</span>
                   </div>
-                </div>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                Agregue categorías, indicadores y criterios desde sus respectivas filas con “+”. Use “Modificar” para editar elementos ya existentes.
+              </p>
               </div>
             </div>
-            <p className="mt-3 text-sm text-gray-600">
-              Agrega categorías, indicadores y criterios desde sus respectivas filas con “+”. Usa “Modificar” para editar elementos ya existentes.
-            </p>
           </div>
         </div>
 
@@ -1243,10 +1238,10 @@ export default function EstructuraMarco() {
                               </div>
                             </td>
                           )}
-                          <td className="px-6 py-4 text-sm text-gray-600 border-r">
+                          <td className="px-6 py-2.5 text-sm text-gray-600 border-r">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span>{cat.indice}.{sec.indice}.{cri.indice}. {cri.standard_name}</span>
+                                <span className="font-medium">{cat.indice}.{sec.indice}.{cri.indice}. {cri.standard_name}</span>
                                 {cri.is_transversal && (
                                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
                                     Transversal
