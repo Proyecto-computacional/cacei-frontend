@@ -3,6 +3,7 @@ import { AppHeader, AppFooter, SubHeading } from "../common";
 import { useParams } from "react-router-dom";
 import CV from "../components/cv";
 import api from "../services/api";
+import ModalAlert from "../components/ModalAlert";
 import { User, Calendar, Briefcase, Hash, Clock, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -12,6 +13,7 @@ const PersonalConfig = () => {
   const [error, setError] = useState(null);
   const { rpe } = useParams()
   const navigate = useNavigate();
+  const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -24,7 +26,7 @@ const PersonalConfig = () => {
         console.error("Error fetching CV:", err);
         const msg = err.response?.data?.error || "Error inesperado al cargar el CV";
         setError(msg);
-        alert(msg);
+        setModalAlertMessage(msg);
         navigate("/mainmenu");
         
       } finally {
@@ -38,7 +40,7 @@ const PersonalConfig = () => {
   // HTML BODY ------------------------------------------------------------------------------------------------------------------------------
   return (
     <>
-      <AppHeader/>
+      <AppHeader />
       <SubHeading />
       <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
         <div className="max-w-7xl mx-auto">
@@ -72,12 +74,12 @@ const PersonalConfig = () => {
                   <User className="w-5 h-5 text-primary1 flex-shrink-0" />
                   <div>
                     <p className="font-semibold text-gray-600 text-sm">Nombre</p>
-                    <p className="text-gray-800">{cvData.professor_name 
-                        ? cvData.professor_name
-                            .split(' ')
-                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                            .join(' ')
-                        : "No especificado"}</p>
+                    <p className="text-gray-800">{cvData.professor_name
+                      ? cvData.professor_name
+                        .split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ')
+                      : "No especificado"}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
@@ -132,7 +134,13 @@ const PersonalConfig = () => {
           </div>
         </div>
       </div>
-      <AppFooter/>
+      <AppFooter />
+      <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
+
     </>
   );
 };

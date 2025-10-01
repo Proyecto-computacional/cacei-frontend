@@ -8,6 +8,7 @@ import api from "../services/api";
 import { FileQuestion, Sheet, FileText, FolderArchive, X } from "lucide-react";
 import EditorCacei from "../components/EditorCacei";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ModalAlert from "../components/ModalAlert";
 
 const UploadEvidence = () => {
   const [files, setFiles] = useState([]);
@@ -25,6 +26,7 @@ const UploadEvidence = () => {
   const Finished = localStorage.getItem('finished');
   const [isFinished, setIsFinished] = useState(false);
   const [relatedEvidences, setRelatedEvidences] = useState([]);
+  const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   const navigate = useNavigate();
 
@@ -148,11 +150,13 @@ const UploadEvidence = () => {
       const ext = file.name.split('.').pop().toLowerCase();
       const sizeOk = file.size <= maxFileSize;
       const typeOk = allowedExtensions.includes(ext);
+      const [modalAlertMessage, setModalAlertMessage] = useState(null);
+
 
       if (!typeOk) {
-        alert(`Archivo rechazado: ${file.name}. Solo se permiten archivos RAR, ZIP, Excel, PDF y Word.`);
+        setModalAlertMessage(`Archivo rechazado: ${file.name}. Solo se permiten archivos RAR, ZIP, Excel, PDF y Word.`);
       } else if (!sizeOk) {
-        alert(`Archivo rechazado: ${file.name}. El tamaño máximo permitido es 50 MB.`);
+        setModalAlertMessage(`Archivo rechazado: ${file.name}. El tamaño máximo permitido es 50 MB.`);
       } else {
         validFiles.push(file);
       }
@@ -172,14 +176,14 @@ const UploadEvidence = () => {
   // Sube los archivos y la justificación
   const handleUpload = async () => {
     if (isFinished) {
-      alert("No se pueden subir archivos porque el proceso ha finalizado");
+      setModalAlertMessage("No se pueden subir archivos porque el proceso ha finalizado");
       return;
     }
     setIsLocked(true);
 
     // Si no hay archivos nuevos y no hay archivos subidos previamente, mostrar error
     if (!files.length && (!uploadedFiles || uploadedFiles.length === 0)) {
-      alert("Por favor, selecciona al menos un archivo.");
+      setModalAlertMessage("Por favor, selecciona al menos un archivo.");
       setIsLocked(false);
       return;
     }
@@ -239,10 +243,10 @@ const UploadEvidence = () => {
         }
       } else {
         const formData = new FormData();
-        
+
         // Agregar evidence_id
         formData.append("evidence_id", evidence.evidence_id);
-        
+
         // Agregar archivos - Modificar la forma de agregar archivos
         Array.from(files).forEach((file, index) => {
           // Usar 'files' en lugar de 'files[]' y agregar el índice
@@ -281,11 +285,11 @@ const UploadEvidence = () => {
             }
           });
           // Mostrar mensaje de error más específico
-          const errorMessage = error.response?.data?.message || 
-                             error.response?.data?.errors?.files?.[0] || 
-                             error.response?.data?.errors?.evidence_id?.[0] ||
-                             error.message;
-          alert(`Error al subir archivo: ${errorMessage}`);
+          const errorMessage = error.response?.data?.message ||
+            error.response?.data?.errors?.files?.[0] ||
+            error.response?.data?.errors?.evidence_id?.[0] ||
+            error.message;
+          setModalAlertMessage(`Error al subir archivo: ${errorMessage}`);
           throw error;
         }
         }
@@ -304,7 +308,7 @@ const UploadEvidence = () => {
         });
       }
 
-      alert("Cambios guardados con éxito");
+      setModalAlertMessage("Cambios guardados con éxito");
 
       await api.get(`api/evidences/${evidence_id}`).then(
         (response) => {
@@ -326,7 +330,7 @@ const UploadEvidence = () => {
         message: error.message,
         stack: error.stack
       });
-      alert(`Error al subir archivo: ${error.response?.data?.message || error.message}`);
+      setModalAlertMessage(`Error al subir archivo: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -340,11 +344,11 @@ const UploadEvidence = () => {
           "Authorization": `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      alert("Archivo eliminado correctamente.");
+      setModalAlertMessage("Archivo eliminado correctamente.");
       setUploadedFiles((prev) => prev.filter((f) => f.file_id !== fileId));
     } catch (error) {
       console.error(error);
-      alert("Error al eliminar archivo.");
+      setModalAlertMessage("Error al eliminar archivo.");
     }
     setIsLocked(false);
   };
@@ -405,7 +409,7 @@ const UploadEvidence = () => {
 
   // Revisa si el proceso ha finalizado (y bloquear interacciones)
   useEffect(() => {
-    if (Finished == 'true'){
+    if (Finished == 'true') {
       setIsFinished(true);
     }
   })
@@ -513,14 +517,14 @@ const UploadEvidence = () => {
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <div>
-                        <span className="text-xs font-medium text-gray-600">Proceso:</span>
+                        <span className="text-s font-medium text-gray-600">Proceso:</span>
                         <span className="ml-1 font-semibold text-gray-900 text-sm">{evidence.process.process_name}</span>
                       </div>
                     </div>
 
                     {/* Jerarquía de la evidencia */}
                     <div>
-                      <div className="flex items-center gap-1 text-xs text-gray-600 mb-1.5">
+                      <div className="flex items-center gap-1 text-s text-gray-600 mb-1.5">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                         </svg>
@@ -532,8 +536,8 @@ const UploadEvidence = () => {
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0h8v12H6V4z" clipRule="evenodd" />
                           </svg>
-                          <span className="text-xs text-gray-500">Categoría</span>
-                          <span className="font-semibold text-gray-900 text-xs">{evidence.standard.section.category.category_name}</span>
+                          <span className="text-s text-gray-500">Categoría</span>
+                          <span className="font-semibold text-gray-900 text-s">{evidence.standard.section.category.category_name}</span>
                         </div>
                         
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -544,8 +548,8 @@ const UploadEvidence = () => {
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <span className="text-xs text-gray-500">Indicador</span>
-                          <span className="font-semibold text-gray-900 text-xs">{evidence.standard.section.section_name}</span>
+                          <span className="text-s text-gray-500">Indicador</span>
+                          <span className="font-semibold text-gray-900 text-s">{evidence.standard.section.section_name}</span>
                         </div>
                         
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -556,8 +560,8 @@ const UploadEvidence = () => {
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
-                          <span className="text-xs text-gray-500">Criterio</span>
-                          <span className="font-semibold text-gray-900 text-xs">{evidence.standard.standard_name}</span>
+                          <span className="text-s text-gray-500">Criterio</span>
+                          <span className="font-semibold text-gray-900 text-s">{evidence.standard.standard_name}</span>
                         </div>
                       </div>
                     </div>
@@ -663,7 +667,12 @@ const UploadEvidence = () => {
       </div>
       <AppFooter />
       {showCriteriaGuide && <CriteriaGuide onClose={() => setShowCriteriaGuide(false)} help={evidence?.standard?.help} />}
-    
+      <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
+
     </>
   );
 };
