@@ -42,14 +42,19 @@ const PersonalConfig = () => {
       <SubHeading />
       <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
         <div className="max-w-7xl mx-auto">
-          {/* Titulo de página */}
-          <h1 className="text-[34px] font-semibold text-black font-['Open_Sans'] mt-6 mb-6">
-            Información Personal
-          </h1>
-
-          <p className="text-gray-600 mt-6">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 pt-4 pb-2 pl-8 pr-8 w-full mb-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
+                Información Personal
+                </h1>
+                <p className="text-lg text-gray-700 leading-relaxed">
                 Consulte su información personal, y modifique los datos de su curriculum vitae.
-          </p>
+              </p>
+              </div>
+            </div>
+          </div>
+
 
           {/* Sección de visualización de datos */}
           <div className="bg-white p-6 rounded-xl shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
