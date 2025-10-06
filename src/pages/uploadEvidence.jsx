@@ -364,12 +364,15 @@ const UploadEvidence = () => {
   const getEstadoClass = (estado) => {
     switch (estado) {
       case "NO CARGADA":
+      case "NO CARGADO":
         return "bg-gray-100 text-gray-600";
       case "PENDIENTE":
         return "bg-yellow-50 text-yellow-600";
       case "NO APROBADA":
+      case "NO APROBADO":
         return "bg-red-50 text-red-600";
       case "APROBADA":
+      case "APROBADO":
         return "bg-green-50 text-green-600";
       default:
         return "bg-gray-100 text-gray-600";
