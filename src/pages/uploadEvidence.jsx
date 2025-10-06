@@ -70,20 +70,20 @@ const UploadEvidence = () => {
 
             // Bloquea la evidencia si ha sido aprobada o está pendiente
             if (adminStatus) {
-              if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "PENDIENTE") {
+              if ((adminStatus.status_description === "APROBADA" || "APROBADO") || adminStatus.status_description === "PENDIENTE") {
                 setIsLocked(true);
-              } else if (adminStatus.status_description === "NO APROBADA") {
+              } else if (adminStatus.status_description === "NO APROBADA" || "NO APROBADO") {
                 // Solo permite la edición si el usuario es el propietario de la evidencia
                 const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
                 setIsLocked(shouldLock);
               }
             } else {
-              if (firstStatus.status_description === "NO APROBADA") {
+              if (firstStatus.status_description === "NO APROBADA" || "NO APROBADO") {
                 // Solo permite la edición si el usuario es el propietario de la evidencia
                 const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
                 setIsLocked(shouldLock);
               } else if (
-                firstStatus.status_description === "APROBADA" ||
+                ( firstStatus.status_description === "APROBADA" || "APROBADO") ||
                 firstStatus.status_description === "PENDIENTE"
               ) {
                 setIsLocked(true);
@@ -575,6 +575,7 @@ const UploadEvidence = () => {
                 <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
                 {user?.user_rpe === evidence.user_rpe && (
                   <div className="mt-4 flex">
+                    {/* Botón para seleccionar archivos */}
                     <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
                       Ingresa el archivo aquí
                       <input
