@@ -81,7 +81,8 @@ const UploadEvidence = () => {
                 const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
                 setIsLocked(shouldLock);
               } else if (
-                firstStatus.status_description === "APROBADA" || "APROBADO" || "PENDIENTE") {
+                firstStatus.status_description === "APROBADA" || "APROBADO" || "PENDIENTE"
+              ) {
                 setIsLocked(true);
               }
             }
@@ -568,8 +569,8 @@ const UploadEvidence = () => {
                 </div>
                 <p className="text-black text-lg font-semibold">Justificación</p>
                 {/* Editor integrado de CKEditor (en EditorCacei.jsx) */}
-                <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || !isLocked} />
-                {user?.user_rpe === evidence.user_rpe && isLocked && !isFinished && (
+                <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
+                {user?.user_rpe === evidence.user_rpe && (
                   <div className="mt-4 flex">
                     {/* Botón para seleccionar archivos */}
                     <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
@@ -580,7 +581,7 @@ const UploadEvidence = () => {
                         multiple
                         onChange={handleFileChange}
                         ref={refInputFiles}
-                        disabled={!isLocked || isFinished}
+                        disabled={isLocked || isFinished}
                       />
                     </label>
                     <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
@@ -591,7 +592,7 @@ const UploadEvidence = () => {
                   <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
                     <span className="text-2xl">{getIcon(file.name)}</span>
                     <p className="font-semibold text-left flex-grow">{file.name}</p>
-                    {isLocked && !isFinished && (<X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />)}
+                    {!isLocked && !isFinished && (<X className="cursor-pointer" onClick={() => { handleRemoveFile(file.name) }} />)}
                   </div>
                 ))}
                 {uploadedFiles && uploadedFiles.map((file) => (
@@ -599,11 +600,11 @@ const UploadEvidence = () => {
                     <span className="text-2xl">{getIcon(file.file_name)}</span>
                     <p className="font-semibold text-left flex-grow">{file.file_name}</p>
                     <p className="font-semibold text-left flex-grow">{file.upload_date}</p>
-                    {isLocked && !isFinished && (<X className="cursor-pointer" onClick={() => { handleDeleteUploadedFile(file.file_id) }} />)}
+                    {!isLocked && !isFinished && (<X className="cursor-pointer" onClick={() => { handleDeleteUploadedFile(file.file_id) }} />)}
                   </div>
                 ))}
-                {user?.user_rpe === evidence.user_rpe && isLocked && !isFinished && (
-                  <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={!isLocked}>Guardar</button>
+                {user?.user_rpe === evidence.user_rpe && !isLocked && !isFinished && (
+                  <button className="bg-[#004A98] text-white px-20 py-2 mt-5 mx-auto rounded-full" onClick={handleUpload} disabled={isLocked}>Guardar</button>
                 )}
               </div>
               {/* Cuadro de revisión (la info del revisor, pues) */}
