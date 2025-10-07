@@ -70,21 +70,18 @@ const UploadEvidence = () => {
 
             // Bloquea la evidencia si ha sido aprobada o está pendiente
             if (adminStatus) {
-              if ((adminStatus.status_description === "APROBADA" || "APROBADO") || adminStatus.status_description === "PENDIENTE") {
+              if (adminStatus.status_description === "APROBADA" || "APROBADO" || "PENDIENTE") {
                 setIsLocked(true);
               } else if (adminStatus.status_description === "NO APROBADA" || "NO APROBADO") {
-                // Solo permite la edición si el usuario es el propietario de la evidencia
                 const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
                 setIsLocked(shouldLock);
               }
             } else {
               if (firstStatus.status_description === "NO APROBADA" || "NO APROBADO") {
-                // Solo permite la edición si el usuario es el propietario de la evidencia
                 const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
                 setIsLocked(shouldLock);
               } else if (
-                ( firstStatus.status_description === "APROBADA" || "APROBADO") ||
-                firstStatus.status_description === "PENDIENTE"
+                firstStatus.status_description === "APROBADA" || "APROBADO" || "PENDIENTE"
               ) {
                 setIsLocked(true);
               }
@@ -150,7 +147,7 @@ const UploadEvidence = () => {
       const ext = file.name.split('.').pop().toLowerCase();
       const sizeOk = file.size <= maxFileSize;
       const typeOk = allowedExtensions.includes(ext);
-      const [modalAlertMessage, setModalAlertMessage] = useState(null);
+      // const [modalAlertMessage, setModalAlertMessage] = useState(null); // Ya no se debería necesitar esto aquí
 
 
       if (!typeOk) {
@@ -590,7 +587,7 @@ const UploadEvidence = () => {
                     <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
                   </div>
                 )}
-                {/* Para subir archivos */}
+                {/* Contenedor para archivos */}
                 {files && files.map((file) => (
                   <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
                     <span className="text-2xl">{getIcon(file.name)}</span>
