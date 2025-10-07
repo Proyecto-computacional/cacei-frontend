@@ -81,8 +81,7 @@ const UploadEvidence = () => {
                 const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
                 setIsLocked(shouldLock);
               } else if (
-                firstStatus.status_description === "APROBADA" || "APROBADO" || "PENDIENTE"
-              ) {
+                firstStatus.status_description === "APROBADA" || "APROBADO" || "PENDIENTE") {
                 setIsLocked(true);
               }
             }
