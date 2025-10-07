@@ -442,7 +442,7 @@ export default function EvidenceTable() {
                                                     <span className="text-sm text-gray-500 italic">Sin justificación</span>
                                                 )}
                                             </td>
-                                            {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR"].map((rol) => {
+                                            {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR DE CARRERA"].map((rol) => {
                                                 // Get all statuses for this role, sorted by date and preserving original order
                                                 const roleStatuses = item.statuses
                                                     .filter(s => s.user_role?.toUpperCase() === rol)

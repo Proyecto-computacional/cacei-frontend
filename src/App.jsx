@@ -26,7 +26,7 @@ function App() {
         } />
         <Route path="/ReviewEvidence" element={
           <ProtectedRoute allowedRoles={["ADMINISTRADOR",
-            "COORDINADOR",
+            "COORDINADOR DE CARRERA",
             "JEFE DE AREA", "DIRECTIVO"]}>
             <ReviewEvidence />
           </ProtectedRoute>
@@ -73,14 +73,14 @@ function App() {
         } />
         <Route path="/evidenceManagement" element={
           <ProtectedRoute allowedRoles={["ADMINISTRADOR",
-            "COORDINADOR",
+            "COORDINADOR DE CARRERA",
             "JEFE DE AREA", "DIRECTIVO"]}>
             <EvidenceManagement />
           </ProtectedRoute>
         } />
         <Route path="/CVsOfProcess/:processId" element={
           <ProtectedRoute allowedRoles={["ADMINISTRADOR",
-            "COORDINADOR",
+            "COORDINADOR DE CARRERA",
             "JEFE DE AREA", "DIRECTIVO"]}>
             <CVsOfProcess />
           </ProtectedRoute>

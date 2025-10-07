@@ -248,7 +248,7 @@ export function SubHeading() {
                                 const role = userRole;
                                 return (role === "Administrador" || 
                                        role === "Jefe de area" || 
-                                       role === "Coordinador" ||
+                                       role === "Coordinador de carrera" ||
                                        role === "Directivo") && (
                                     <>
                                         <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black hover:text-[#004A98] transition-colors duration-200">

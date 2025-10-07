@@ -3,19 +3,19 @@ import { X } from "lucide-react";
 import api from "../services/api";
 
 const MAJORS = [
-  { career_id: "CA01", career_name: "Ingeniería Agroindustrial" },
-  { career_id: "CA02", career_name: "Ingeniería Ambiental" },
-  { career_id: "CA03", career_name: "Ingeniería Civil" },
-  { career_id: "CA04", career_name: "Ingeniería en Computación" },
-  { career_id: "CA05", career_name: "Ingeniería en Electricidad y Automatización" },
-  { career_id: "CA06", career_name: "Ingeniería en Geología" },
-  { career_id: "CA07", career_name: "Ingeniería en Sistemas Inteligentes" },
-  { career_id: "CA08", career_name: "Ingeniería en Topografía y Construcción" },
-  { career_id: "CA09", career_name: "Ingeniería Mecánica" },
-  { career_id: "CA10", career_name: "Ingeniería Mecánica Administrativa" },
-  { career_id: "CA11", career_name: "Ingeniería Mecánica Eléctrica" },
-  { career_id: "CA12", career_name: "Ingeniería Mecatrónica" },
-  { career_id: "CA13", career_name: "Ingeniería Metalúrgica y de Materiales" }
+  { career_id: 1, career_name: "Ingeniería Agroindustrial" },
+  { career_id: 2, career_name: "Ingeniería Ambiental" },
+  { career_id: 3, career_name: "Ingeniería Civil" },
+  { career_id: 4, career_name: "Ingeniería en Computación" },
+  { career_id: 5, career_name: "Ingeniería en Electricidad y Automatización" },
+  { career_id: 6, career_name: "Ingeniería en Geología" },
+  { career_id: 7, career_name: "Ingeniería en Sistemas Inteligentes" },
+  { career_id: 8, career_name: "Ingeniería en Topografía y Construcción" },
+  { career_id: 9, career_name: "Ingeniería Mecánica" },
+  { career_id: 10, career_name: "Ingeniería Mecánica Administrativa" },
+  { career_id: 11, career_name: "Ingeniería Mecánica Eléctrica" },
+  { career_id: 12, career_name: "Ingeniería Mecatrónica" },
+  { career_id: 13, career_name: "Ingeniería Metalúrgica y de Materiales" }
 ];
 
 const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {

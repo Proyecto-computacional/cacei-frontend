@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
+import { useParams } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ModalAlert from "./ModalAlert";
 
@@ -10,9 +11,6 @@ const CV = () => {
     const [activeSection, setActiveSection] = useState(1);
     const [isEditing, setIsEditing] = useState(false);
     const [cvId, setCvId] = useState(null);
-    const rpe = localStorage.getItem("rpe");
-    const [modalAlertMessage, setModalAlertMessage] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [canEdit, setCanEdit] = useState(false);
     const { rpe } = useParams()
     const [loading, setLoading] = useState(true);

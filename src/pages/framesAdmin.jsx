@@ -9,7 +9,6 @@ import ModalAlert from "../components/ModalAlert";
 function CrearMarcoForm({ onCancel, onSaved }) {
     const [nombre, setNombre] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [modalAlertMessage, setModalAlertMessage] = useState(null);
     const navigate = useNavigate();
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
   
@@ -149,7 +148,6 @@ export default function FrameOfReferenceView() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
     const navigate = useNavigate();
-    const [modalAlertMessage, setModalAlertMessage] = useState(null);
   
     useEffect(() => {
       fetchFrames();

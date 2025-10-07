@@ -6,8 +6,8 @@ import "../app.css"
 import api from "../services/api";
 import { Search, Users, Shield, FileUser } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
-import ModalAlert from "../components/ModalAlert";
 import PermissionsTable from "./permissionsTable";
+import ModalAlert from "./ModalAlert";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -31,9 +31,7 @@ export default function UsersTable() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedArea, setSelectedArea] = useState("-1");
-
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
-
     const fetchUsers = async () => {
         try {
             setLoading(true);
@@ -60,7 +58,7 @@ export default function UsersTable() {
             //setNextPage(responseUsers.data.usuarios.next_page_url);
         } catch (error) {
             if (error.response) {
-                if (error.response.status === 403) {
+                if (error.response.status === 403 ) {
                     setModalAlertMessage("No tienes permisos para acceder a esta sección.");
                     window.location.href = "/PersonalConfig";
                 } else if (error.response.status === 401) {
@@ -213,6 +211,11 @@ export default function UsersTable() {
             </div>
 
             <PermissionsTable/>
+              <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
         </div>
     );
 }
