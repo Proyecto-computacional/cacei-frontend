@@ -7,7 +7,6 @@ import { login } from "../services/api"
 import ModalAlert from "../components/ModalAlert";
 
 
-
 const Login = () => {
     const [rpe, setRpe] = useState("");
     const [password, setPassword] = useState("");
@@ -87,14 +86,12 @@ const Login = () => {
                 </div>
             </div>
             <AppFooter></AppFooter>
-           
-<ModalAlert
-  isOpen={modalAlertMessage !== null}
-  message={modalAlertMessage}
-  onClose={() => setModalAlertMessage(null)}
-/>
-
-
+            {/* Mostrar modal siempre pero controlando si está abierto */}
+            <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
         </>
 
     );

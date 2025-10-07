@@ -6,160 +6,160 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import ModalAlert from "../components/ModalAlert";
 
 function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
-  const [nombre, setNombre] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [modalAlertMessage, setModalAlertMessage] = useState(null);
+    const [nombre, setNombre] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
-  const handleSave = async () => {
-    if (!nombre.trim()) {
-      setModalAlertMessage("Por favor ingrese un nombre para la categoría");
-      return;
-    }
+    const handleSave = async () => {
+      if (!nombre.trim()) {
+        setModalAlertMessage("Por favor ingrese un nombre para la categoría");
+        return;
+      }
 
-    setIsLoading(true);
-    try {
-      const res = await api.post("/api/category", { category_name: nombre, frame_id: frame_id });
-      setModalAlertMessage("Categoría creada exitosamente");
-      onSaved();
-    } catch (err) {
-      setModalAlertMessage("Error al crear la categoría: " + (err.response?.data?.message || "Error desconocido"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
-        <div className="p-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Categoría</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="nombreCategoria" className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre de la categoría
-              </label>
-              <input
-                type="text"
-                id="nombreCategoria"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                placeholder="Ingrese el nombre de la categoría"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-              />
+      setIsLoading(true);
+      try {
+        const res = await api.post("/api/category", { category_name: nombre, frame_id: frame_id });
+        setModalAlertMessage("Categoría creada exitosamente");
+        onSaved();
+      } catch (err) {
+        setModalAlertMessage("Error al crear la categoría: " + (err.response?.data?.message || "Error desconocido"));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
+          <div className="p-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Crear Categoría</h2>
+            <div className="space-y-4">
+              <div>
+        <label htmlFor="nombreCategoria" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre de la categoría
+        </label>
+        <input
+          type="text"
+                  id="nombreCategoria"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  placeholder="Ingrese el nombre de la categoría"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+        />
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
-          <button
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-            onClick={onCancel}
-            disabled={isLoading}
-          >
+          <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
+            <button 
+              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+              onClick={onCancel}
+              disabled={isLoading}
+            >
             Cancelar
           </button>
-          <button
-            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            onClick={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Guardando...
-              </>
-            ) : (
-              'Guardar'
-            )}
-          </button>
+            <button 
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              onClick={handleSave}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Guardando...
+                </>
+              ) : (
+                'Guardar'
+              )}
+            </button>
+          </div>
         </div>
-      </div>
-      <ModalAlert
+        <ModalAlert
         isOpen={modalAlertMessage !== null}
         message={modalAlertMessage}
         onClose={() => setModalAlertMessage(null)}
       />
-    </div>
-  );
-}
+      </div>
+    );
+  }
 
-function ModificarCategoriaForm({ category, onCancel, onSaved }) {
-  const [nombre, setNombre] = useState(category.category_name);
-  const [isLoading, setIsLoading] = useState(false);
-  const [modalAlertMessage, setModalAlertMessage] = useState(null);
+  function ModificarCategoriaForm({ category, onCancel, onSaved }) {
+    const [nombre, setNombre] = useState(category.category_name);
+    const [isLoading, setIsLoading] = useState(false);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+  
+    const handleSave = async () => {
+      if (!nombre.trim()) {
+        setModalAlertMessage("Por favor ingrese un nombre para la categoría");
+        return;
+      }
 
-  const handleSave = async () => {
-    if (!nombre.trim()) {
-      setModalAlertMessage("Por favor ingrese un nombre para la categoría");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await api.put("/api/category-update", {
-        category_id: category.category_id,
-        category_name: nombre
-      });
-      setModalAlertMessage("Categoría actualizada exitosamente");
-      onSaved();
-    } catch (err) {
-      setModalAlertMessage("Error al actualizar la categoría: " + (err.response?.data?.message || "Error desconocido"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
-        <div className="p-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Categoría</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="nombreCategoria" className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre de la categoría
-              </label>
-              <input
-                type="text"
-                id="nombreCategoria"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-              />
+      setIsLoading(true);
+      try {
+        await api.put("/api/category-update", {
+          category_id: category.category_id,
+          category_name: nombre
+        });
+        setModalAlertMessage("Categoría actualizada exitosamente");
+        onSaved();
+      } catch (err) {
+        setModalAlertMessage("Error al actualizar la categoría: " + (err.response?.data?.message || "Error desconocido"));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
+          <div className="p-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Categoría</h2>
+            <div className="space-y-4">
+              <div>
+        <label htmlFor="nombreCategoria" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre de la categoría
+        </label>
+        <input
+          type="text"
+                  id="nombreCategoria"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+        />
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
-          <button
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-            onClick={onCancel}
-            disabled={isLoading}
-          >
+          <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
+            <button 
+              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+              onClick={onCancel}
+              disabled={isLoading}
+            >
             Cancelar
           </button>
-          <button
-            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            onClick={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Guardando...
-              </>
-            ) : (
-              'Guardar'
-            )}
-          </button>
+            <button 
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              onClick={handleSave}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Guardando...
+                </>
+              ) : (
+                'Guardar'
+              )}
+            </button>
+          </div>
         </div>
-      </div>
-      <ModalAlert
+        <ModalAlert
         isOpen={modalAlertMessage !== null}
         message={modalAlertMessage}
         onClose={() => setModalAlertMessage(null)}
       />
-    </div>
-  );
-}
+      </div>
+    );
+  }
 
 function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) {
     const [nombre, setNombre] = useState("");
@@ -170,14 +170,15 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
     const [help, setHelp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const isCategoryFixed = Boolean(defaultCategoryId);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
     const handleSave = async () => {
       if (!selectedCategoryId) {
-        alert("Por favor seleccione una categoría");
+        setModalAlertMessage("Por favor seleccione una categoría");
         return;
       }
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para el indicador");
+        setModalAlertMessage("Por favor ingrese un nombre para el indicador");
         return;
       }
 
@@ -218,10 +219,10 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
           }
         }
 
-        alert(is_standard ? "Indicador y criterio creados exitosamente" : "Indicador creado exitosamente");
+        setModalAlertMessage(is_standard ? "Indicador y criterio creados exitosamente" : "Indicador creado exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al crear el indicador: " + (err.response?.data?.message || "Error desconocido"));
+        setModalAlertMessage("Error al crear el indicador: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -341,30 +342,30 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
             >
             Cancelar
           </button>
-          <button
-            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            onClick={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Guardando...
-              </>
-            ) : (
-              'Guardar'
-            )}
-          </button>
+            <button 
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              onClick={handleSave}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Guardando...
+                </>
+              ) : (
+                'Guardar'
+              )}
+            </button>
+          </div>
         </div>
-      </div>
-      {/*<ModalAlert
+        <ModalAlert
         isOpen={modalAlertMessage !== null}
         message={modalAlertMessage}
         onClose={() => setModalAlertMessage(null)}
-      />*/}
-    </div>
-  );
-}
+      />
+      </div>
+    );
+  }
 
   function ModificarSeccionForm({ seccion, onCancel, onSaved, frame_id }) {
     const [nombre, setNombre] = useState(seccion.section_name);
@@ -375,7 +376,7 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
     const [isLoading, setIsLoading] = useState(false);
     const [standardId, setStandardId] = useState(null);
     const [hasUnfinishedProcesses, setHasUnfinishedProcesses] = useState(false);
-    const [modalAlertMessage, setModalAlertMessage] = useState(null);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
     // Cargar datos del criterio si existe
     useEffect(() => {
         const fetchData = async () => {
@@ -428,7 +429,7 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
   
     const handleSave = async () => {
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para el indicador");
+        setModalAlertMessage("Por favor ingrese un nombre para el indicador");
         return;
       }
 
@@ -463,10 +464,10 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
                 const res = await api.delete(`/api/standard/${standardId}`);
                 setStandardId(null);
             }
-        alert("Indicador actualizado exitosamente");
+        setModalAlertMessage("Indicador actualizado exitosamente");
         onSaved();
       } catch (err) {
-        alert("Error al actualizar el indicador: " + (err.response?.data?.message || "Error desconocido"));
+        setModalAlertMessage("Error al actualizar el indicador: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
         setIsLoading(false);
       }
@@ -561,30 +562,30 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
             >
             Cancelar
           </button>
-          <button
-            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            onClick={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Guardando...
-              </>
-            ) : (
-              'Guardar'
-            )}
-          </button>
+            <button 
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              onClick={handleSave}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Guardando...
+                </>
+              ) : (
+                'Guardar'
+              )}
+            </button>
+          </div>
         </div>
-      </div>
-      <ModalAlert
+        <ModalAlert
         isOpen={modalAlertMessage !== null}
         message={modalAlertMessage}
         onClose={() => setModalAlertMessage(null)}
       />
-    </div>
-  );
-}
+      </div>
+    );
+  }
 
 function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCategoryId, defaultSectionId }) {
     const [nombre, setNombre] = useState("");
@@ -596,6 +597,7 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
     const [isLoading, setIsLoading] = useState(false);
     const isCategoryFixed = Boolean(defaultCategoryId);
     const isSectionFixed = Boolean(defaultSectionId);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   // Filter sections based on selected category
   const filteredSections = sections.filter(sec => {
@@ -604,35 +606,35 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
 
     const handleSave = async () => {
       if (!selectedCategoryId) {
-        alert("Por favor seleccione una categoría");
+        setModalAlertMessage("Por favor seleccione una categoría");
         return;
       }
       if (!selectedSectionId) {
-        alert("Por favor seleccione un indicador");
+        setModalAlertMessage("Por favor seleccione un indicador");
         return;
       }
       if (!nombre.trim()) {
-        alert("Por favor ingrese un nombre para el criterio");
+        setModalAlertMessage("Por favor ingrese un nombre para el criterio");
         return;
       }
 
-    setIsLoading(true);
-    try {
-      const res = await api.post("/api/standard", {
-        standard_name: nombre,
-        section_id: selectedSectionId,
-        standard_description: descripcion,
-        is_transversal: is_transversal,
-        help: help
-      });
-      setModalAlertMessage("Criterio creado exitosamente");
-      onSaved();
-    } catch (err) {
-      setModalAlertMessage("Error al crear el criterio: " + (err.response?.data?.message || "Error desconocido"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      setIsLoading(true);
+      try {
+        const res = await api.post("/api/standard", { 
+          standard_name: nombre, 
+          section_id: selectedSectionId, 
+          standard_description: descripcion, 
+          is_transversal: is_transversal, 
+          help: help 
+        });
+        setModalAlertMessage("Criterio creado exitosamente");
+        onSaved();
+      } catch (err) {
+        setModalAlertMessage("Error al crear el criterio: " + (err.response?.data?.message || "Error desconocido"));
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     // Reset section selection when category changes
     const handleCategoryChange = (e) => {
@@ -749,104 +751,105 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
               </label>
             </div>
 
-            <div>
-              <label htmlFor="ayudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
-                Ayuda del criterio
-              </label>
-              <textarea
-                id="ayudaCriterio"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                placeholder="Ingrese la ayuda del criterio"
-                value={help}
-                onChange={(e) => setHelp(e.target.value)}
-                rows="3"
-              />
+              <div>
+                <label htmlFor="ayudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+                  Ayuda del criterio
+                </label>
+                <textarea
+                  id="ayudaCriterio"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  placeholder="Ingrese la ayuda del criterio"
+                  value={help}
+                  onChange={(e) => setHelp(e.target.value)}
+                  rows="3"
+                />
+              </div>
             </div>
           </div>
+          <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
+            <button 
+              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+              onClick={onCancel}
+              disabled={isLoading}
+            >
+              Cancelar
+            </button>
+            <button 
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              onClick={handleSave}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Guardando...
+                </>
+              ) : (
+                'Guardar'
+              )}
+            </button>
+          </div>
         </div>
-        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
-          <button
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-            onClick={onCancel}
-            disabled={isLoading}
-          >
-            Cancelar
-          </button>
-          <button
-            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            onClick={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Guardando...
-              </>
-            ) : (
-              'Guardar'
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ModificarCriterioForm({ criterio, onCancel, onSaved }) {
-  const [nombre, setNombre] = useState(criterio.standard_name);
-  const [descripcion, setDescripcion] = useState(criterio.standard_description);
-  const [is_transversal, setTrasnversal] = useState(criterio.is_transversal);
-  const [help, setHelp] = useState(criterio.help);
-  const [isLoading, setIsLoading] = useState(false);
-  const [modalAlertMessage, setModalAlertMessage] = useState(null);
-
-  const handleSave = async () => {
-    if (!nombre.trim()) {
-      setModalAlertMessage("Por favor ingrese un nombre para el criterio");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await api.put("/api/standard-update", {
-        standard_id: criterio.standard_id,
-        standard_name: nombre,
-        standard_description: descripcion,
-        is_transversal: is_transversal,
-        help: help
-      });
-      setModalAlertMessage("Criterio actualizado exitosamente");
-      onSaved();
-    } catch (err) {
-      setModalAlertMessage("Error al actualizar el criterio: " + (err.response?.data?.message || "Error desconocido"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
-        <div className="p-6">
-          <ModalAlert
+        <ModalAlert
         isOpen={modalAlertMessage !== null}
-        onClose={() => setModalAlertMessage(null)}
         message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
       />
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Criterio</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="nombreCriterio" className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre del criterio
-              </label>
-              <input
-                type="text"
-                id="nombreCriterio"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-              />
-            </div>
+      </div>
+    );
+  }
+  
+  function ModificarCriterioForm({ criterio, onCancel, onSaved }) {
+    const [nombre, setNombre] = useState(criterio.standard_name);
+    const [descripcion, setDescripcion] = useState(criterio.standard_description);
+    const [is_transversal, setTrasnversal] = useState(criterio.is_transversal);
+    const [help, setHelp] = useState(criterio.help);
+    const [isLoading, setIsLoading] = useState(false);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+
+  
+    const handleSave = async () => {
+      if (!nombre.trim()) {
+        setModalAlertMessage("Por favor ingrese un nombre para el criterio");
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        await api.put("/api/standard-update", {
+          standard_id: criterio.standard_id,
+          standard_name: nombre,
+          standard_description: descripcion,
+          is_transversal: is_transversal,
+          help: help
+        });
+        ("Criterio actualizado exitosamente");
+        onSaved();
+      } catch (err) {
+        setModalAlertMessage("Error al actualizar el criterio: " + (err.response?.data?.message || "Error desconocido"));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
+          <div className="p-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modificar Criterio</h2>
+            <div className="space-y-4">
+              <div>
+        <label htmlFor="nombreCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre del criterio
+        </label>
+        <input
+          type="text"
+                  id="nombreCriterio"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+        />
+              </div>
 
             <div>
               <label htmlFor="descripcionCriterio" className="block text-sm font-medium text-gray-700 mb-1">
@@ -896,25 +899,30 @@ function ModificarCriterioForm({ criterio, onCancel, onSaved }) {
           >
             Cancelar
           </button>
-          <button
-            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            onClick={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Guardando...
-              </>
-            ) : (
-              'Guardar'
-            )}
-          </button>
+            <button 
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              onClick={handleSave}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Guardando...
+                </>
+              ) : (
+                'Guardar'
+              )}
+            </button>
+          </div>
         </div>
+        <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
+      />
       </div>
-    </div>
-  );
-}
+    );
+  }
 
 export default function EstructuraMarco() {
   const { id } = useParams();
@@ -932,46 +940,45 @@ export default function EstructuraMarco() {
     const [defaultCategoryForCreate, setDefaultCategoryForCreate] = useState(null);
     const [defaultSectionForCreate, setDefaultSectionForCreate] = useState(null);
 
-  const [editingCategoryId, setEditingCategoryId] = useState(null);
-  const [editingSectionId, setEditingSectionId] = useState(null);
-  const [editingCriterioId, setEditingCriterioId] = useState(null);
-  const [modalAlertMessage, setModalAlertMessage] = useState(null);
+    const [editingCategoryId, setEditingCategoryId] = useState(null);
+    const [editingSectionId, setEditingSectionId] = useState(null);
+    const [editingCriterioId, setEditingCriterioId] = useState(null);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+  
+    useEffect(() => {
+      fetchCategorias();
+    }, [id]);
+  
+    const fetchCategorias = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch categories
+        const res = await api.post(`/api/categories`, { frame_id: marco.frame_id });
+        const categoriesData = res.data;
+        setCategorias(categoriesData);
+        
+        // Fetch sections for all categories
+        const sectionsPromises = categoriesData.map(cat => 
+          api.post(`/api/sections`, { category_id: cat.category_id })
+        );
+        const sectionsResults = await Promise.all(sectionsPromises);
+        const allSections = sectionsResults.flatMap(res => res.data);
+        setSecciones(allSections);
 
-
-  useEffect(() => {
-    fetchCategorias();
-  }, [id]);
-
-  const fetchCategorias = async () => {
-    setIsLoading(true);
-    try {
-      // Fetch categories
-      const res = await api.post(`/api/categories`, { frame_id: marco.frame_id });
-      const categoriesData = res.data;
-      setCategorias(categoriesData);
-
-      // Fetch sections for all categories
-      const sectionsPromises = categoriesData.map(cat =>
-        api.post(`/api/sections`, { category_id: cat.category_id })
-      );
-      const sectionsResults = await Promise.all(sectionsPromises);
-      const allSections = sectionsResults.flatMap(res => res.data);
-      setSecciones(allSections);
-
-      // Fetch criteria for all sections
-      const criteriaPromises = allSections.map(sec =>
-        api.post(`/api/standards`, { section_id: sec.section_id })
-      );
-      const criteriaResults = await Promise.all(criteriaPromises);
-      const allCriteria = criteriaResults.flatMap(res => res.data);
-      setCriterios(allCriteria);
-    } catch (err) {
-      console.error("Error fetching data:", err);
-      setModalAlertMessage("Error al cargar los datos: " + (err.response?.data?.message || "Error desconocido"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        // Fetch criteria for all sections
+        const criteriaPromises = allSections.map(sec => 
+          api.post(`/api/standards`, { section_id: sec.section_id })
+        );
+        const criteriaResults = await Promise.all(criteriaPromises);
+        const allCriteria = criteriaResults.flatMap(res => res.data);
+        setCriterios(allCriteria);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setModalAlertMessage("Error al cargar los datos: " + (err.response?.data?.message || "Error desconocido"));
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
   const handleOpenCreateCategoria = () => {
     setShowCreateCategoria(true);
@@ -1038,27 +1045,22 @@ export default function EstructuraMarco() {
       <SubHeading />
       <div className="p-4 max-w-7xl mx-auto">
         <div className="mb-6">
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="bg-[#004A98] text-white rounded p-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-                    <path fillRule="evenodd" d="M10 2a2 2 0 00-2 2v2H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V8a2 2 0 00-2-2h-2V4a2 2 0 00-2-2zm-1 8a1 1 0 112 0v3a1 1 0 11-2 0v-3z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-800">Estructura del {marco.frame_name}</h1>
-                  <div className="mt-1 flex flex-wrap items-center gap-2">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 pt-4 pb-2 pl-8 pr-8 w-full">
+            <div className="flex items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
+                Estructura del {marco.frame_name}
+                </h1>
+                <div className="mb-2 flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200">{categorias.length} categorías</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200">{secciones.length} indicadores</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200">{criterios.length} criterios</span>
                   </div>
-                </div>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                Agregue categorías, indicadores y criterios desde sus respectivas filas con “+”. Use “Modificar” para editar elementos ya existentes.
+              </p>
               </div>
             </div>
-            <p className="mt-3 text-sm text-gray-600">
-              Agrega categorías, indicadores y criterios desde sus respectivas filas con “+”. Usa “Modificar” para editar elementos ya existentes.
-            </p>
           </div>
         </div>
 
@@ -1275,10 +1277,10 @@ export default function EstructuraMarco() {
                               </div>
                             </td>
                           )}
-                          <td className="px-6 py-4 text-sm text-gray-600 border-r">
+                          <td className="px-6 py-2.5 text-sm text-gray-600 border-r">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span>{cat.indice}.{sec.indice}.{cri.indice}. {cri.standard_name}</span>
+                                <span className="font-medium">{cat.indice}.{sec.indice}.{cri.indice}. {cri.standard_name}</span>
                                 {cri.is_transversal && (
                                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
                                     Transversal
@@ -1340,8 +1342,8 @@ export default function EstructuraMarco() {
       <AppFooter />
       <ModalAlert
         isOpen={modalAlertMessage !== null}
-        onClose={() => setModalAlertMessage(null)}
         message={modalAlertMessage}
+        onClose={() => setModalAlertMessage(null)}
       />
     </>
   );

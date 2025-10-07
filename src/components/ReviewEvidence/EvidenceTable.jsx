@@ -7,8 +7,7 @@ import CommentViewer from "./CommentViewer";
 import JustificationViewer from "./JustificationViewer";
 import api from "../../services/api";
 import LoadingSpinner from "../LoadingSpinner";
-import ModalAlert from "../../components/ModalAlert";
-
+import ModalAlert from "../ModalAlert";
 
 export default function EvidenceTable() {
 
@@ -113,17 +112,19 @@ export default function EvidenceTable() {
             const failed = results.filter(r => !r.success).length;
             
             if (failed === 0) {
-                alert(isTransversal 
+                setModalAlertMessage(isTransversal 
                     ? `Se ${statusFeedback ? 'aprobaron' : 'rechazaron'} ${successful} evidencias correctamente` 
                     : 'Operación realizada con éxito');
             } else {
-                alert(`Se completaron ${successful} operaciones, pero fallaron ${failed}.`);
+                setModalAlertMessage(`Se completaron ${successful} operaciones, pero fallaron ${failed}.`);
             }
             
             setRefresh(prev => !prev);
         } catch (e) {
             console.error(e);
-            setModalAlertMessage('Error en el servidor');
+            setModalAlertMessage('Error en el servidor: ' + (e.response?.data?.message || e.message));
+        } finally {
+            setOpenFeedback(false);
         }
     };
 

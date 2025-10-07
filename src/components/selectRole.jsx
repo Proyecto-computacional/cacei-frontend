@@ -1,6 +1,6 @@
 import { useState } from "react";
 import api from "../services/api";
-import ModalAlert from "../components/ModalAlert";
+import ModalAlert from "./ModalAlert";
 
 const normalizeRol = (str) => {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
@@ -9,7 +9,6 @@ const normalizeRol = (str) => {
 const SelectRol = ({ userId, initialRole, AllRoles }) => {
     const [role, setRole] = useState(initialRole);
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
-
     const handleChange = async (event) => {
         const newRole = event.target.value;
         setRole(newRole);
@@ -34,12 +33,12 @@ const SelectRol = ({ userId, initialRole, AllRoles }) => {
 
     return (
         <>
-            <select value={normalizeRol(role)} onChange={handleChange}>
-                {AllRoles.map((rol) => {
-                    return (<option value={normalizeRol(rol.name)} key={normalizeRol(rol.name)}>{rol.name}</option>)
-                })}
-            </select>
-            <ModalAlert
+        <select value={normalizeRol(role)} onChange={handleChange}>
+            {AllRoles.map((rol) => {
+                return (<option value={normalizeRol(rol.name)} key={normalizeRol(rol.name)}>{rol.name}</option>)
+            })}
+        </select>
+        <ModalAlert
                 isOpen={modalAlertMessage !== null}
                 message={modalAlertMessage}
                 onClose={() => setModalAlertMessage(null)}

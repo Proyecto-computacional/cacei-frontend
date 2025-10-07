@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { Download, Plus, Save, X } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ModalAlert from "./ModalAlert";
+
 
 const CV = () => {
     const [data, setData] = useState({});
@@ -12,8 +14,11 @@ const CV = () => {
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
     const [loading, setLoading] = useState(true);
     const [canEdit, setCanEdit] = useState(false);
+    const { rpe } = useParams()
+    const [loading, setLoading] = useState(true);
+     const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
-     
+
     const mapLetterToDegree = (letter) => {
         const degrees = {
             'L': 'Licenciatura',
@@ -242,7 +247,7 @@ const CV = () => {
             });
 
             if (validRows.length === 0) {
-                alert('No hay datos válidos para guardar');
+                setModalAlertMessage('No hay datos válidos para guardar');
                 return;
             }
 
@@ -251,7 +256,7 @@ const CV = () => {
                 await api.post(`/api/additionalInfo/${cvId}/${config.endpoint}`, payload);
             }));
 
-            alert('¡Datos guardados correctamente!');
+            setModalAlertMessage('¡Datos guardados correctamente!');
         } catch (error) {
             console.error('Error:', error.response?.data);
             if (error.response?.status === 422) {
@@ -453,7 +458,7 @@ const CV = () => {
 
     return (
         <div className="flex flex-col">
-            <ModalAlert
+              <ModalAlert
                 isOpen={modalAlertMessage !== null}
                 message={modalAlertMessage}
                 onClose={() => setModalAlertMessage(null)}

@@ -3,14 +3,12 @@ import "../../app.css"
 import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 import ModalAlert from "../../components/ModalAlert";
 
-
 const Feedback = ({ enviar, cerrar, statusFeedback }) => {
     const [feedback, setFeedback] = useState("");
     const [confirmacionAbierta, setConfirmacionAbierta] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
-
 
     const handleConfirmacion = async () => {
         if (!feedback.trim()) {
@@ -116,7 +114,13 @@ const Feedback = ({ enviar, cerrar, statusFeedback }) => {
                             </button>
                         </div>
                     </div>
+                      <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
                 </div>
+                
             )}
             <ModalAlert
                 isOpen={modalAlertMessage !== null}

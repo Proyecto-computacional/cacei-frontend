@@ -78,7 +78,6 @@ const EvidencesCompilation = () => {
         if (!processId) {
           throw new Error('No process ID found');
         }
-
         // First get the process details to get the frame_id
         const processRes = await api.get(`/api/processes/${processId}`);
         if (!processRes || !processRes.data) {
@@ -144,6 +143,7 @@ const EvidencesCompilation = () => {
     fetchStructure();
   }, []);
 
+  // HTML ------------------------------------------------------------------------------------------------------------------------------
   return (
     <>
       <AppHeader />
@@ -154,13 +154,19 @@ const EvidencesCompilation = () => {
       >
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-[34px] font-semibold text-[#004A98] font-['Open_Sans']">
-                Compilación de evidencias
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Genera una compilación de todas las evidencias aprobadas en el proceso
-              </p>
+            <div className="w-full">
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 pt-4 pb-2 pl-8 pr-8 w-full">
+                <div className="flex items-center gap-4 mb-6">
+                  <div>
+                    <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
+                    Compilación de evidencias
+                    </h1>
+                    <p className="text-lg text-gray-700 leading-relaxed">
+                    Genere y descargue una compilación de todas las evidencias aprobadas en el proceso
+                  </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             
@@ -373,7 +379,7 @@ const EvidencesCompilation = () => {
       )}
 
       <AppFooter />
-      <ModalAlert
+       <ModalAlert
         isOpen={modalAlertMessage !== null}
         message={modalAlertMessage}
         onClose={() => setModalAlertMessage(null)}

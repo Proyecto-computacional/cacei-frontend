@@ -140,9 +140,8 @@ const AssignTask = ({ onClose }) => {
           evidence_id: evidenceId,
         });
       }
-      
-     setModalAlertMessage(`Se crearon ${evidenceIds.length} evidencia(s) correctamente`);
-     
+
+      setModalAlertMessage(`Se crearon ${evidenceIds.length} evidencia(s) correctamente`);
     } catch (err) {
       setModalAlertMessage("Error al asignar: " + (err.response?.data?.message || err.message));
       
@@ -245,19 +244,19 @@ const AssignTask = ({ onClose }) => {
           >
             Cancelar
           </button>
-           <ModalAlert
-           isOpen={modalAlertMessage !== null}
-          message={modalAlertMessage}
-           onClose={() => {setModalAlertMessage(null); onClose();}}
-       
-         
-        />
+           
         </div>
       </div>
     </div>
-     
-      </>
+      {/* Modal Alert */}
+      <ModalAlert
+        isOpen={modalAlertMessage !== null}
+        message={modalAlertMessage}
+        onClose={() => { setModalAlertMessage(null); onClose(); }}
+      />
+    </>
   );
 };
 
+     
 export default AssignTask;
