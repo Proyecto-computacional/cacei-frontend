@@ -4,12 +4,16 @@ import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ModalAlert from "../components/ModalAlert";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
-function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
+
+  // Crea una nueva categoría
+  function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [nombre, setNombre] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
+    // Revisa que si se pueda guardar
     const handleSave = async () => {
       if (!nombre.trim()) {
         setModalAlertMessage("Por favor ingrese un nombre para la categoría");
@@ -28,6 +32,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       }
     };
   
+    // HTML
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
@@ -82,11 +87,13 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     );
   }
 
+  // Modifica una categoría existente
   function ModificarCategoriaForm({ category, onCancel, onSaved }) {
     const [nombre, setNombre] = useState(category.category_name);
     const [isLoading, setIsLoading] = useState(false);
-     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
   
+    // Revisa que si se pueda guardar
     const handleSave = async () => {
       if (!nombre.trim()) {
         setModalAlertMessage("Por favor ingrese un nombre para la categoría");
@@ -108,6 +115,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       }
     };
   
+    // HTML
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
@@ -161,7 +169,8 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     );
   }
 
-function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) {
+  // Crea una nueva sección
+  function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) {
     const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
     const [selectedCategoryId, setSelectedCategoryId] = useState(defaultCategoryId ? String(defaultCategoryId) : "");
@@ -170,8 +179,9 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
     const [help, setHelp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const isCategoryFixed = Boolean(defaultCategoryId);
-     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
+    // Maneja el guardado
     const handleSave = async () => {
       if (!selectedCategoryId) {
         setModalAlertMessage("Por favor seleccione una categoría");
@@ -228,6 +238,7 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
       }
     };
   
+    // HTML
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
@@ -367,6 +378,7 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
     );
   }
 
+  // Modifica una sección existente
   function ModificarSeccionForm({ seccion, onCancel, onSaved, frame_id }) {
     const [nombre, setNombre] = useState(seccion.section_name);
     const [descripcion, setDescripcion] = useState(seccion.section_description);
@@ -376,8 +388,9 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
     const [isLoading, setIsLoading] = useState(false);
     const [standardId, setStandardId] = useState(null);
     const [hasUnfinishedProcesses, setHasUnfinishedProcesses] = useState(false);
-     const [modalAlertMessage, setModalAlertMessage] = useState(null);
-    // Cargar datos del criterio si existe
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
+    
+     // Cargar datos del criterio si existe
     useEffect(() => {
         const fetchData = async () => {
           // Verificar procesos de acreditación no finalizados
@@ -427,6 +440,7 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
     }, [seccion.section_id, seccion.is_standard, frame_id]);
     console.log(standardId);
   
+    // Maneja el guardado
     const handleSave = async () => {
       if (!nombre.trim()) {
         setModalAlertMessage("Por favor ingrese un nombre para el indicador");
@@ -473,6 +487,7 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
       }
     };
   
+    // HTML
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
@@ -587,6 +602,7 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
     );
   }
 
+  // Crea un nuevo criterio
 function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCategoryId, defaultSectionId }) {
     const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
@@ -599,11 +615,12 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
     const isSectionFixed = Boolean(defaultSectionId);
      const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
-    // Filter sections based on selected category
+    // Filtra las secciones según la categoría
     const filteredSections = sections.filter(sec => {
       return String(sec.category_id) === selectedCategoryId;
     });
 
+    // Maneja el guardado
     const handleSave = async () => {
       if (!selectedCategoryId) {
         setModalAlertMessage("Por favor seleccione una categoría");
@@ -636,12 +653,13 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
       }
     };
 
-    // Reset section selection when category changes
+    // Reinicia selección de sección al cambiar categoría
     const handleCategoryChange = (e) => {
       setSelectedCategoryId(e.target.value);
       setSelectedSectionId("");
     };
   
+    // HTML
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[99999] overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8 relative z-[99999]">
@@ -799,6 +817,7 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
     );
   }
   
+  // Modifica un criterio existente
   function ModificarCriterioForm({ criterio, onCancel, onSaved }) {
     const [nombre, setNombre] = useState(criterio.standard_name);
     const [descripcion, setDescripcion] = useState(criterio.standard_description);
@@ -807,7 +826,7 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
     const [isLoading, setIsLoading] = useState(false);
      const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
-  
+    // Maneja el guardado
     const handleSave = async () => {
       if (!nombre.trim()) {
         setModalAlertMessage("Por favor ingrese un nombre para el criterio");
@@ -832,6 +851,8 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
       }
     };
   
+
+    // HTML
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto py-20">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8">
@@ -924,6 +945,7 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
     );
   }
 
+  // ¿MAIN COMPONENTE?
 export default function EstructuraMarco() {
     const { id } = useParams();
     const location = useLocation();
@@ -943,7 +965,7 @@ export default function EstructuraMarco() {
     const [editingCategoryId, setEditingCategoryId] = useState(null);
     const [editingSectionId, setEditingSectionId] = useState(null);
     const [editingCriterioId, setEditingCriterioId] = useState(null);
-     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
   
     useEffect(() => {
       fetchCategorias();
@@ -951,13 +973,12 @@ export default function EstructuraMarco() {
   
     const fetchCategorias = async () => {
       setIsLoading(true);
+      // Realiza fetch de categorías, secciones y criterios
       try {
-        // Fetch categories
         const res = await api.post(`/api/categories`, { frame_id: marco.frame_id });
         const categoriesData = res.data;
         setCategorias(categoriesData);
         
-        // Fetch sections for all categories
         const sectionsPromises = categoriesData.map(cat => 
           api.post(`/api/sections`, { category_id: cat.category_id })
         );
@@ -965,7 +986,6 @@ export default function EstructuraMarco() {
         const allSections = sectionsResults.flatMap(res => res.data);
         setSecciones(allSections);
 
-        // Fetch criteria for all sections
         const criteriaPromises = allSections.map(sec => 
           api.post(`/api/standards`, { section_id: sec.section_id })
         );
@@ -980,6 +1000,63 @@ export default function EstructuraMarco() {
       }
     };
 
+    // # MÉTODOS PARA REORDENAR ELEMENTOS #
+    const swapArray = (arr, i, j) => {
+      const copy = [...arr];
+      const tmp = copy[i];
+      copy[i] = copy[j];
+      copy[j] = tmp;
+      return copy;
+    };
+
+    // CATEGORÍAS
+    // Ruta a Backend para persistir orden
+    const persistOrderCategories = async (orderedIds) => {
+      await api.put("/api/categories/order", { ordered_ids: orderedIds }, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+      });
+    };
+    
+    const handleMoveCategoryUp = async (categoryId) => {
+      const idx = categorias.findIndex(c => c.category_id === categoryId);
+      if (idx <= 0) return;
+
+      // Reasigna los índices localmente
+      const newCats = swapArray(categorias, idx, idx - 1)
+        .map((c, i) => ({ ...c, indice: i + 1 }));
+      setCategorias(newCats);
+
+      // "Persist", para congruencia del orden
+      try {
+        const ordered_ids = newCats.map(c => c.category_id);
+        await persistOrderCategories(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        // Regresa al estado previo
+        setCategorias(prev => swapArray(prev, idx - 1, idx).map((c, i) => ({...c, indice: i+1})));
+        setModalAlertMessage("Error al mover categoría.");
+      }
+    };
+
+    const handleMoveCategoryDown = async (categoryId) => {
+      const idx = categorias.findIndex(c => c.category_id === categoryId);
+      if (idx === -1 || idx >= categorias.length - 1) return; 
+
+      const newCats = swapArray(categorias, idx, idx + 1)
+        .map((c, i) => ({ ...c, indice: i + 1 }));
+      setCategorias(newCats);
+
+      try {
+        const ordered_ids = newCats.map(c => c.category_id);
+        await persistOrderCategories(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        setCategorias(prev => swapArray(prev, idx + 1, idx).map((c, i) => ({...c, indice: i+1})));
+        setModalAlertMessage("Error al mover categoría.");
+      }
+    };
+
+    // # Maneja apertura de formularios #
     const handleOpenCreateCategoria = () => {
         setShowCreateCategoria(true);
         setShowCreateSeccion(false);
@@ -1039,6 +1116,7 @@ export default function EstructuraMarco() {
       setShowCreateCriterio(false);
     };
   
+    // MAIN HTML -----------------------------------------------------------------
     return (
         <>
       <AppHeader />
@@ -1097,6 +1175,7 @@ export default function EstructuraMarco() {
             <LoadingSpinner />
           ) : (
             <table className="w-full">
+              {/* Header de la tabla */}
               <thead>
                 <tr className="bg-gray-50 border-b">
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/3">Categoría
@@ -1111,6 +1190,7 @@ export default function EstructuraMarco() {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-1/3">Criterio</th>
                 </tr>
               </thead>
+              {/* Lista de categorías */}
               <tbody>
                 {categorias.length === 0 ? (
                   <tr>
@@ -1127,11 +1207,29 @@ export default function EstructuraMarco() {
                     }, 0);
                     
                     if (categorySections.length === 0) {
+                      const indexInList = categorias.findIndex(c => c.category_id === cat.category_id);
+                      const isFirst = indexInList <= 0;
+                      const isLast = indexInList === categorias.length - 1;
+
                       return (
                         <tr key={cat.category_id} className="border-b hover:bg-gray-50">
                           <td className="px-6 py-4 text-sm text-gray-600 border-r">
+                            {/*Cuadro de elemento categoría*/}
                             <div className="flex items-center justify-between">
                               <div className="flex items-center">
+                                {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                <div className="flex flex-col mr-3">
+                                  <button onClick={() => handleMoveCategoryUp(cat.category_id)}
+                                    disabled={isFirst}
+                                    className={`p-1 rounded ${isFirst ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                    <ArrowUp className="h-4 w-4" />
+                                  </button>
+                                  <button onClick={() => handleMoveCategoryDown(cat.category_id)}
+                                    disabled={isLast}
+                                    className={`p-1 rounded ${isLast ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                    <ArrowDown className="h-4 w-4" />
+                                  </button>
+                                </div>
                                 <span className="font-medium">{cat.indice}. {cat.category_name}</span>
                                 <button 
                                   className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
@@ -1157,6 +1255,7 @@ export default function EstructuraMarco() {
                       );
                     }
 
+                    {/* Lista de indicadores */}
                     return categorySections.map((sec, secIndex) => {
                       const sectionCriteria = criterios.filter(cri => cri.section_id === sec.section_id);
                       
@@ -1218,6 +1317,7 @@ export default function EstructuraMarco() {
                         );
                       }
 
+                      {/* Lista de criterios */}
                       return sectionCriteria.map((cri, criIndex) => (
                         <tr key={cri.standard_id} className="border-b hover:bg-gray-50">
                           {secIndex === 0 && criIndex === 0 && (
