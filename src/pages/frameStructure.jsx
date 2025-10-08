@@ -925,7 +925,7 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
   }
 
 export default function EstructuraMarco() {
-    const { id } = useParams();
+    const { frameID } = useParams();
     const location = useLocation();
     const marco = location.state?.marco;
   
@@ -947,31 +947,40 @@ export default function EstructuraMarco() {
   
     useEffect(() => {
       fetchCategorias();
-    }, [id]);
+    }, [frameID]);
+
   
     const fetchCategorias = async () => {
       setIsLoading(true);
       try {
-        // Fetch categories
-        const res = await api.post(`/api/categories`, { frame_id: marco.frame_id });
-        const categoriesData = res.data;
-        setCategorias(categoriesData);
-        
-        // Fetch sections for all categories
-        const sectionsPromises = categoriesData.map(cat => 
-          api.post(`/api/sections`, { category_id: cat.category_id })
+
+        //Cargar marco de referencia
+        const response = await  api.get(`/api/frames-of-references/${frameID}`);
+        const frame = response.data.frame;
+
+        //Concatenar todas las categorias
+        const categories = frame.categories.map(({ sections, ...rest }) => rest);
+        setCategorias(categories);
+
+        //concatenar todas las secciones
+        const allSections = frame.categories.flatMap(cat =>
+          cat.sections.map(({ standards, ...rest }) => ({
+            ...rest,
+            category_id: cat.category_id,
+            category_name: cat.category_name
+          }))
         );
-        const sectionsResults = await Promise.all(sectionsPromises);
-        const allSections = sectionsResults.flatMap(res => res.data);
         setSecciones(allSections);
 
-        // Fetch criteria for all sections
-        const criteriaPromises = allSections.map(sec => 
-          api.post(`/api/standards`, { section_id: sec.section_id })
-        );
-        const criteriaResults = await Promise.all(criteriaPromises);
-        const allCriteria = criteriaResults.flatMap(res => res.data);
-        setCriterios(allCriteria);
+        //Concatenar todos los criterios
+       const allStandards = frame.categories.flatMap(category =>
+        category.sections.flatMap(section =>
+          section.standards.map(standard => ({
+            ...standard,
+          }))
+        )
+      );
+        setCriterios(allStandards);
       } catch (err) {
         console.error("Error fetching data:", err);
         setModalAlertMessage("Error al cargar los datos: " + (err.response?.data?.message || "Error desconocido"));
