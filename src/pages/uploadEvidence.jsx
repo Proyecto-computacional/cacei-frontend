@@ -62,27 +62,53 @@ const UploadEvidence = () => {
             });
           }
 
+          // Decide si se bloquea o no
+          const normalize = (s) => (s ?? '').toString().trim().toUpperCase();
+          const lockIf = (statusDesc) => {
+            const st = normalize(statusDesc);
+            return st === "APROBADA" || st === "APROBADO" || st === "PENDIENTE";
+          }
+          const notApproved = (statusDesc) => {
+            const st = normalize(statusDesc);
+            return st === "NO APROBADA" || st === "NO APROBADO";
+          }
+          
           if (response.data.evidence.status && response.data.evidence.status.length > 0) {
             const firstStatus = response.data.evidence.status[0];
             const adminStatus = response.data.evidence.status.find(
-              (s) => s.user.user_role === "ADMINISTRADOR"
+              (s) => normalize(s.user?.user_role) === "ADMINISTRADOR"
             );
+
+            const adminDesc = adminStatus ? normalize(adminStatus.status_description) : null;
+            const firstDesc = firstStatus ? normalize(firstStatus.status_description) : null;
+
+            // DEBUG
+            /*
+            console.log('UploadEvidence statuses:', {
+              firstStatus: firstStatus?.status_description,
+              adminStatus: adminStatus ? adminStatus.status_description : null,
+              adminRole: adminStatus?.user?.user_role,
+              userRpe: user?.user_rpe,
+              evidenceOwner: response.data.evidence.user_rpe
+            });
+            */
 
             // Bloquea la evidencia si ha sido aprobada o está pendiente
             if (adminStatus) {
-              if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "APROBADO" || adminStatus.status_description === "PENDIENTE") {
+              if (lockIf(adminDesc)) {
                 setIsLocked(true);
-              } else if (adminStatus.status_description === "NO APROBADA" || adminStatus.status_description ===  "NO APROBADO") {
-                const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
-                setIsLocked(shouldLock);
+              } else if (notApproved(adminDesc)) {
+                setIsLocked(user?.user_rpe !== response.data.evidence.user_rpe);
+              } else {
+                setIsLocked(false);
               }
             } else {
-              if (adminStatus.status_description === "NO APROBADA" || adminStatus.status_description ===  "NO APROBADO") {
-                const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
-                setIsLocked(shouldLock);
-              } else if (
-                adminStatus.status_description === "APROBADA" || adminStatus.status_description === "APROBADO" || adminStatus.status_description === "PENDIENTE") {
+              if (lockIf(firstDesc)) {
                 setIsLocked(true);
+              } else if(notApproved(firstDesc)) {
+                setIsLocked(user?.user_rpe !== response.data.evidence.user_rpe);
+              } else {
+                setIsLocked(false);
               }
             }
           } else {
@@ -99,6 +125,12 @@ const UploadEvidence = () => {
         });
     }
   }, [evidence_id, user]);
+
+  /*
+  useEffect(() => {
+    console.log('isLocked changed ->', isLocked);
+  }, [isLocked]);
+  */
 
   // ¿Revisa si el usuario tiene asignaciones?
   useEffect(() => {
@@ -565,7 +597,7 @@ const UploadEvidence = () => {
                 <p className="text-black text-lg font-semibold">Justificación</p>
                 {/* Editor integrado de CKEditor (en EditorCacei.jsx) */}
                 <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
-                {user?.user_rpe === evidence.user_rpe && (
+                {user?.user_rpe === evidence.user_rpe && !isLocked && (
                   <div className="mt-4 flex">
                     {/* Botón para seleccionar archivos */}
                     <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
