@@ -1,43 +1,78 @@
 // MiEditor.jsx
-import { useEffect } from 'react';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { Editor } from '@tinymce/tinymce-react';
+import { useRef, useEffect } from 'react';
 
-export default function EditorCacei({ setJustification, value, readOnly }) {
+// Importaciones necesarias para funcionar sin CDN
+import 'tinymce/tinymce';
+import 'tinymce/icons/default';
+import 'tinymce/themes/silver';
+import 'tinymce/models/dom';
+
+import 'tinymce/skins/ui/oxide/skin.min.css';
+
+// Plugins locales
+import 'tinymce/plugins/link';
+import 'tinymce/plugins/lists';
+import 'tinymce/plugins/table';
+import 'tinymce/plugins/code';
+import 'tinymce/plugins/wordcount';
+
+export default function EditorCacei({setJustification, value, readOnly}) {
+  const editorRef = useRef(null);
+
   useEffect(() => {
     console.log('EditorCacei - Props:', { value, readOnly });
+    if (editorRef.current) {
+      const editor = editorRef.current;
+      if (readOnly) {
+        editor.getBody().setAttribute('contenteditable', false);
+        editor.getBody().style.userSelect = 'none';
+      } else {
+        editor.getBody().setAttribute('contenteditable', true);
+        editor.getBody().style.userSelect = 'auto';
+      }
+    }
   }, [readOnly, value]);
 
   return (
-    <div>
-      <CKEditor
-        editor={ClassicEditor}
-        data={value}
-        config={{
-          toolbar: readOnly
-            ? []
-            : [
-                'bold',
-                'italic',
-                'underline',
-                '|',
-                'bulletedList',
-                'numberedList',
-              ],
-          readOnly: readOnly
-        }}
-        onReady={(editor) => {
+    <div className="">
+      <Editor
+        onInit={(evt, editor) => {
           console.log('EditorCacei - Editor initialized:', {
-            isReadOnly: editor.isReadOnly
+            isReadOnly: editor.mode.get() === 'readonly',
+            contentEditable: editor.getBody().getAttribute('contenteditable')
           });
+          editorRef.current = editor;
         }}
-        onChange={(event, editor) => {
-          const content = editor.getData();
+        onEditorChange={(content, editor) => {
           console.log('EditorCacei - Content changed:', {
             contentLength: content.length,
-            isReadOnly: editor.isReadOnly
+            isReadOnly: editor.mode.get() === 'readonly'
           });
           setJustification(content);
+        }}
+        value={value}
+        init={{
+          height: 400,
+          menubar: false,
+          plugins: ['link', 'lists', 'table', 'wordcount'],
+          toolbar:
+            'fontsize bold italic underline | backcolor | bullist numlist | table ',
+          fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
+          readonly: readOnly,
+          setup: (editor) => {
+            editor.on('init', () => {
+              console.log('EditorCacei - Setup init:', {
+                readOnly,
+                isReadOnly: editor.mode.get() === 'readonly'
+              });
+              if (readOnly) {
+                editor.mode.set('readonly');
+              } else {
+                editor.mode.set('design');
+              }
+            });
+          }
         }}
       />
     </div>

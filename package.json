@@ -11,12 +11,9 @@
     "tailwind": "tailwindcss init"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-classic": "^41.4.2",
-    "@ckeditor/ckeditor5-react": "^11.0.0",
-    "@tailwindcss/vite": "^4.1.5",
     "@tinymce/tinymce-react": "^6.1.0",
+    "@tailwindcss/vite": "^4.1.5",
     "axios": "^1.7.9",
-    "ckeditor5": "^46.0.0",
     "lucide-react": "^0.476.0",
     "react": "^19.0.0",
     "react-circular-progressbar": "^2.2.0",
