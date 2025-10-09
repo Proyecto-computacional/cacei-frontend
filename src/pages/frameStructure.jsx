@@ -19,8 +19,9 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
       setIsLoading(true);
       try {
         const res = await api.post("/api/category", { category_name: nombre, frame_id: frame_id });
+        const newCategory = res.data.data;
         setModalAlertMessage("Categoría creada exitosamente");
-        onSaved();
+        onSaved(newCategory);
       } catch (err) {
         setModalAlertMessage("Error al crear la categoría: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
@@ -184,33 +185,37 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
 
       setIsLoading(true);
       try {
-        const res = await api.post("/api/section", { 
+        let createdStandard = null;
+        const resSection = await api.post("/api/section", { 
           section_name: nombre, 
           category_id: selectedCategoryId, 
           section_description: descripcion ,
           is_standard: is_standard,
         });
 
-        if(!res.data || !res.data.data){
+        if(!resSection.data || !resSection.data.data){
           throw new Error("No se recibio respuesta válida al crear el indicador");
         }
         // Obtenemos el ID de la sección creada desde la respuesta
-        const createdSection = res.data.data; // Accedemos a data.data según tu estructura de respuesta
+        const createdSection = resSection.data.data; // Accedemos a data.data según tu estructura de respuesta
         const sectionId = createdSection.section_id;
         // Si es un criterio, creamos también el standard asociado
         if (is_standard) {
           try{
-          const res = await api.post("/api/standard", {
+          const resStandard = await api.post("/api/standard", {
             section_id: sectionId,
             standard_name: nombre,
             standard_description: descripcion,
             is_transversal: is_transversal,
             help: help
           });
-          if(!res.data){
-            console.error("Error al crear criterio:", res);
+          if(!resStandard.data){
+            console.error("Error al crear criterio:", resStandard);
             throw new Error("No se recibio respuesta vlaida al crear el criterio");
           }
+
+          createdStandard = resStandard.data.data;
+
           } catch (standardError) {
             console.error("Error al crear criterio:", standardError);
             // Si falla la creación del criterio pero la sección ya está creada,
@@ -220,7 +225,7 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
         }
 
         setModalAlertMessage(is_standard ? "Indicador y criterio creados exitosamente" : "Indicador creado exitosamente");
-        onSaved();
+        onSaved(createdSection, createdStandard);
       } catch (err) {
         setModalAlertMessage("Error al crear el indicador: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
@@ -628,7 +633,8 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
           help: help 
         });
         setModalAlertMessage("Criterio creado exitosamente");
-        onSaved();
+        const newStandard = res.data.data;
+        onSaved(newStandard);
       } catch (err) {
         setModalAlertMessage("Error al crear el criterio: " + (err.response?.data?.message || "Error desconocido"));
       } finally {
@@ -1047,7 +1053,29 @@ export default function EstructuraMarco() {
       setShowCreateSeccion(false);
       setShowCreateCriterio(false);
     };
-  
+
+  const addCategory = (newCategory) => {
+      setCategorias(prev =>
+        [...prev, newCategory].sort((a, b) => a.indice - b.indice)
+      );
+    };
+
+  const addSection = (newSection) => {
+    setSecciones(prev =>
+      [...prev, newSection].sort((a, b) => a.indice - b.indice)
+    );
+  };
+
+useEffect(() => {
+  console.log("✅ Criterios actualizados:", criterios);
+}, [criterios]);
+
+  const addStandard = (newStandard) => {
+    setCriterios(prev =>
+      [...prev, newStandard].sort((a, b) => a.indice - b.indice)
+    );
+  };
+
     return (
         <>
       <AppHeader />
@@ -1076,7 +1104,10 @@ export default function EstructuraMarco() {
           {showCreateCategoria && (
           <CrearCategoriaForm 
             onCancel={handleCancel} 
-            onSaved={() => { handleCancel(); fetchCategorias(); }} 
+            onSaved={(newCategory) => { 
+              handleCancel(); 
+              addCategory(newCategory);
+            }} 
             frame_id={marco.frame_id} 
           />
         )}
@@ -1084,7 +1115,13 @@ export default function EstructuraMarco() {
         {showCreateSeccion && (
           <CrearSeccionForm 
             onCancel={handleCancel} 
-            onSaved={() => { handleCancel(); fetchCategorias(); }} 
+            onSaved={(newSection, newStandard) => { 
+              handleCancel(); 
+              console.log(newSection);
+              console.log(newStandard);
+              addSection(newSection);
+              newStandard ? addStandard(newStandard) : null;
+            }} 
             categories={categorias}
             defaultCategoryId={defaultCategoryForCreate}
           />
@@ -1093,7 +1130,12 @@ export default function EstructuraMarco() {
         {showCreateCriterio && (
           <CrearCriterioForm 
             onCancel={handleCancel} 
-            onSaved={() => { handleCancel(); fetchCategorias(); }} 
+            onSaved={(newStandard) => { 
+              handleCancel(); 
+              console.log(newStandard);
+              console.log("criterios 1", criterios);
+              addStandard(newStandard);
+            }} 
             sections={secciones}
             categories={categorias}
             defaultCategoryId={defaultCategoryForCreate}
