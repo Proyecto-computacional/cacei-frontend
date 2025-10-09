@@ -130,6 +130,9 @@ const MainMenu = () => {
               <h1 className="text-[34px] font-semibold text-gray-800 font-['Open_Sans']">
                 Menú Principal
               </h1>
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Seleccione un proceso de acreditación para comenzar.
+              </p>
             </div>
             {userRole === "ADMINISTRADOR" && (
               <button
