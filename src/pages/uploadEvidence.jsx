@@ -29,7 +29,7 @@ const UploadEvidence = () => {
   const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   const navigate = useNavigate();
-
+  
   // Obtener información del usuario
   useEffect(() => {
     const fetchUser = async () => {
@@ -70,18 +70,18 @@ const UploadEvidence = () => {
 
             // Bloquea la evidencia si ha sido aprobada o está pendiente
             if (adminStatus) {
-              if (adminStatus.status_description === "APROBADA" || "APROBADO" || "PENDIENTE") {
+              if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "APROBADO" || adminStatus.status_description === "PENDIENTE") {
                 setIsLocked(true);
-              } else if (adminStatus.status_description === "NO APROBADA" || "NO APROBADO") {
+              } else if (adminStatus.status_description === "NO APROBADA" || adminStatus.status_description ===  "NO APROBADO") {
                 const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
                 setIsLocked(shouldLock);
               }
             } else {
-              if (firstStatus.status_description === "NO APROBADA" || "NO APROBADO") {
+              if (adminStatus.status_description === "NO APROBADA" || adminStatus.status_description ===  "NO APROBADO") {
                 const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
                 setIsLocked(shouldLock);
               } else if (
-                firstStatus.status_description === "APROBADA" || "APROBADO" || "PENDIENTE") {
+                adminStatus.status_description === "APROBADA" || adminStatus.status_description === "APROBADO" || adminStatus.status_description === "PENDIENTE") {
                 setIsLocked(true);
               }
             }
@@ -466,10 +466,6 @@ const UploadEvidence = () => {
                       }`}>{item.criterio}</p>
                       <span className={`px-2 py-0.5 rounded-full text-sm font-medium whitespace-nowrap ${getEstadoClass(item.estado)}`}>
                         {item.estado}
-                        {/*DEBUGGING*/}
-                        <script>
-                          console.log("item.estado:", item.estado);
-                        </script>
                       </span>
                       
                     </div>
@@ -642,10 +638,6 @@ const UploadEvidence = () => {
                         <p className="text-sm font-medium text-gray-600 mb-1">Estado de la revisión</p>
                         <p className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium ${getEstadoClass(item.status_description)}`}>
                           {item.status_description}
-                          {/*DEBUGGING*/}
-                          <script>
-                          console.log("item.status_description:", item.status_description);
-                          </script>
                         </p>
                         
                       </div>
