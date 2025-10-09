@@ -7,6 +7,7 @@ import api from "../services/api";
 import { Search, Users, Shield, FileUser } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 import PermissionsTable from "./permissionsTable";
+import ModalAlert from "./ModalAlert";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -28,6 +29,7 @@ export default function UsersTable() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedArea, setSelectedArea] = useState("-1");
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
     
     const fetchUsers = async () => {
@@ -56,16 +58,16 @@ export default function UsersTable() {
         } catch (error) {
             if (error.response) {
                 if (error.response.status === 403 ) {
-                    alert("No tienes permisos para acceder a esta sección.");
+                    setModalAlertMessage("No tienes permisos para acceder a esta sección.");
                     window.location.href = "/PersonalConfig";
                 } else if (error.response.status === 401) {
-                    alert("Sesión expirada. Inicia sesión de nuevo.");
+                    setModalAlertMessage("Sesión expirada. Inicia sesión de nuevo.");
                     window.location.href = "/";
                 } else {
-                    alert("Error desconocido al obtener los usuarios.");
+                    setModalAlertMessage("Error desconocido al obtener los usuarios.");
                 }
             } else {
-                alert("Error de conexión con el servidor.");
+                setModalAlertMessage("Error de conexión con el servidor.");
             }
             console.error("Error al obtener los usuarios:", error);
         } finally {
@@ -206,6 +208,11 @@ export default function UsersTable() {
             </div>
 
             <PermissionsTable/>
+              <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
         </div>
     );
 }

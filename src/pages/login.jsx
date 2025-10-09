@@ -4,12 +4,14 @@ import '../app.css'
 import { AppHeader } from "../common";
 import { AppFooter } from "../common";
 import { login } from "../services/api"
+import ModalAlert from "../components/ModalAlert";
 
 
 const Login = () => {
     const [rpe, setRpe] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
     const validateRpe = (value) => {
         return /^\d+$/.test(value);
@@ -23,7 +25,7 @@ const Login = () => {
         e.preventDefault();
 
         if (!validateRpe(rpe)) {
-            alert('El RPE debe contener solo números');
+            setModalAlertMessage("El RPE debe contener solo números");
             return;
         }
 
@@ -38,11 +40,11 @@ const Login = () => {
                 localStorage.setItem('userRpe', userRpe);
                 navigate("/mainmenu");
             } else {
-                alert('RPE o contraseña incorrecto');
+                setModalAlertMessage('RPE o contraseña incorrecto');
             }
         } catch (err) {
             console.log(err);
-            alert('Error al intentar iniciar sesión');
+            setModalAlertMessage('Error al intentar iniciar sesión');
         }
     };
 
@@ -84,6 +86,12 @@ const Login = () => {
                 </div>
             </div>
             <AppFooter></AppFooter>
+            {/* Mostrar modal siempre pero controlando si está abierto */}
+            <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
         </>
 
     );
