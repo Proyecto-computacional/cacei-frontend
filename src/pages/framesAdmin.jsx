@@ -190,6 +190,9 @@ export default function FrameOfReferenceView() {
     const handleRowClick = (frame) => {
       navigate(`/framesStructure/${frame.frame_id}`, {state: {marco: frame}});
     };
+
+
+
   
     // HTML ------------------------------------------------------------------------------------------------------------------------------
     return (
@@ -200,15 +203,20 @@ export default function FrameOfReferenceView() {
           {isLoading}
           <div className="flex justify-between items-center mb-6">
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 pt-4 pb-2 pl-8 pr-8 w-full">
-            <div className="flex items-center gap-4 mb-6">
-              <div>
+            <div className="flex flex-col items-center gap-4 mb-6">
+              <div className="flex justify-between w-full">
                 <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
                   Marcos de Referencia
                 </h1>
+                <button 
+                className="ml-2 inline-flex items-center text-xs text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 rounded px-2 py-1 border border-green-200"
+                onClick={() => {setShowCreateForm(true)}}>
+                  + Crear Marco de referencia
+                </button>
+              </div>
                 <p className="text-lg text-gray-700 leading-relaxed">
                 Gestione de forma centralizada todos los marcos de referencia disponibles. Acceda a cada uno para administrar sus categorías, indicadores y criterios.
               </p>
-              </div>
             </div>
           </div>
             
