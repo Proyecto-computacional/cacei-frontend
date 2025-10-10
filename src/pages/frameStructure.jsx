@@ -1056,6 +1056,98 @@ export default function EstructuraMarco() {
       }
     };
 
+    // Indicadores
+    const persistOrderSections = async (orderedIds) => {
+      await api.put("/api/sections/order", { ordered_ids: orderedIds }, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+      });
+    };
+    
+    const handleMoveSectionUp = async (sectionId) => {
+
+      console.log("Moving up section:", sectionId);
+
+      const idx = categorias.findIndex(s => s.section_id === sectionId);
+      if (idx <= 0) return;
+
+      const newCats = swapArray(secciones, idx, idx - 1)
+        .map((s, i) => ({ ...s, indice: i + 1 }));
+      setSecciones(newCats);
+
+      try {
+        const ordered_ids = newCats.map(s => s.section_id);
+        await persistOrderSections(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        setSecciones(prev => swapArray(prev, idx - 1, idx).map((s, i) => ({...s, indice: i+1})));
+        setModalAlertMessage("Error al mover indicador.");
+      }
+    };
+
+    const handleMoveSectionDown = async (sectionId) => {
+
+      console.log("Moving down section:", sectionId);
+
+      const idx = secciones.findIndex(s => s.section_id === sectionId);
+      if (idx === -1 || idx >= secciones.length - 1) return; 
+
+      const newCats = swapArray(secciones, idx, idx + 1)
+        .map((s, i) => ({ ...s, indice: i + 1 }));
+      setSecciones(newCats);
+
+      try {
+        const ordered_ids = newCats.map(s => s.section_id);
+        await persistOrderSections(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        setSecciones(prev => swapArray(prev, idx + 1, idx).map((s, i) => ({...s, indice: i+1})));
+        setModalAlertMessage("Error al mover indicador.");
+      }
+    };
+
+    // Criterios
+    const persistOrderStandards = async (orderedIds) => {
+      await api.put("/api/standards/order", { ordered_ids: orderedIds }, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+      });
+    };
+    
+    const handleMoveStandardUp = async (standardId) => {
+      const idx = criterios.findIndex(cr => cr.standard_id === standardId);
+      if (idx <= 0) return;
+
+      const newCats = swapArray(criterios, idx, idx - 1)
+        .map((cr, i) => ({ ...cr, indice: i + 1 }));
+      setCriterios(newCats);
+
+      try {
+        const ordered_ids = newCats.map(cr => cr.section_id);
+        await persistOrderStandards(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        setCriterios(prev => swapArray(prev, idx - 1, idx).map((cr, i) => ({...cr, indice: i+1})));
+        setModalAlertMessage("Error al mover criterio.");
+      }
+    };
+
+    const handleMoveStandardDown = async (standardId) => {
+      const idx = criterios.findIndex(cr => cr.standard_id === standardId);
+      if (idx === -1 || idx >= criterios.length - 1) return; 
+
+      const newCats = swapArray(criterios, idx, idx + 1)
+        .map((cr, i) => ({ ...cr, indice: i + 1 }));
+      setCriterios(newCats);
+
+      try {
+        const ordered_ids = newCats.map(cr => cr.standard_id);
+        await persistOrderStandards(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        setCriterios(prev => swapArray(prev, idx + 1, idx).map((cr, i) => ({...cr, indice: i+1})));
+        setModalAlertMessage("Error al mover indicador.");
+      }
+    };
+
     // # Maneja apertura de formularios #
     const handleOpenCreateCategoria = () => {
         setShowCreateCategoria(true);
@@ -1205,11 +1297,12 @@ export default function EstructuraMarco() {
                       const sectionCriteria = criterios.filter(cri => cri.section_id === sec.section_id);
                       return acc + (sectionCriteria.length || 1);
                     }, 0);
+
+                    const indexInListCat = categorias.findIndex(c => c.category_id === cat.category_id);
+                    const isFirstCat = indexInListCat <= 0;
+                    const isLastCat = indexInListCat === categorias.length - 1;
                     
                     if (categorySections.length === 0) {
-                      const indexInList = categorias.findIndex(c => c.category_id === cat.category_id);
-                      const isFirst = indexInList <= 0;
-                      const isLast = indexInList === categorias.length - 1;
 
                       return (
                         <tr key={cat.category_id} className="border-b hover:bg-gray-50">
@@ -1220,13 +1313,13 @@ export default function EstructuraMarco() {
                                 {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
                                 <div className="flex flex-col mr-3">
                                   <button onClick={() => handleMoveCategoryUp(cat.category_id)}
-                                    disabled={isFirst}
-                                    className={`p-1 rounded ${isFirst ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                    disabled={isFirstCat}
+                                    className={`p-1 rounded ${isFirstCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
                                     <ArrowUp className="h-4 w-4" />
                                   </button>
                                   <button onClick={() => handleMoveCategoryDown(cat.category_id)}
-                                    disabled={isLast}
-                                    className={`p-1 rounded ${isLast ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                    disabled={isLastCat}
+                                    className={`p-1 rounded ${isLastCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
                                     <ArrowDown className="h-4 w-4" />
                                   </button>
                                 </div>
@@ -1258,8 +1351,13 @@ export default function EstructuraMarco() {
                     {/* Lista de indicadores */}
                     return categorySections.map((sec, secIndex) => {
                       const sectionCriteria = criterios.filter(cri => cri.section_id === sec.section_id);
+
+                      const indexInListSec = categorySections.findIndex(s => s.section_id === sec.section_id);
+                      const isFirstSec = indexInListSec <= 0;
+                      const isLastSec = indexInListSec === categorySections.length - 1;
                       
                       if (sectionCriteria.length === 0) {
+                        
                         return (
                           <tr key={sec.section_id} className="border-b hover:bg-gray-50">
                             {secIndex === 0 && (
@@ -1269,6 +1367,19 @@ export default function EstructuraMarco() {
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center">
+                                    {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                    <div className="flex flex-col mr-3">
+                                      <button onClick={() => handleMoveSectionUp(sec.section_id)}
+                                        disabled={isFirstSec}
+                                        className={`p-1 rounded ${isFirstSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowUp className="h-4 w-4" />
+                                      </button>
+                                      <button onClick={() => handleMoveSectionDown(sec.section_id)}
+                                        disabled={isLastSec}
+                                        className={`p-1 rounded ${isLastSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowDown className="h-4 w-4" />
+                                      </button>
+                                    </div>
                                     <span className="font-medium">{cat.indice}. {cat.category_name}</span>
                                     <button 
                                       className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
@@ -1292,6 +1403,19 @@ export default function EstructuraMarco() {
                             <td className="px-6 py-4 text-sm text-gray-600 border-r">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 flex-wrap">
+                                  {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                    <div className="flex flex-col mr-3">
+                                      <button onClick={() => handleMoveSectionUp(sec.section_Id)}
+                                        disabled={isFirstSec}
+                                        className={`p-1 rounded ${isFirstSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowUp className="h-4 w-4" />
+                                      </button>
+                                      <button onClick={() => handleMoveSectionDown(sec.section_Id)}
+                                        disabled={isLastSec}
+                                        className={`p-1 rounded ${isLastSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowDown className="h-4 w-4" />
+                                      </button>
+                                    </div>
                                   <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
                                   <button 
                                     className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
@@ -1318,7 +1442,13 @@ export default function EstructuraMarco() {
                       }
 
                       {/* Lista de criterios */}
-                      return sectionCriteria.map((cri, criIndex) => (
+                      return sectionCriteria.map((cri, criIndex) => {
+                        
+                        const indexInListCri = sectionCriteria.findIndex(cr => cr.standard_id === cri.standard_id);
+                        const isFirstCri = indexInListCri <= 0;
+                        const isLastCri = indexInListCri === sectionCriteria.length - 1;
+
+                        return (
                         <tr key={cri.standard_id} className="border-b hover:bg-gray-50">
                           {secIndex === 0 && criIndex === 0 && (
                             <td 
@@ -1327,6 +1457,19 @@ export default function EstructuraMarco() {
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center">
+                                  {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                    <div className="flex flex-col mr-3">
+                                      <button onClick={() => handleMoveStandardUp(cri.standard_id)}
+                                        disabled={isFirstCri}
+                                        className={`p-1 rounded ${isFirstCri ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowUp className="h-4 w-4" />
+                                      </button>
+                                      <button onClick={() => handleMoveStandardDown(cri.standard_id)}
+                                        disabled={isLastCri}
+                                        className={`p-1 rounded ${isLastCri ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowDown className="h-4 w-4" />
+                                      </button>
+                                    </div>
                                   <span className="font-medium">{cat.indice}. {cat.category_name}</span>
                                   <button 
                                     className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
@@ -1353,6 +1496,19 @@ export default function EstructuraMarco() {
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 flex-wrap">
+                                  {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                    <div className="flex flex-col mr-3">
+                                      <button onClick={() => handleMoveSectionUp(sec.section_Id)}
+                                        disabled={isFirstSec}
+                                        className={`p-1 rounded ${isFirstSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowUp className="h-4 w-4" />
+                                      </button>
+                                      <button onClick={() => handleMoveSectionDown(sec.section_Id)}
+                                        disabled={isLastSec}
+                                        className={`p-1 rounded ${isLastSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowDown className="h-4 w-4" />
+                                      </button>
+                                    </div>
                                   <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
                                   {sec.is_standard && (
                                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
@@ -1380,6 +1536,19 @@ export default function EstructuraMarco() {
                           <td className="px-6 py-2.5 text-sm text-gray-600 border-r">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2 flex-wrap">
+                                {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                    <div className="flex flex-col mr-3">
+                                      <button onClick={() => handleMoveStandardUp(cri.standard_id)}
+                                        disabled={isFirstCri}
+                                        className={`p-1 rounded ${isFirstCri ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowUp className="h-4 w-4" />
+                                      </button>
+                                      <button onClick={() => handleMoveStandardDown(cri.standard_id)}
+                                        disabled={isLastCri}
+                                        className={`p-1 rounded ${isLastCri ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowDown className="h-4 w-4" />
+                                      </button>
+                                    </div>
                                 <span className="font-medium">{cat.indice}.{sec.indice}.{cri.indice}. {cri.standard_name}</span>
                                 {cri.is_transversal && (
                                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
@@ -1396,7 +1565,7 @@ export default function EstructuraMarco() {
                             </div>
                           </td>
                         </tr>
-                      ));
+                      )});
                     });
                   })
                 )}
