@@ -206,10 +206,12 @@ export function SubHeading() {
                 if (evidence_id) {
                     const response = await api.get(`/api/evidences/${evidence_id}`);
                     setEvidenceName(response.data.evidence_name);
+                    
                 }
             } catch (error) {
                 console.error("Error al obtener el nombre de la evidencia:", error);
             }
+            
         };
 
         if (evidence_id) {
