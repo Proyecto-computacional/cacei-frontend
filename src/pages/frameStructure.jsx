@@ -1011,14 +1011,14 @@ export default function EstructuraMarco() {
 
     // CATEGORÍAS
     // Ruta a Backend para persistir orden
-    const persistOrderCategories = async (orderedIds) => {
-      await api.put("/api/categories/order", { ordered_ids: orderedIds }, {
+    const persistOrderCategories = async (ordered_ids) => {
+      await api.put("/api/categories/order", { ordered_ids: ordered_ids }, {
         headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
       });
     };
     
-    const handleMoveCategoryUp = async (categoryId) => {
-      const idx = categorias.findIndex(c => c.category_id === categoryId);
+    const handleMoveCategoryUp = async (category_id) => {
+      const idx = categorias.findIndex(c => c.category_id === category_id);
       if (idx <= 0) return;
 
       // Reasigna los índices localmente
@@ -1038,8 +1038,8 @@ export default function EstructuraMarco() {
       }
     };
 
-    const handleMoveCategoryDown = async (categoryId) => {
-      const idx = categorias.findIndex(c => c.category_id === categoryId);
+    const handleMoveCategoryDown = async (category_id) => {
+      const idx = categorias.findIndex(c => c.category_id === category_id);
       if (idx === -1 || idx >= categorias.length - 1) return; 
 
       const newCats = swapArray(categorias, idx, idx + 1)
@@ -1057,17 +1057,15 @@ export default function EstructuraMarco() {
     };
 
     // Indicadores
-    const persistOrderSections = async (orderedIds) => {
-      await api.put("/api/sections/order", { ordered_ids: orderedIds }, {
+    const persistOrderSections = async (ordered_ids) => {
+      await api.put("/api/sections/order", { ordered_ids: ordered_ids }, {
         headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
       });
     };
     
-    const handleMoveSectionUp = async (sectionId) => {
-
-      console.log("Moving up section:", sectionId);
-
-      const idx = categorias.findIndex(s => s.section_id === sectionId);
+    const handleMoveSectionUp = async (section_id) => {
+      
+      const idx = secciones.findIndex(s => s.section_id === section_id);
       if (idx <= 0) return;
 
       const newCats = swapArray(secciones, idx, idx - 1)
@@ -1084,11 +1082,9 @@ export default function EstructuraMarco() {
       }
     };
 
-    const handleMoveSectionDown = async (sectionId) => {
+    const handleMoveSectionDown = async (section_id) => {
 
-      console.log("Moving down section:", sectionId);
-
-      const idx = secciones.findIndex(s => s.section_id === sectionId);
+      const idx = secciones.findIndex(s => s.section_id === section_id);
       if (idx === -1 || idx >= secciones.length - 1) return; 
 
       const newCats = swapArray(secciones, idx, idx + 1)
@@ -1106,14 +1102,14 @@ export default function EstructuraMarco() {
     };
 
     // Criterios
-    const persistOrderStandards = async (orderedIds) => {
-      await api.put("/api/standards/order", { ordered_ids: orderedIds }, {
+    const persistOrderStandards = async (ordered_ids) => {
+      await api.put("/api/standards/order", { ordered_ids: ordered_ids }, {
         headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
       });
     };
     
-    const handleMoveStandardUp = async (standardId) => {
-      const idx = criterios.findIndex(cr => cr.standard_id === standardId);
+    const handleMoveStandardUp = async (standard_id) => {
+      const idx = criterios.findIndex(cr => cr.standard_id === standard_id);
       if (idx <= 0) return;
 
       const newCats = swapArray(criterios, idx, idx - 1)
@@ -1121,7 +1117,7 @@ export default function EstructuraMarco() {
       setCriterios(newCats);
 
       try {
-        const ordered_ids = newCats.map(cr => cr.section_id);
+        const ordered_ids = newCats.map(cr => cr.standard_id);
         await persistOrderStandards(ordered_ids);
       } catch (err) {
         console.error("Fallo en persistir orden:", err);
@@ -1130,8 +1126,8 @@ export default function EstructuraMarco() {
       }
     };
 
-    const handleMoveStandardDown = async (standardId) => {
-      const idx = criterios.findIndex(cr => cr.standard_id === standardId);
+    const handleMoveStandardDown = async (standard_id) => {
+      const idx = criterios.findIndex(cr => cr.standard_id === standard_id);
       if (idx === -1 || idx >= criterios.length - 1) return; 
 
       const newCats = swapArray(criterios, idx, idx + 1)
@@ -1307,10 +1303,9 @@ export default function EstructuraMarco() {
                       return (
                         <tr key={cat.category_id} className="border-b hover:bg-gray-50">
                           <td className="px-6 py-4 text-sm text-gray-600 border-r">
-                            {/*Cuadro de elemento categoría*/}
                             <div className="flex items-center justify-between">
                               <div className="flex items-center">
-                                {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                {/*Cuadro de elemento categoría*/}
                                 <div className="flex flex-col mr-3">
                                   <button onClick={() => handleMoveCategoryUp(cat.category_id)}
                                     disabled={isFirstCat}
@@ -1367,16 +1362,16 @@ export default function EstructuraMarco() {
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center">
-                                    {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                    {/*Cuadro de elemento categoría*/}
                                     <div className="flex flex-col mr-3">
-                                      <button onClick={() => handleMoveSectionUp(sec.section_id)}
-                                        disabled={isFirstSec}
-                                        className={`p-1 rounded ${isFirstSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                      <button onClick={() => handleMoveCategoryUp(cat.category_id)}
+                                        disabled={isFirstCat}
+                                        className={`p-1 rounded ${isFirstCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
                                         <ArrowUp className="h-4 w-4" />
                                       </button>
-                                      <button onClick={() => handleMoveSectionDown(sec.section_id)}
-                                        disabled={isLastSec}
-                                        className={`p-1 rounded ${isLastSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                      <button onClick={() => handleMoveCategoryDown(cat.category_id)}
+                                        disabled={isLastCat}
+                                        className={`p-1 rounded ${isLastCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
                                         <ArrowDown className="h-4 w-4" />
                                       </button>
                                     </div>
@@ -1403,14 +1398,14 @@ export default function EstructuraMarco() {
                             <td className="px-6 py-4 text-sm text-gray-600 border-r">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                  {/*Cuadro de elemento sección*/}
                                     <div className="flex flex-col mr-3">
-                                      <button onClick={() => handleMoveSectionUp(sec.section_Id)}
+                                      <button onClick={() => handleMoveSectionUp(sec.section_id)}
                                         disabled={isFirstSec}
                                         className={`p-1 rounded ${isFirstSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
                                         <ArrowUp className="h-4 w-4" />
                                       </button>
-                                      <button onClick={() => handleMoveSectionDown(sec.section_Id)}
+                                      <button onClick={() => handleMoveSectionDown(sec.section_id)}
                                         disabled={isLastSec}
                                         className={`p-1 rounded ${isLastSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
                                         <ArrowDown className="h-4 w-4" />
@@ -1457,16 +1452,16 @@ export default function EstructuraMarco() {
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center">
-                                  {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                  {/*Cuadro de elemento categoría*/}
                                     <div className="flex flex-col mr-3">
-                                      <button onClick={() => handleMoveStandardUp(cri.standard_id)}
-                                        disabled={isFirstCri}
-                                        className={`p-1 rounded ${isFirstCri ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                      <button onClick={() => handleMoveCategoryUp(cat.category_id)}
+                                        disabled={isFirstCat}
+                                        className={`p-1 rounded ${isFirstCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
                                         <ArrowUp className="h-4 w-4" />
                                       </button>
-                                      <button onClick={() => handleMoveStandardDown(cri.standard_id)}
-                                        disabled={isLastCri}
-                                        className={`p-1 rounded ${isLastCri ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                      <button onClick={() => handleMoveCategoryDown(cat.category_id)}
+                                        disabled={isLastCat}
+                                        className={`p-1 rounded ${isLastCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
                                         <ArrowDown className="h-4 w-4" />
                                       </button>
                                     </div>
@@ -1496,14 +1491,14 @@ export default function EstructuraMarco() {
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                  {/*Cuadro de elemento sección*/}
                                     <div className="flex flex-col mr-3">
-                                      <button onClick={() => handleMoveSectionUp(sec.section_Id)}
+                                      <button onClick={() => handleMoveSectionUp(sec.section_id)}
                                         disabled={isFirstSec}
                                         className={`p-1 rounded ${isFirstSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
                                         <ArrowUp className="h-4 w-4" />
                                       </button>
-                                      <button onClick={() => handleMoveSectionDown(sec.section_Id)}
+                                      <button onClick={() => handleMoveSectionDown(sec.section_id)}
                                         disabled={isLastSec}
                                         className={`p-1 rounded ${isLastSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
                                         <ArrowDown className="h-4 w-4" />
@@ -1536,7 +1531,7 @@ export default function EstructuraMarco() {
                           <td className="px-6 py-2.5 text-sm text-gray-600 border-r">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2 flex-wrap">
-                                {/*Optimizar esto a un solo componente más tarde, son las flechas*/}
+                                {/*Cuadro de elemento criterio*/}
                                     <div className="flex flex-col mr-3">
                                       <button onClick={() => handleMoveStandardUp(cri.standard_id)}
                                         disabled={isFirstCri}
