@@ -631,13 +631,13 @@ const CV = () => {
                                                     }}
                                                     placeholder={section.campos[0].placeholder}
                                                     className={`w-full px-3 py-2 border ${isEditing ? 'border-blue-300 focus:ring-2 focus:ring-blue-200' : 'border-gray-300 bg-gray-50'} rounded-lg focus:border-primary1 resize-none overflow-hidden`}
-                                                    maxLength={2000}
+                                                    maxLength={500}
                                                     style={{ height: 'auto', minHeight: '150px' }}
                                                     rows={17}
                                                     disabled={!isEditing}
                                                 />
                                                 <div className="text-xs text-gray-500 mt-1">
-                                                    {data[11]?.[0]?.values?.descripcion?.length || 0}/2000 caracteres
+                                                    {data[11]?.[0]?.values?.descripcion?.length || 0}/500 caracteres
                                                 </div>
                                             </div>
                                         ) : (
