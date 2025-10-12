@@ -284,6 +284,16 @@ const UploadEvidence = () => {
               }))
             }
           });
+
+          // Mostrar el contenido completo del error en la consola
+          console.log('UploadEvidence - Contenido completo del error:', {
+            response: error.response,
+            request: error.request,
+            config: error.config,
+            data: error.response?.data,
+            errors: error.response?.data?.errors
+          });
+
           // Mostrar mensaje de error más específico
           const errorMessage = error.response?.data?.message ||
             error.response?.data?.errors?.files?.[0] ||

@@ -115,6 +115,7 @@ const CV = () => {
                 setLoading(true);
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
+
                 if (cvResponse.data.cv_id) {
                     const sectionData = await fetchSectionData(cvResponse.data.cv_id, activeSection);
 
@@ -154,10 +155,10 @@ const CV = () => {
         if (!cvId || !data[sectionId]) return;
 
         try {
+            // Mapeo de secciones a sus endpoints y transformación de datos
             const sectionConfigs = {
                 1: {
-                    endpoint: 'educations',
-                    transform: (row) => ({
+                    endpoint: 'educations', transform: (row) => ({
                         institution: row.values.institución,
                         degree_obtained: String(row.values.grado).charAt(0).toUpperCase(),
                         obtained_year: parseInt(row.values.año),
@@ -166,8 +167,7 @@ const CV = () => {
                     })
                 },
                 2: {
-                    endpoint: 'teacher-trainings',
-                    transform: (row) => ({
+                    endpoint: 'teacher-trainings', transform: (row) => ({
                         title_certification: row.values.tipodecapacitacion,
                         institution_country: row.values.institucion,
                         obtained_year: parseInt(row.values.añoobtencion),
@@ -175,8 +175,7 @@ const CV = () => {
                     })
                 },
                 3: {
-                    endpoint: 'disciplinary-updates',
-                    transform: (row) => ({
+                    endpoint: 'disciplinary-updates', transform: (row) => ({
                         title_certification: row.values.tipodeactualizacion,
                         institution_country: row.values.institucion,
                         year_certification: parseInt(row.values.añoobtencion),
@@ -184,8 +183,7 @@ const CV = () => {
                     })
                 },
                 4: {
-                    endpoint: 'academic-managements',
-                    transform: (row) => ({
+                    endpoint: 'academic-managements', transform: (row) => ({
                         job_position: row.values.puesto,
                         institution: row.values.institucion,
                         start_date: row.values.fechaInicio,
@@ -193,14 +191,12 @@ const CV = () => {
                     })
                 },
                 5: {
-                    endpoint: 'academic-products',
-                    transform: (row) => ({
+                    endpoint: 'academic-products', transform: (row) => ({
                         description: row.values.descripcion
                     })
                 },
                 6: {
-                    endpoint: 'laboral-experiences',
-                    transform: (row) => ({
+                    endpoint: 'laboral-experiences', transform: (row) => ({
                         company_name: row.values.empresa,
                         position: row.values.cargo,
                         start_date: row.values.fechaInicio,
@@ -208,36 +204,31 @@ const CV = () => {
                     })
                 },
                 7: {
-                    endpoint: 'engineering-designs',
-                    transform: (row) => ({
+                    endpoint: 'engineering-designs', transform: (row) => ({
                         institution: row.values.organismo,
                         period: row.values.periodo,
                         level_experience: row.values.nivel
                     })
                 },
                 8: {
-                    endpoint: 'professional-achievements',
-                    transform: (row) => ({
+                    endpoint: 'professional-achievements', transform: (row) => ({
                         description: row.values.descripcion
                     })
                 },
                 9: {
-                    endpoint: 'participations',
-                    transform: (row) => ({
+                    endpoint: 'participations', transform: (row) => ({
                         institution: row.values.organismo,
                         period: row.values.periodo,
                         level_participation: row.values.nivel
                     })
                 },
                 10: {
-                    endpoint: 'awards',
-                    transform: (row) => ({
+                    endpoint: 'awards', transform: (row) => ({
                         description: row.values.descripcion
                     })
                 },
                 11: {
-                    endpoint: 'contributions-to-pe',
-                    transform: (row) => ({
+                    endpoint: 'contributions-to-pe', transform: (row) => ({
                         description: row.values.descripcion
                     })
                 }
@@ -246,6 +237,7 @@ const CV = () => {
             const config = sectionConfigs[sectionId];
             if (!config) return;
 
+            // Filter out empty rows and validate payloads
             const validRows = data[sectionId].filter(row => {
                 const payload = config.transform(row);
                 const hasValues = Object.values(payload).some(value => value !== undefined && value !== null && value !== '');
@@ -279,14 +271,23 @@ const CV = () => {
                 responseType: 'blob'
             });
 
+            // Create a blob from the response data
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+
+            // Create a URL for the blob
             const url = window.URL.createObjectURL(blob);
+
+            // Create a temporary link element
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `CV_${rpe}.docx`);
+
+            // Append to body, click and remove
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+
+            // Clean up the URL
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Error downloading CV:', error);
@@ -343,7 +344,6 @@ const CV = () => {
         {
             id: 5,
             sectionName: "Productos académicos relevantes",
-            description: "Ingrese en cada celda la descripción de los productos académicos realizados, iniciando de la fecha más reciente a la más antigua. Puede incluirse más celdas de ser necesario.",
             campos: [
                 { name: "descripcion", type: "text", label: "Descripción", placeholder: "Descripción del producto en cuestión" },
             ],
@@ -469,8 +469,8 @@ const CV = () => {
                             <li
                                 key={section.id}
                                 className={`p-2 rounded-lg cursor-pointer transition-colors duration-200 ${activeSection === section.id
-                                    ? "bg-primary1 text-white"
-                                    : "hover:bg-gray-200"
+                                        ? "bg-primary1 text-white"
+                                        : "hover:bg-gray-200"
                                     }`}
                                 onClick={() => setActiveSection(section.id)}
                             >
