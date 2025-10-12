@@ -204,8 +204,9 @@ export function SubHeading() {
         const fetchEvidenceName = async () => {
             try {
                 if (evidence_id) {
-                    const response = await api.get(`/api/evidence/${evidence_id}`);
+                    const response = await api.get(`/api/evidences/${evidence_id}`);
                     setEvidenceName(response.data.evidence_name);
+                   
                 }
             } catch (error) {
                 console.error("Error al obtener el nombre de la evidencia:", error);
@@ -247,7 +248,7 @@ export function SubHeading() {
                                 const role = userRole;
                                 return (role === "Administrador" || 
                                        role === "Jefe de area" || 
-                                       role === "Coordinador" ||
+                                       role === "Coordinador de carrera" ||
                                        role === "Directivo") && (
                                     <>
                                         <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black hover:text-[#004A98] transition-colors duration-200">

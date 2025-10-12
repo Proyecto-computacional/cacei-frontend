@@ -14,8 +14,8 @@ const SelectRol = ({ userId, initialRole, AllRoles }) => {
         setRole(newRole);
 
         try {
-            await api.post("/api/usersadmin/actualizar-rol", 
-                { user_id: userId, rol: normalizeRol(newRole) }, 
+            await api.post("/api/usersadmin/actualizar-rol",
+                { user_id: userId, rol: normalizeRol(newRole) },
                 {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem('token')}`,
@@ -33,12 +33,23 @@ const SelectRol = ({ userId, initialRole, AllRoles }) => {
 
     return (
         <>
-        <select value={normalizeRol(role)} onChange={handleChange}>
-            {AllRoles.map((rol) => {
-                return (<option value={normalizeRol(rol.name)} key={normalizeRol(rol.name)}>{rol.name}</option>)
-            })}
-        </select>
-        <ModalAlert
+
+            <select value={normalizeRol(role)} onChange={handleChange}>
+                {AllRoles.map((rol) => {
+                    // Nombre visual mostrado en el select
+                    let displayName = rol.name;
+                    if (rol.name === "Profesor") displayName = "Profesor responsable";
+                    if (rol.name === "Departamento Universitario") displayName = "Departamento de apoyo";
+
+                    return (
+                        <option value={normalizeRol(rol.name)} key={normalizeRol(rol.name)}>
+                            {displayName}
+                        </option>
+                    );
+                })}
+            </select>
+
+            <ModalAlert
                 isOpen={modalAlertMessage !== null}
                 message={modalAlertMessage}
                 onClose={() => setModalAlertMessage(null)}

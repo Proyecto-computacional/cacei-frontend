@@ -31,7 +31,7 @@ const DashboardWidgets = () => {
   const fetchEstadisticas = async () => {
     try {
       let resumenGeneralPorRPE = {};
-      if (userRole === "ADMINISTRADOR" || userRole === "JEFE DE AREA" || userRole === "DIRECTIVO" || userRole === "COORDINADOR") {
+      if (userRole === "ADMINISTRADOR" || userRole === "JEFE DE AREA" || userRole === "DIRECTIVO" || userRole === "COORDINADOR DE CARRERA") {
         const res = await api.get(`/estadisticas/${rpe}/${frameName}/${careerName}`);
         resumenGeneralPorRPE = res.data;
       } else if (userRole === "PROFESOR" || userRole === "DEPARTAMENTO UNIVERSITARIO" || userRole === "PERSONAL DE APOYO") {
@@ -71,7 +71,7 @@ const DashboardWidgets = () => {
     <div className="grid grid-cols-4 md:grid-cols-4 gap-6 ml-21 mr-21 mb-21">
 
       {/* Task Assignments Card (Admin Only) */}
-      {(userRole === "ADMINISTRADOR" || userRole === "COORDINADOR" || userRole === "JEFE DE AREA") && (
+      {(userRole === "ADMINISTRADOR" || userRole === "COORDINADOR DE CARRERA" || userRole === "JEFE DE AREA") && (
         <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
           <div>
             <h2 className="text-2xl font-bold mb-2 flex items-center">
@@ -112,7 +112,7 @@ const DashboardWidgets = () => {
       </div>
 
             {/* Consult CV's of process */}
-      {(['ADMINISTRADOR', 'COORDINADOR', 'JEFE DE AREA', 'DIRECTIVO'].includes(userRole)) && (
+      {(['ADMINISTRADOR', 'COORDINADOR DE CARRERA', 'JEFE DE AREA', 'DIRECTIVO'].includes(userRole)) && (
         <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
           <div>
             <h2 className="text-2xl font-bold mb-2 flex items-center">
