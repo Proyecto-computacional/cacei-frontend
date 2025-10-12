@@ -246,10 +246,10 @@ export function SubHeading() {
                         <div className="relative">
                             {(() => {
                                 const role = userRole;
-                                return (role === "Administrador" || 
-                                       role === "Jefe de area" || 
-                                       role === "Coordinador de carrera" ||
-                                       role === "Directivo") && (
+                                return (role === "ADMINISTRADOR" || 
+                                       role === "JEFE DE AREA" || 
+                                       role === "COORDINADOR DE CARRERA" ||
+                                       role === "DIRECTIVO") && (
                                     <>
                                         <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black hover:text-[#004A98] transition-colors duration-200">
                                             <Menu />
@@ -285,9 +285,9 @@ export function SubHeading() {
                             })()}
                         </div>
 
-                        <div className={`flex items-center ${userRole === "Administrador" || 
-                            userRole === "Jefe de area" || 
-                            userRole === "Coordinador" || userRole === "Directivo" ? 'ml-12' : 'ml-0'}`}>
+                        <div className={`flex items-center ${userRole === "ADMINISTRADOR" || 
+                            userRole === "JEFE DE AREA" || 
+                            userRole === "COORDINADOR DE CARRERA" || userRole === "DIRECTIVO" ? 'ml-12' : 'ml-0'}`}>
                             {pathnames.includes('mainmenu') ? (
                                 <span className="text-[#00B2E3] text-lg font-medium pl-10">Inicio</span>
                             ) : pathnames.includes('dash') ? (
