@@ -33,6 +33,7 @@ function CrearMarcoForm({ onCancel, onSaved }) {
   
     
     return (
+      
       <div className="border p-6 mb-6 rounded-lg shadow-lg bg-white max-w-2xl mx-auto">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Crear Marco</h2>
         <input
