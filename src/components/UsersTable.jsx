@@ -17,10 +17,10 @@ export default function UsersTable() {
         { name: 'Directivo', description: 'Visualización de todos los procesos de todos los procesos de acreditación' },
         { name: 'Jefe de área', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su area' },
         { name: 'Coordinador de carrera', description: 'Administración y visualización de todos los procesos de los procesos de acreditación de su carrera' },
-        { name: 'Profesor', description: 'Subir y visualizar las evidencias que se le asignen' },
-        { name: 'Profesor responsable', description: 'Subir y visualizar sus evidencias y revisar las evidencias que se le asignen' },
-        { name: 'Departamento universitario', description: 'Subir y visualizar sus evidencias (Evidencias transversales)' },
+        { name: 'Profesor', description: 'Subir y visualizar sus evidencias y revisar las evidencias que se le asignen' },
+        { name: 'Departamento Universitario', description: 'Subir y visualizar sus evidencias (Evidencias transversales)' },
         { name: 'Personal de apoyo', description: 'Subir y visualizar las evidencias que se les asigne' },
+        { name: 'Capturista', description: 'Crear y modificar los marcos de referencias'},
     ]);
 
     const [allUsers, setAllUsers] = useState([]);
@@ -31,8 +31,6 @@ export default function UsersTable() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedArea, setSelectedArea] = useState("-1");
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
-
-    
     const fetchUsers = async () => {
         try {
             setLoading(true);
@@ -52,6 +50,7 @@ export default function UsersTable() {
         ]);
 
             setAllUsers(responseUsers.data.usuarios);
+            console.log(responseUsers);
             setAreas(responseAreas.data);
         
             setFilteredUsers(responseUsers.data.usuarios);
@@ -111,11 +110,13 @@ export default function UsersTable() {
 
             axios.get(nextPage).then(({ data }) => {
                 const newUsers = data.usuarios.data;
+                console.log(newUsers);
                 setAllUsers(prev => [...prev, ...newUsers]);
                 setFilteredUsers(prev => [...prev, ...newUsers]);
                 setNextPage(data.usuarios.next_page_url);
                 setLoading(false);
             });
+            console.log(item);
         };
 
     // HTML --------------------------------------------------------------------------------------------
@@ -145,9 +146,9 @@ export default function UsersTable() {
                 <div className="relative">
                     <label className="p-2">Buscar</label>
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <input 
-                        type="text" 
-                        placeholder="Buscar por RPE, nombre o correo..." 
+                    <input
+                        type="text"
+                        placeholder="Buscar por RPE, nombre o correo..."
                         className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004A98] focus:border-transparent w-96"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}

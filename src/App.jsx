@@ -26,7 +26,7 @@ function App() {
         } />
         <Route path="/ReviewEvidence" element={
           <ProtectedRoute allowedRoles={["ADMINISTRADOR",
-            "COORDINADOR",
+            "COORDINADOR DE CARRERA",
             "JEFE DE AREA", "DIRECTIVO"]}>
             <ReviewEvidence />
           </ProtectedRoute>
@@ -73,25 +73,25 @@ function App() {
         } />
         <Route path="/evidenceManagement" element={
           <ProtectedRoute allowedRoles={["ADMINISTRADOR",
-            "COORDINADOR",
+            "COORDINADOR DE CARRERA",
             "JEFE DE AREA", "DIRECTIVO"]}>
             <EvidenceManagement />
           </ProtectedRoute>
         } />
         <Route path="/CVsOfProcess/:processId" element={
           <ProtectedRoute allowedRoles={["ADMINISTRADOR",
-            "COORDINADOR",
+            "COORDINADOR DE CARRERA",
             "JEFE DE AREA", "DIRECTIVO"]}>
             <CVsOfProcess />
           </ProtectedRoute>
         } />
         <Route path="/framesAdmin" element={
-          <ProtectedRoute allowedRoles={["ADMINISTRADOR"]}>
+          <ProtectedRoute allowedRoles={["ADMINISTRADOR", "CAPTURISTA"]}>
             <FrameOfReferenceView />
           </ProtectedRoute>
         } />
         <Route path="/framesStructure/:frameID" element={
-          <ProtectedRoute allowedRoles={["ADMINISTRADOR"]}>
+          <ProtectedRoute allowedRoles={["ADMINISTRADOR", "CAPTURISTA"]}>
             <EstructuraMarco />
           </ProtectedRoute>
         } />
