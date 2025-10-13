@@ -447,14 +447,14 @@ import { ArrowUp, ArrowDown } from "lucide-react";
         return;
       }
 
-      setIsLoading(true);
-      try {
-        const res = await api.put("/api/section-update", {
-          section_id: seccion.section_id,
-          section_name: nombre,
-          section_description: descripcion,
+    setIsLoading(true);
+    try {
+      const res = await api.put("/api/section-update", {
+        section_id: seccion.section_id,
+        section_name: nombre,
+        section_description: descripcion,
           is_standard: is_standard
-        });
+      });
         // 2. Manejar el criterio según el estado del checkbox
         if (is_standard) {
           // Usamos PUT para actualizar o POST para crear si no existe standardId
@@ -728,46 +728,46 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
                 )}
               </div>
 
-              <div>
-                <label htmlFor="nombreCriterio" className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre del criterio
-                </label>
-                <input
-                  type="text"
-                  id="nombreCriterio"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  placeholder="Ingrese el nombre del criterio"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                />
-              </div>
+            <div>
+              <label htmlFor="nombreCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+                Nombre del criterio
+              </label>
+              <input
+                type="text"
+                id="nombreCriterio"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                placeholder="Ingrese el nombre del criterio"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+              />
+            </div>
 
-              <div>
-                <label htmlFor="descripcionCriterio" className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción del criterio
-                </label>
-                <textarea
-                  id="descripcionCriterio"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  placeholder="Ingrese la descripción del criterio"
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                  rows="3"
-                />
-              </div>
+            <div>
+              <label htmlFor="descripcionCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+                Descripción del criterio
+              </label>
+              <textarea
+                id="descripcionCriterio"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                placeholder="Ingrese la descripción del criterio"
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+                rows="3"
+              />
+            </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="transversal"
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  checked={is_transversal}
-                  onChange={(e) => setTrasnversal(e.target.checked)}
-                />
-                <label htmlFor="transversal" className="ml-2 text-sm font-medium text-gray-700">
-                  Criterio transversal
-                </label>
-              </div>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="transversal"
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                checked={is_transversal}
+                onChange={(e) => setTrasnversal(e.target.checked)}
+              />
+              <label htmlFor="transversal" className="ml-2 text-sm font-medium text-gray-700">
+                Criterio transversal
+              </label>
+            </div>
 
               <div>
                 <label htmlFor="ayudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
@@ -872,52 +872,52 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
         />
               </div>
 
-              <div>
-        <label htmlFor="descripcionCriterio" className="block text-sm font-medium text-gray-700 mb-1">
-          Descripción del criterio
-        </label>
-                <textarea
-                  id="descripcionCriterio"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-                  rows="3"
-                />
-              </div>
+            <div>
+              <label htmlFor="descripcionCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+                Descripción del criterio
+              </label>
+              <textarea
+                id="descripcionCriterio"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+                rows="3"
+              />
+            </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="transversal"
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  checked={is_transversal}
-                  onChange={(e) => setTrasnversal(e.target.checked)}
-                />
-                <label htmlFor="transversal" className="ml-2 text-sm font-medium text-gray-700">
-                  Criterio transversal
-        </label>
-              </div>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="transversal"
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                checked={is_transversal}
+                onChange={(e) => setTrasnversal(e.target.checked)}
+              />
+              <label htmlFor="transversal" className="ml-2 text-sm font-medium text-gray-700">
+                Criterio transversal
+              </label>
+            </div>
 
-              <div>
-                <label htmlFor="ayudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
-          Ayuda del criterio
-        </label>
-                <textarea
-                  id="ayudaCriterio"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            value={help}
-            onChange={(e) => setHelp(e.target.value)}
-                  rows="3"
-                />
-              </div>
+            <div>
+              <label htmlFor="ayudaCriterio" className="block text-sm font-medium text-gray-700 mb-1">
+                Ayuda del criterio
+              </label>
+              <textarea
+                id="ayudaCriterio"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                value={help}
+                onChange={(e) => setHelp(e.target.value)}
+                rows="3"
+              />
             </div>
           </div>
-          <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
-            <button 
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-              onClick={onCancel}
-              disabled={isLoading}
-            >
+        </div>
+        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
+          <button
+            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
             Cancelar
           </button>
             <button 
@@ -947,14 +947,14 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
 
   // ¿MAIN COMPONENTE?
 export default function EstructuraMarco() {
-    const { id } = useParams();
-    const location = useLocation();
-    const marco = location.state?.marco;
-  
-    const [categorias, setCategorias] = useState([]);
-    const [secciones, setSecciones] = useState([]);
-    const [criterios, setCriterios] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+  const { id } = useParams();
+  const location = useLocation();
+  const marco = location.state?.marco;
+
+  const [categorias, setCategorias] = useState([]);
+  const [secciones, setSecciones] = useState([]);
+  const [criterios, setCriterios] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
     const [showCreateCategoria, setShowCreateCategoria] = useState(false);
     const [showCreateSeccion, setShowCreateSeccion] = useState(false);
@@ -1251,36 +1251,36 @@ export default function EstructuraMarco() {
       setDefaultSectionForCreate(null);
     };
 
-    const handleOpenEditCategoria = (categoryId) => {
-      setEditingCategoryId(categoryId);
-      setEditingSectionId(null);
-      setEditingCriterioId(null);
-      setShowCreateCategoria(false);
-      setShowCreateSeccion(false);
-      setShowCreateCriterio(false);
-    };
+  const handleOpenEditCategoria = (categoryId) => {
+    setEditingCategoryId(categoryId);
+    setEditingSectionId(null);
+    setEditingCriterioId(null);
+    setShowCreateCategoria(false);
+    setShowCreateSeccion(false);
+    setShowCreateCriterio(false);
+  };
 
-    const handleOpenEditSeccion = (seccionId) => {
-      setEditingSectionId(seccionId);
-      setEditingCategoryId(null);
-      setEditingCriterioId(null);
-      setShowCreateCategoria(false);
-      setShowCreateSeccion(false);
-      setShowCreateCriterio(false);
-    };
+  const handleOpenEditSeccion = (seccionId) => {
+    setEditingSectionId(seccionId);
+    setEditingCategoryId(null);
+    setEditingCriterioId(null);
+    setShowCreateCategoria(false);
+    setShowCreateSeccion(false);
+    setShowCreateCriterio(false);
+  };
 
-    const handleOpenEditCriterio = (criterioId) => {
-      setEditingCriterioId(criterioId);
-      setEditingCategoryId(null);
-      setEditingSectionId(null);
-      setShowCreateCategoria(false);
-      setShowCreateSeccion(false);
-      setShowCreateCriterio(false);
-    };
-  
+  const handleOpenEditCriterio = (criterioId) => {
+    setEditingCriterioId(criterioId);
+    setEditingCategoryId(null);
+    setEditingSectionId(null);
+    setShowCreateCategoria(false);
+    setShowCreateSeccion(false);
+    setShowCreateCriterio(false);
+  };
+
     // MAIN HTML -----------------------------------------------------------------
-    return (
-        <>
+  return (
+    <>
       <AppHeader />
       <SubHeading />
       <div className="p-4 max-w-7xl mx-auto">
@@ -1304,34 +1304,34 @@ export default function EstructuraMarco() {
           </div>
         </div>
 
-          {showCreateCategoria && (
-          <CrearCategoriaForm 
-            onCancel={handleCancel} 
-            onSaved={() => { handleCancel(); fetchCategorias(); }} 
-            frame_id={marco.frame_id} 
+        {showCreateCategoria && (
+          <CrearCategoriaForm
+            onCancel={handleCancel}
+            onSaved={() => { handleCancel(); fetchCategorias(); }}
+            frame_id={marco.frame_id}
           />
         )}
 
         {showCreateSeccion && (
-          <CrearSeccionForm 
-            onCancel={handleCancel} 
-            onSaved={() => { handleCancel(); fetchCategorias(); }} 
+          <CrearSeccionForm
+            onCancel={handleCancel}
+            onSaved={() => { handleCancel(); fetchCategorias(); }}
             categories={categorias}
             defaultCategoryId={defaultCategoryForCreate}
           />
         )}
 
         {showCreateCriterio && (
-          <CrearCriterioForm 
-            onCancel={handleCancel} 
-            onSaved={() => { handleCancel(); fetchCategorias(); }} 
+          <CrearCriterioForm
+            onCancel={handleCancel}
+            onSaved={() => { handleCancel(); fetchCategorias(); }}
             sections={secciones}
             categories={categorias}
             defaultCategoryId={defaultCategoryForCreate}
             defaultSectionId={defaultSectionForCreate}
           />
         )}
-  
+
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {isLoading ? (
             <LoadingSpinner />
@@ -1371,7 +1371,7 @@ export default function EstructuraMarco() {
                     const indexInListCat = categorias.findIndex(c => c.category_id === cat.category_id);
                     const isFirstCat = indexInListCat <= 0;
                     const isLastCat = indexInListCat === categorias.length - 1;
-                    
+
                     if (categorySections.length === 0) {
 
                       return (
@@ -1424,13 +1424,13 @@ export default function EstructuraMarco() {
                       const indexInListSec = categorySections.findIndex(s => s.section_id === sec.section_id);
                       const isFirstSec = indexInListSec <= 0;
                       const isLastSec = indexInListSec === categorySections.length - 1;
-                      
+
                       if (sectionCriteria.length === 0) {
                         
                         return (
                           <tr key={sec.section_id} className="border-b hover:bg-gray-50">
                             {secIndex === 0 && (
-                              <td 
+                              <td
                                 rowSpan={totalRows}
                                 className="px-6 py-4 text-sm text-gray-600 align-top border-r"
                               >
@@ -1469,9 +1469,9 @@ export default function EstructuraMarco() {
                               </td>
                               
                             )}
-                            <td className="px-6 py-4 text-sm text-gray-600 border-r">
+                            <td className="px-6 py-2 text-sm text-gray-600 border-r">
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 flex-wrap">
+                                <div className="flex items-center gap-1 flex-wrap">
                                   {/*Cuadro de elemento sección*/}
                                     <div className="flex flex-col mr-3">
                                       <button onClick={() => handleMoveSectionUp(sec.section_id)}
@@ -1485,7 +1485,7 @@ export default function EstructuraMarco() {
                                         <ArrowDown className="h-4 w-4" />
                                       </button>
                                     </div>
-                                  <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
+                                  <span className="font-medium w-6/8">{cat.indice}.{sec.indice}. {sec.section_name}</span>
                                   <button 
                                     className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
                                     onClick={() => handleOpenEditSeccion(sec.section_id)}
@@ -1503,7 +1503,7 @@ export default function EstructuraMarco() {
                                 </div>
                               </div>
                             </td>
-                            <td colSpan="1" className="px-6 py-4 text-sm text-gray-500 italic">
+                            <td colSpan="1" className="px-6 py-2 text-sm text-gray-500 italic">
                               No hay criterios en este indicador
                             </td>
                           </tr>
@@ -1520,9 +1520,9 @@ export default function EstructuraMarco() {
                         return (
                         <tr key={cri.standard_id} className="border-b hover:bg-gray-50">
                           {secIndex === 0 && criIndex === 0 && (
-                            <td 
+                            <td
                               rowSpan={totalRows}
-                              className="px-6 py-4 text-sm text-gray-600 align-top border-r"
+                              className="px-6 py-2 text-sm text-gray-600 align-top border-r"
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center">
@@ -1559,7 +1559,7 @@ export default function EstructuraMarco() {
                             </td>
                           )}
                           {criIndex === 0 && (
-                            <td 
+                            <td
                               rowSpan={sectionCriteria.length}
                               className="px-6 py-4 text-sm text-gray-600 align-top border-r"
                             >
@@ -1644,18 +1644,18 @@ export default function EstructuraMarco() {
         </div>
 
         {editingCategoryId && (
-                <ModificarCategoriaForm 
+          <ModificarCategoriaForm
             category={categorias.find(c => c.category_id === editingCategoryId)}
-                  onCancel={handleCancel}
-                  onSaved={() => {
-                    handleCancel();
-                    fetchCategorias();
-                  }}
-                />
-              )}
+            onCancel={handleCancel}
+            onSaved={() => {
+              handleCancel();
+              fetchCategorias();
+            }}
+          />
+        )}
 
         {editingSectionId && (
-                  <ModificarSeccionForm 
+          <ModificarSeccionForm
             seccion={secciones.find(s => s.section_id === editingSectionId)}
                     onCancel={handleCancel}
                     onSaved={() => {
@@ -1667,14 +1667,14 @@ export default function EstructuraMarco() {
         )}
 
         {editingCriterioId && (
-                  <ModificarCriterioForm 
+          <ModificarCriterioForm
             criterio={criterios.find(c => c.standard_id === editingCriterioId)}
-                    onCancel={handleCancel}
-                    onSaved={() => {
-                      handleCancel();
+            onCancel={handleCancel}
+            onSaved={() => {
+              handleCancel();
               fetchCategorias();
-                    }}
-                  />
+            }}
+          />
         )}
       </div>
       <AppFooter />
@@ -1684,5 +1684,5 @@ export default function EstructuraMarco() {
         onClose={() => setModalAlertMessage(null)}
       />
     </>
-    );
-  }
+  );
+}

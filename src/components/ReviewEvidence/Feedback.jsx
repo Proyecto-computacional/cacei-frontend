@@ -122,6 +122,11 @@ const Feedback = ({ enviar, cerrar, statusFeedback }) => {
                 </div>
                 
             )}
+            <ModalAlert
+                isOpen={modalAlertMessage !== null}
+                message={modalAlertMessage}
+                onClose={() => setModalAlertMessage(null)}
+            />
         </>
     );
 };
