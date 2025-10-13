@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
@@ -18,6 +18,7 @@ const MainMenu = () => {
   const [finishedStatus, setFinishedStatus] = useState({});
   const [loading, setLoading] = useState(true);
 
+  // Obtener rol de usuario
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
@@ -31,24 +32,85 @@ const MainMenu = () => {
     fetchUserRole();
   }, []);
 
+  // Función optimizada para cargar estadísticas en paralelo
+  const fetchProcessesData = useCallback(async (processes, role, rpe) => {
+    try {
+      // Preparar todas las promesas para ejecución en paralelo
+      const promises = processes.map(async (card) => {
+        try {
+          let estPromise;
+          let processPromise;
+
+          // Configurar llamadas según el rol
+          if (role === "ADMINISTRADOR" || role === "JEFE DE AREA" || role === "COORDINADOR DE CARRERA" || role === "DIRECTIVO") {
+            estPromise = api.get(`/estadisticas/${rpe}/${card.frame_name}/${card.career_name}`);
+          } else if (role === "PROFESOR" || role === "DEPARTAMENTO UNIVERSITARIO") {
+            estPromise = api.get(`/estadisticas/por-autor/${rpe}/${card.frame_name}/${card.career_name}`);
+          }
+
+          processPromise = api.get(`/api/processes/${card.process_id}/find`);
+
+          // Ejecutar en paralelo
+          const [estRes, processRes] = await Promise.allSettled([estPromise, processPromise]);
+
+          return {
+            processId: card.process_id,
+            percentage: estRes.status === 'fulfilled' ? (estRes.value?.data[0]?.aprobado ?? 0) : 0,
+            finished: processRes.status === 'fulfilled' ? processRes.value.data.finished : false
+          };
+        } catch (error) {
+          console.warn(`Error obteniendo datos para ${card.process_id}`, error);
+          return {
+            processId: card.process_id,
+            percentage: 0,
+            finished: false
+          };
+        }
+      });
+
+      // Ejecutar TODAS las promesas en paralelo
+      const results = await Promise.all(promises);
+      
+      // Convertir resultados a objetos
+      const percentagesMap = {};
+      const finishedStatusMap = {};
+      
+      results.forEach(result => {
+        percentagesMap[result.processId] = result.percentage;
+        finishedStatusMap[result.processId] = result.finished;
+      });
+
+      return { percentagesMap, finishedStatusMap };
+    } catch (error) {
+      console.error("Error en fetchProcessesData:", error);
+      return { percentagesMap: {}, finishedStatusMap: {} };
+    }
+  }, []);
+
+  // Cargar datos principales
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!userRpe) {
           console.error("userId no está disponible");
+          setLoading(false);
+          return;
+        }
+
+        // Redirigir CAPTURISTA inmediatamente
+        if (userRole === "CAPTURISTA") {
+          navigate("/framesAdmin");
           return;
         }
 
         let response;
         if (userRole === "ADMINISTRADOR" || userRole === "DIRECTIVO") {
-          // Fetch all processes for administrators
           response = await api.get("api/processes", {
             headers: {
               "Authorization": `Bearer ${localStorage.getItem('token')}`
             },
           });
         } else {
-          // Fetch only related processes for other roles
           response = await api.get("api/ProcesosUsuario", {
             params: { userRpe },
             headers: {
@@ -56,7 +118,7 @@ const MainMenu = () => {
             },
           });
         }
-  
+
         if (response.status !== 200) {
           throw new Error("Error al obtener los datos");
         }
@@ -64,30 +126,17 @@ const MainMenu = () => {
         const data = response.data;
         setCards(data);
 
-        const newFinishedStatus = {};
-
-        // Load percentages for each process
-        const percentagesMap = {};
-        for (const card of data) {
-          let estRes = {};
-          try {
-            if (userRole === "ADMINISTRADOR" || userRole === "JEFE DE AREA" || userRole === "COORDINADOR" || userRole === "DIRECTIVO") {
-              estRes = await api.get(`/estadisticas/${userRpe}/${card.frame_name}/${card.career_name}`);
-            } else if (userRole === "PROFESOR" || userRole === "DEPARTAMENTO UNIVERSITARIO") {
-              estRes = await api.get(`/estadisticas/por-autor/${userRpe}/${card.frame_name}/${card.career_name}`);
-            }
-            
-            percentagesMap[card.process_id] = estRes?.data[0]?.aprobado ?? 0;
-            const processRes = await api.get(`/api/processes/${card.process_id}`);
-            newFinishedStatus[card.process_id] = processRes.data.finished || false;
-          } catch (error) {
-            console.warn(`Error obteniendo porcentaje para ${card.process_id}`, error);
-            percentagesMap[card.process_id] = 0;
-            newFinishedStatus[card.process_id] = false;
-          }
+        // Si no hay procesos, terminar aquí
+        if (data.length === 0) {
+          setLoading(false);
+          return;
         }
+
+        // Cargar estadísticas en paralelo
+        const { percentagesMap, finishedStatusMap } = await fetchProcessesData(data, userRole, userRpe);
+        
         setPercentages(percentagesMap);
-        setFinishedStatus(newFinishedStatus);
+        setFinishedStatus(finishedStatusMap);
 
       } catch (error) {
         console.error("Error al obtener los datos:", error);
@@ -95,12 +144,13 @@ const MainMenu = () => {
         setLoading(false);
       }
     };
-  
+
     if (userRole) {
       fetchData();
     }
-  }, [userRole]);
+  }, [userRole, userRpe, navigate, fetchProcessesData]);
 
+  // Resto del código permanece igual...
   const handleCardClick = (processId, frameName, careerName, frameId, finished) => {
     localStorage.setItem("frameName", frameName);
     localStorage.setItem("careerName", careerName);
@@ -115,7 +165,6 @@ const MainMenu = () => {
   };
 
   const handleProcessCreated = () => {
-    // Refresh the page or update the process list
     window.location.reload();
   };
 
@@ -161,7 +210,7 @@ const MainMenu = () => {
                     area={card.area_name}
                     career={card.career_name}
                     percentage={`${percentages[card.process_id] ?? 0}%`}
-                    finished={finishedStatus[card.process_id] || false}
+                    finished={finishedStatus[card.process_id]}
                     startDate={card.start_date}
                     endDate={card.end_date}
                     dueDate={card.due_date}

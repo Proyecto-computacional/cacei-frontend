@@ -206,10 +206,12 @@ export function SubHeading() {
                 if (evidence_id) {
                     const response = await api.get(`/api/evidences/${evidence_id}`);
                     setEvidenceName(response.data.evidence_name);
+                   
                 }
             } catch (error) {
                 console.error("Error al obtener el nombre de la evidencia:", error);
             }
+            
         };
 
         if (evidence_id) {
@@ -247,7 +249,7 @@ export function SubHeading() {
                                 const role = userRole;
                                 return (role === "Administrador" || 
                                        role === "Jefe de area" || 
-                                       role === "Coordinador" ||
+                                       role === "Coordinador de carrera" ||
                                        role === "Directivo") && (
                                     <>
                                         <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black hover:text-[#004A98] transition-colors duration-200">
@@ -383,9 +385,8 @@ export function SubHeading() {
                                 <span className="group-hover:hidden">{userRole}</span>
                             </div>
                         </div>
-                        <button className="flex items-center justify-center bg-[#004A98] text-white shadow w-55 h-7 cursor-pointer">
                             <Logout></Logout>
-                        </button>
+                       
                     </div>
                 </div>
             </div>
