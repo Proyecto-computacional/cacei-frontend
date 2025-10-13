@@ -1002,11 +1002,33 @@ export default function EstructuraMarco() {
 
     // # MÉTODOS PARA REORDENAR ELEMENTOS #
     const swapArray = (arr, i, j) => {
+      // Cambia los indices de los elementos
       const copy = [...arr];
       const tmp = copy[i];
       copy[i] = copy[j];
       copy[j] = tmp;
       return copy;
+    };
+
+    const reorderWithinParent = (items, parentKey, parentId, index, direction) => {
+      // Obtiene los indices de solo los elementos con el mismo padre (ej. categorías del marco 1)
+      const indices = items
+        .map((it, idx) => ({ idx, parent: it[parentKey] }))
+        .filter(x => x.parent === parentId)
+        .map(x => x.idx);
+
+      // Toma la posición del objeto a mover
+      const positionInGroup = indices.indexOf(index);
+      if (positionInGroup === -1) return null;
+
+      // Mueve el objeto dependiendo de la dirección
+      const swapWithPos = direction === 'up' ? positionInGroup - 1 : positionInGroup + 1;
+      if (swapWithPos < 0 || swapWithPos >= indices.length) return null;
+
+      // Devuelve el nuevo orden de los dos elementos del mismo padre
+      const j = indices[swapWithPos];
+      const newItems = swapArray(items, index, j);
+      return { newItems, newIndexA: indices[positionInGroup], newIndexB: j, groupIndices: indices };
     };
 
     // CATEGORÍAS
@@ -1018,17 +1040,30 @@ export default function EstructuraMarco() {
     };
     
     const handleMoveCategoryUp = async (category_id) => {
-      const idx = categorias.findIndex(c => c.category_id === category_id);
+      // Guarda estado previo en caso de errores
+      const prev = [...categorias];
+
+      // Encuentra índice de la categoría a mover y revisa si está en el inicio (o fin)
+      const idx = prev.findIndex(c => c.category_id === category_id);
       if (idx <= 0) return;
 
-      // Reasigna los índices localmente
-      const newCats = swapArray(categorias, idx, idx - 1)
-        .map((c, i) => ({ ...c, indice: i + 1 }));
-      setCategorias(newCats);
+      // Reordena dentro del mismo marco (padre)
+      const frame_id = prev[idx].frame_id;
+      const result = reorderWithinParent(prev, 'frame_id', frame_id, idx, 'up')
+      if (!result) return;
 
-      // "Persist", para congruencia del orden
+      // Actualiza el estado local para UX
+      const new_categories = result.newItems.map((c, i) => ({ ...c, indice: i + 1 }));
+      setCategorias(new_categories);
+
+      // Prepara IDs ordenados para persistir y mandar a backend
+      const ordered_ids = new_categories
+        .filter(c => c.frame_id === frame_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(c => c.category_id);
+
+      // Intenta mandar el nuevo orden
       try {
-        const ordered_ids = newCats.map(c => c.category_id);
         await persistOrderCategories(ordered_ids);
       } catch (err) {
         console.error("Fallo en persistir orden:", err);
@@ -1039,15 +1074,23 @@ export default function EstructuraMarco() {
     };
 
     const handleMoveCategoryDown = async (category_id) => {
+      const prev = [...categorias];
       const idx = categorias.findIndex(c => c.category_id === category_id);
       if (idx === -1 || idx >= categorias.length - 1) return; 
 
-      const newCats = swapArray(categorias, idx, idx + 1)
-        .map((c, i) => ({ ...c, indice: i + 1 }));
-      setCategorias(newCats);
+      const frame_id = prev[idx].frame_id;
+      const result = reorderWithinParent(prev, 'frame_id', frame_id, idx, 'down')
+      if (!result) return;
+
+      const new_categories = result.newItems.map((c, i) => ({ ...c, indice: i + 1 }));
+      setCategorias(new_categories);
+
+      const ordered_ids = new_categories
+        .filter(c => c.frame_id === frame_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(c => c.category_id);
 
       try {
-        const ordered_ids = newCats.map(c => c.category_id);
         await persistOrderCategories(ordered_ids);
       } catch (err) {
         console.error("Fallo en persistir orden:", err);
@@ -1064,16 +1107,23 @@ export default function EstructuraMarco() {
     };
     
     const handleMoveSectionUp = async (section_id) => {
-      
+      const prev = [...secciones];
       const idx = secciones.findIndex(s => s.section_id === section_id);
       if (idx <= 0) return;
 
-      const newCats = swapArray(secciones, idx, idx - 1)
-        .map((s, i) => ({ ...s, indice: i + 1 }));
-      setSecciones(newCats);
+      const category_id = prev[idx].category_id;
+      const result = reorderWithinParent(prev, 'category_id', category_id, idx, 'up')
+      if (!result) return;
+
+      const new_sections = result.newItems.map((s, i) => ({ ...s, indice: i + 1 }));
+      setSecciones(new_sections);
+
+      const ordered_ids = new_sections
+        .filter(s => s.category_id === category_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(s => s.section_id);
 
       try {
-        const ordered_ids = newCats.map(s => s.section_id);
         await persistOrderSections(ordered_ids);
       } catch (err) {
         console.error("Fallo en persistir orden:", err);
@@ -1083,16 +1133,23 @@ export default function EstructuraMarco() {
     };
 
     const handleMoveSectionDown = async (section_id) => {
-
+      const prev = [...secciones];
       const idx = secciones.findIndex(s => s.section_id === section_id);
       if (idx === -1 || idx >= secciones.length - 1) return; 
 
-      const newCats = swapArray(secciones, idx, idx + 1)
-        .map((s, i) => ({ ...s, indice: i + 1 }));
-      setSecciones(newCats);
+      const category_id = prev[idx].category_id;
+      const result = reorderWithinParent(prev, 'category_id', category_id, idx, 'down')
+      if (!result) return;
+
+      const new_sections = result.newItems.map((s, i) => ({ ...s, indice: i + 1 }));
+      setSecciones(new_sections);
+
+      const ordered_ids = new_sections
+        .filter(s => s.category_id === category_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(s => s.section_id);
 
       try {
-        const ordered_ids = newCats.map(s => s.section_id);
         await persistOrderSections(ordered_ids);
       } catch (err) {
         console.error("Fallo en persistir orden:", err);
@@ -1109,15 +1166,24 @@ export default function EstructuraMarco() {
     };
     
     const handleMoveStandardUp = async (standard_id) => {
+      const prev = [...criterios];
       const idx = criterios.findIndex(cr => cr.standard_id === standard_id);
       if (idx <= 0) return;
 
-      const newCats = swapArray(criterios, idx, idx - 1)
-        .map((cr, i) => ({ ...cr, indice: i + 1 }));
-      setCriterios(newCats);
+      const section_id = prev[idx].section_id;
+      const result = reorderWithinParent(prev, 'section_id', section_id, idx, 'up')
+      if (!result) return;
+
+      
+      const new_standards = result.newItems.map((cr, i) => ({ ...cr, indice: i + 1 }));
+      setCriterios(new_standards);
+
+      const ordered_ids = new_standards
+        .filter(cr => cr.standard_id === standard_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(cr => cr.standard_id);
 
       try {
-        const ordered_ids = newCats.map(cr => cr.standard_id);
         await persistOrderStandards(ordered_ids);
       } catch (err) {
         console.error("Fallo en persistir orden:", err);
@@ -1127,15 +1193,23 @@ export default function EstructuraMarco() {
     };
 
     const handleMoveStandardDown = async (standard_id) => {
+      const prev = [...criterios];
       const idx = criterios.findIndex(cr => cr.standard_id === standard_id);
       if (idx === -1 || idx >= criterios.length - 1) return; 
 
-      const newCats = swapArray(criterios, idx, idx + 1)
-        .map((cr, i) => ({ ...cr, indice: i + 1 }));
-      setCriterios(newCats);
+      const section_id = prev[idx].section_id;
+      const result = reorderWithinParent(prev, 'section_id', section_id, idx, 'down')
+      if (!result) return;
+
+      const new_standards = result.newItems.map((cr, i) => ({ ...cr, indice: i + 1 }));
+      setCriterios(new_standards);
+
+      const ordered_ids = new_standards
+        .filter(cr => cr.standard_id === standard_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(cr => cr.standard_id);
 
       try {
-        const ordered_ids = newCats.map(cr => cr.standard_id);
         await persistOrderStandards(ordered_ids);
       } catch (err) {
         console.error("Fallo en persistir orden:", err);
