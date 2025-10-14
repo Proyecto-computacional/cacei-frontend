@@ -211,6 +211,7 @@ export function SubHeading() {
             } catch (error) {
                 console.error("Error al obtener el nombre de la evidencia:", error);
             }
+            
         };
 
         if (evidence_id) {
@@ -384,9 +385,8 @@ export function SubHeading() {
                                 <span className="group-hover:hidden">{userRole}</span>
                             </div>
                         </div>
-                        
                             <Logout></Logout>
-                        
+                       
                     </div>
                 </div>
             </div>

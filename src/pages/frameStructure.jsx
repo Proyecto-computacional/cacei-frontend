@@ -1190,10 +1190,10 @@ export default function EstructuraMarco() {
                               </td>
                               
                             )}
-                            <td className="px-6 py-4 text-sm text-gray-600 border-r">
+                            <td className="px-6 py-2 text-sm text-gray-600 border-r">
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  <span className="font-medium w-6/8">{cat.indice}.{sec.indice}. {sec.section_name}</span>
                                   <button 
                                     className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
                                     onClick={() => handleOpenEditSeccion(sec.section_id)}
@@ -1211,7 +1211,7 @@ export default function EstructuraMarco() {
                                 </div>
                               </div>
                             </td>
-                            <td colSpan="1" className="px-6 py-4 text-sm text-gray-500 italic">
+                            <td colSpan="1" className="px-6 py-2 text-sm text-gray-500 italic">
                               No hay criterios en este indicador
                             </td>
                           </tr>
@@ -1223,7 +1223,7 @@ export default function EstructuraMarco() {
                           {secIndex === 0 && criIndex === 0 && (
                             <td
                               rowSpan={totalRows}
-                              className="px-6 py-4 text-sm text-gray-600 align-top border-r"
+                              className="px-6 py-2 text-sm text-gray-600 align-top border-r"
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center">

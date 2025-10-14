@@ -5,17 +5,88 @@ import { useParams } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ModalAlert from "./ModalAlert";
 
+const DynamicTextarea = ({ placeholder, value, onChange, disabled, isEditing, ...props }) => {
+    const textareaRef = useRef(null);
+    const placeholderRef = useRef(null);
+
+    const calculatePlaceholderHeight = () => {
+        if (!placeholderRef.current || !textareaRef.current) return 'auto';
+
+        const hiddenDiv = document.createElement('div');
+        hiddenDiv.style.position = 'absolute';
+        hiddenDiv.style.visibility = 'hidden';
+        hiddenDiv.style.whiteSpace = 'pre-wrap';
+        hiddenDiv.style.width = `${textareaRef.current.offsetWidth}px`;
+        hiddenDiv.style.padding = '0.5rem 0.75rem';
+        hiddenDiv.style.lineHeight = '1.5rem';
+        hiddenDiv.style.fontFamily = 'inherit';
+        hiddenDiv.style.fontSize = 'inherit';
+        hiddenDiv.textContent = placeholder;
+
+        document.body.appendChild(hiddenDiv);
+        const height = hiddenDiv.offsetHeight;
+        document.body.removeChild(hiddenDiv);
+
+        return `${Math.max(height, 24)}px`;
+    };
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+
+            if (!value && placeholder) {
+                textareaRef.current.style.height = calculatePlaceholderHeight();
+            } else {
+                textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+            }
+        }
+    }, [value, placeholder, isEditing]);
+
+    return (
+        <div className="relative">
+            <textarea
+                ref={textareaRef}
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+                disabled={disabled}
+                className={`
+          w-full px-3 py-2 border rounded-lg
+          ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50'
+                        : 'border-gray-200 bg-gray-50'}
+          resize-none overflow-hidden
+          whitespace-pre-wrap
+        `}
+                style={{
+                    minHeight: '1.0rem',
+                    lineHeight: '1.0rem',
+                }}
+                {...props}
+            />
+            <div
+                ref={placeholderRef}
+                className="invisible absolute pointer-events-none whitespace-pre-wrap"
+                style={{
+                    width: '100%',
+                    padding: '0.5rem 0.75rem',
+                    lineHeight: '1.5rem'
+                }}
+            >
+                {placeholder}
+            </div>
+        </div>
+    );
+};
 
 const CV = () => {
     const [data, setData] = useState({});
     const [activeSection, setActiveSection] = useState(1);
     const [isEditing, setIsEditing] = useState(false);
     const [cvId, setCvId] = useState(null);
-    const [canEdit, setCanEdit] = useState(false);
     const { rpe } = useParams()
     const [loading, setLoading] = useState(true);
      const [modalAlertMessage, setModalAlertMessage] = useState(null);
-
+    const [reload, setReload] = useState(false); // Nueva variable para forzar recarga
 
     const mapLetterToDegree = (letter) => {
         const degrees = {
@@ -88,7 +159,7 @@ const CV = () => {
     };
 
     useEffect(() => {
-        setCanEdit(rpe === localStorage.getItem('rpe'));
+        setIsEditing(rpe === localStorage.getItem('rpe'));
 
         const fetchSectionData = async (cvId, sectionId) => {
             const sectionEndpoints = {
@@ -113,6 +184,7 @@ const CV = () => {
         const fetchInitialData = async () => {
             try {
                 setLoading(true);
+                setIsEditing(false);// Resetear isEditing al cambiar de sección
                 const cvResponse = await api.post("/api/cvs", { user_rpe: rpe });
                 setCvId(cvResponse.data.cv_id);
 
@@ -149,7 +221,7 @@ const CV = () => {
         };
 
         if (rpe) fetchInitialData();
-    }, [rpe, activeSection]);
+    }, [rpe, activeSection, reload]);
 
     const sendData = async (sectionId) => {
         if (!cvId || !data[sectionId]) return;
@@ -302,10 +374,10 @@ const CV = () => {
             description: "Ingrese los nombres de los grados académicos, e indique especialidad en su caso. Además ingrese institución y país, año de obtención del título o grado académico y número de cédula obtenida, según aplique para cada caso. Si no cuenta con esta, señalar ND. Si está en trámite poner EP.",
             campos: [
                 { name: "grado", type: "select", options: ["Licenciatura", "Especialidad", "Maestría", "Doctorado"], label: "Grado" },
-                { name: "titulo", type: "text", label: "Nombre del título", placeholder: "Título (Incluir especialidad)" },
-                { name: "institución", type: "text", label: "Nombre de la institución", placeholder: "Nombre de la institución" },
-                { name: "año", type: "text", label: "Año de obtención", placeholder: "Año de obtención" },
-                { name: "cedula", type: "text", label: "Cédula profesional", placeholder: "Cédula profesional" },
+                { name: "titulo", type: "text", label: "Nombre del título", placeholder: "Título (Incluir especialidad)", maxLength: 100},
+                { name: "institución", type: "text", label: "Nombre de la institución", placeholder: "Nombre de la institución", maxLength: 30 },
+                { name: "año", type: "number", label: "Año de obtención", placeholder: "AAAA", maxLength: 4 , min: 1900, max: new Date().getFullYear()},
+                { name: "cedula", type: "text", label: "Cédula profesional", placeholder: "Cédula profesional", maxLength: 10 },
             ],
         },
         {
@@ -313,10 +385,10 @@ const CV = () => {
             sectionName: "Capacitación Docente",
             description: "Ingrese el nombre de los cursos, diplomados o módulos de capacitación o actualización docente realizados en los últimos cinco años. Para cada uno ingrese institución, país donde los realizó y horas de duración.",
             campos: [
-                { name: "tipodecapacitacion", type: "text", label: "Tipo de capacitación", placeholder: "Nombre de la capacitación" },
-                { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del país" },
-                { name: "añoobtencion", type: "text", label: "Año de obtención", placeholder: "MM/AAAA" },
-                { name: "horas", type: "text", label: "Horas", placeholder: "Horas hechas" },
+                { name: "tipodecapacitacion", type: "text", label: "Tipo de capacitación", placeholder: "Nombre de la capacitación" , maxLength: 50 },
+                { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del país" , maxLength: 50 },
+                { name: "añoobtencion", type: "number", label: "Año de obtención", placeholder: "AAAA", maxLength: 4 , min: 1900, max: new Date().getFullYear()},
+                { name: "horas", type: "number", label: "Horas", placeholder: "Horas hechas", min: 0, max: 100, step: 1, maxLength: 3 },
             ],
         },
         {
@@ -324,10 +396,10 @@ const CV = () => {
             sectionName: "Actualización Disciplinar",
             description: "Ingrese el nombre de los cursos, diplomados o módulos de capacitación en su disciplina realizados en los últimos cinco años. Para cada uno ingrese institución, país donde los realizó y horas de duración.",
             campos: [
-                { name: "tipodeactualizacion", type: "text", label: "Tipo de actualización", placeholder: "Nombre de la actualización" },
-                { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del país" },
-                { name: "añoobtencion", type: "text", label: "Año de obtención", placeholder: "MM/AAAA" },
-                { name: "horas", type: "text", label: "Horas", placeholder: "Horas hechas" },
+                { name: "tipodeactualizacion", type: "text", label: "Tipo de actualización", placeholder: "Nombre de la actualización", maxLength: 50 },
+                { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del país" , maxLength: 50 },
+                { name: "añoobtencion", type: "number", label: "Año de obtención", placeholder: "AAAA", maxLength: 4 , min: 1900, max: new Date().getFullYear()},
+                { name: "horas", type: "number", label: "Horas", placeholder: "Horas hechas", min: 0, max: 100, step: 1, maxLength: 3 },
             ],
         },
         {
@@ -335,17 +407,17 @@ const CV = () => {
             sectionName: "Gestión académica",
             description: "Ingrese la relación de actividades de gestión académica realizada. Se consideran en esta actividad: puestos directivos, de coordinación o supervisión académica o técnica. Agregar lugar donde se desempeñó y el período de la vigencia (el período no se limita a los últimos años).",
             campos: [
-                { name: "puesto", type: "text", label: "Actividad o puesto", placeholder: "Actividad o puesto desempeñado" },
-                { name: "institucion", type: "textarea", label: "Institución", placeholder: "Nombre de la institución" },
-                { name: "fechaInicio", type: "date", label: "Fecha de inicio", placeholder: "MM/AAAA" },
-                { name: "fechaFin", type: "date", label: "Fecha de finalización", placeholder: "MM/AAAA o Actualidad" },
+                { name: "puesto", type: "text", label: "Actividad o puesto", placeholder: "Actividad o puesto desempeñado", maxLength: 100 },
+                { name: "institucion", type: "textarea", label: "Institución", placeholder: "Nombre de la institución" , maxLength: 50},
+                { name: "fechaInicio", type: "text", label: "Fecha de inicio", placeholder: "MM/AAAA" , maxLength: 7},
+                { name: "fechaFin", type: "text", label: "Fecha de finalización", placeholder: "MM/AAAA", maxLength: 7 },
             ],
         },
         {
             id: 5,
             sectionName: "Productos académicos relevantes",
             campos: [
-                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Descripción del producto en cuestión" },
+                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Descripción del producto en cuestión", maxLength: 150 },
             ],
         },
         {
@@ -353,10 +425,10 @@ const CV = () => {
             sectionName: "Experiencia Laboral",
             description: "Experiencia profesional no académica. Incluya actividades realizadas en la industria, consultoría, como emprendedor o en otras áreas diferentes a la educación superior.",
             campos: [
-                { name: "empresa", type: "text", label: "Empresa", placeholder: "Nombre de la empresa" },
-                { name: "cargo", type: "text", label: "Cargo", placeholder: "Cargo desempeñado" },
-                { name: "fechaInicio", type: "date", label: "Fecha de inicio", placeholder: "MM/AAAA" },
-                { name: "fechaFin", type: "date", label: "Fecha de finalización", placeholder: "MM/AAAA o Actualidad" },
+                { name: "empresa", type: "text", label: "Empresa", placeholder: "Nombre de la empresa", maxLength: 60 },
+                { name: "cargo", type: "text", label: "Cargo", placeholder: "Cargo desempeñado", maxLength: 60 },
+                { name: "fechaInicio", type: "text", label: "Fecha de inicio", placeholder: "MM/AAAA", maxLength: 7 },
+                { name: "fechaFin", type: "text", label: "Fecha de finalización", placeholder: "MM/AAAA", maxLength: 7 },
             ],
         },
         {
@@ -364,9 +436,9 @@ const CV = () => {
             sectionName: "Experiencia en diseño ingenieril",
             description: "Experiencia en diseño ingenieril: se refiere a actividades de diseño de ingeniería desarrolladas, dentro o fuera de la institución, en las que se evidencia que se participó en actividades de diseño. Especificar organismo donde se realizó la actividad de diseño, periodo en años y nivel de experiencia (responsable, asistente, analista, auxiliar, etc.).",
             campos: [
-                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo" },
-                { name: "periodo", type: "text", label: "Período (años)", placeholder: "Número de años" },
-                { name: "nivel", type: "text", label: "Nivel de experiencia", placeholder: "Nivel del 1 al 5" },
+                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo", maxLength: 30 },
+                { name: "periodo", type: "number", label: "Período (años)", placeholder: "Número de años", min: 0, max: 99, step: 1, maxLength: 2 },
+                { name: "nivel", type: "text", label: "Nivel de experiencia", placeholder: "Responsable, asistente, analista, auxiliar, etc.", maxLength: 20 },
             ],
         },
         {
@@ -374,7 +446,7 @@ const CV = () => {
             sectionName: "Logros Profesionales",
             description: "Describir cada logro profesional, especificando sus datos relevantes, tales como: nombre del logro, relevancia, autores, dónde se realizó, etc. Por ejemplo: certificaciones profesionales, premios o reconocimientos, patentes, etc.",
             campos: [
-                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Premio Nacional de Innovación en Tecnología 2020" },
+                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Premio Nacional de Innovación en Tecnología 2020", maxLength: 500 },
             ],
         },
         {
@@ -382,9 +454,9 @@ const CV = () => {
             sectionName: "Participación en organismos profesionales",
             description: "Membresía vigente en colegios, cámaras, asociaciones científicas o algún otro tipo de organismo profesional. Señale el nombre del organismo, tiempo de membresía y el nivel de participación (miembro, socio, directivo, integrante o coordinador de algún equipo o comisión, etc.).",
             campos: [
-                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo" },
-                { name: "periodo", type: "text", label: "Periodo (años)", placeholder: "Número de años" },
-                { name: "nivel", type: "text", label: "Nivel de participación", placeholder: "Nivel del 1 al 5" },
+                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo", maxLength: 30 },
+                { name: "periodo", type: "number", label: "Periodo (años)", placeholder: "Número de años" , min: 0, max: 99, step: 1, maxLength: 2 },
+                { name: "nivel", type: "number", label: "Nivel de participación", placeholder: "Nivel del 1 al 5", min: 1, max: 5, step: 1, maxLength: 1 },
             ],
         },
         {
@@ -392,7 +464,7 @@ const CV = () => {
             sectionName: "Premios y Reconocimientos",
             description: "Describir los premios, distinciones o reconocimientos recibidos: de preferencia relacionados con actividades académicas, o profesionales relacionadas con el área de ingeniería del PE evaluado.",
             campos: [
-                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Premio Nacional de Innovación en Tecnología 2020" },
+                { name: "descripcion", type: "text", label: "Descripción", placeholder: "Ej: Premio Nacional de Innovación en Tecnología 2020" , maxLength: 255 },
             ],
         },
         {
@@ -400,7 +472,7 @@ const CV = () => {
             sectionName: "Aportaciones a la Mejora del PE",
             description: "Describir, en máximo 200 palabras, la participación del profesor en actividades relevantes del PE, tales como: diseño el PE, diseño de asignatura(s) del PE, análisis de indicadores del PE, participación en cuerpos colegiados del PE, participación en grupos de mejora continua del PE, en actividades extracurriculares relacionadas con el PE, etc.",
             campos: [
-                { name: "descripcion", type: "textarea", label: "Descripción", placeholder: "Ej: Desarrollo de un nuevo modelo de enseñanza híbrida (max 500 caracteres)" },
+                { name: "descripcion", type: "textarea", label: "Descripción", placeholder: "Ej: Desarrollo de un nuevo modelo de enseñanza híbrida (max 500 caracteres)", maxLength: 2000},
             ],
             singleField: true
         },
@@ -490,20 +562,74 @@ const CV = () => {
                         (section) =>
                             activeSection === section.id && (
                                 <div key={section.id}>
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}</h2>
-                                        {canEdit && (
-                                            <button
-                                                onClick={() => addRow(section.id)}
-                                                className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
-                                            >
-                                                <Plus className="w-4 h-4" />
-                                                Agregar
-                                            </button>
-                                        )}
+                                    <div className="flex justify-between items-start mb-4">
+                                         <div className="flex-1 mr-4">
+                                        <h2 className="text-xl font-semibold text-gray-800">{section.sectionName}{!isEditing && <span className="ml-2 text-sm text-gray-500">(solo lectura)</span>}</h2>
+                                        <p className="text-lg text-gray-600 mt-1">{section.description}</p>
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                                        <table className="w-full">
+                                    <div className="flex gap-2">
+                                      {!isEditing ? (
+                                                <button
+                                                    onClick={() => setIsEditing(true)}
+                                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                                >
+                                                    Editar sección
+                                                </button>
+                                            ) : (
+                                                <>
+                                                    {section.id !== 11 && (
+                                                        <button
+                                                            onClick={() => addRow(section.id)}
+                                                            className="flex items-center gap-2 px-4 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                                        >
+                                                            <Plus className="w-4 h-4" />
+                                                            Agregar
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}  
+                                    </div>
+                                    </div>
+                                    <div className={`bg-white rounded-lg border ${isEditing ? 'border-blue-200' : 'border-gray-200'} overflow-hidden`}>
+                                        {section.id === 11 ? (
+                                            <div className="p-4">
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    {section.campos[0].label}
+                                                </label>
+                                                <textarea
+                                                    value={data[11]?.[0]?.values?.descripcion || ""}
+                                                    onChange={(e) => {
+                                                        // Si no existe el registro, crear uno nuevo
+                                                        if (!data[11] || data[11].length === 0) {
+                                                            setData(prev => ({
+                                                                ...prev,
+                                                                [11]: [{
+                                                                    id: `new_${11}_${Date.now()}`,
+                                                                    values: { descripcion: e.target.value }
+                                                                }]
+                                                            }));
+                                                        } else {
+                                                            // Actualizar el registro existente
+                                                            updateRow(11, data[11][0].id, "descripcion", e.target.value);
+                                                        }
+
+                                                        // Ajustar altura del textarea
+                                                        e.target.style.height = 'auto';
+                                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                                    }}
+                                                    placeholder={section.campos[0].placeholder}
+                                                    className={`w-full px-3 py-2 border ${isEditing ? 'border-blue-300 focus:ring-2 focus:ring-blue-200' : 'border-gray-300 bg-gray-50'} rounded-lg focus:border-primary1 resize-none overflow-hidden`}
+                                                    maxLength={500}
+                                                    style={{ height: 'auto', minHeight: '150px' }}
+                                                    rows={17}
+                                                    disabled={!isEditing}
+                                                />
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                    {data[11]?.[0]?.values?.descripcion?.length || 0}/500 caracteres
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <table className="w-full">
                                             <thead>
                                                 <tr className="bg-gray-50">
                                                     {section.campos.map((campo) => (
@@ -518,33 +644,56 @@ const CV = () => {
                                                 {(data[section.id] || []).map((row) => (
                                                     <tr key={row.id} className="hover:bg-gray-50">
                                                         {section.campos.map((campo) => (
-                                                            <td key={`${row.id}_${campo.name}`} className="px-4 py-3">
+                                                            <td key={`${row.id}_${campo.name}`} className="px-1 py-2"> {/* className="px-4 py-3" o "px-3 py-2" Modificas el grosor de las columnas */}
                                                                 {campo.type === "select" ? (
+                                                                    <div className="relative min-w-[170px]">
                                                                     <select
-                                                                        disabled={!canEdit}
+                                                                        disabled={!isEditing}
                                                                         value={row.values[campo.name] || ""}
                                                                         onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
-                                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
+                                                                        className={`w-full px-3 py-2 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-primary1/50' : 'border-gray-200 bg-gray-50'} rounded-lg focus:border-primary1`}
                                                                     >
                                                                         <option value="">Seleccione</option>
                                                                         {campo.options.map((option) => (
                                                                             <option key={option} value={option}>{option}</option>
                                                                         ))}
                                                                     </select>
+                                                                    </div>
+                                                                ) :  campo.type === "number" ? (
+                                                                      <input
+                                                                            type="number"
+                                                                            value={row.values[campo.name] || ""}
+                                                                            onChange={(e) => {
+                                                                                const maxLen = campo.maxLength || 10;
+                                                                                const value = e.target.value.slice(0, maxLen);
+                                                                                updateRow(section.id, row.id, campo.name, value);
+                                                                            }}
+                                                                            placeholder={campo.placeholder}
+                                                                            min={campo.min}
+                                                                            max={campo.max}
+                                                                            className={`w-full px-3 py-2 border ${isEditing
+                                                                                    ? "border-gray-300 focus:ring-2 focus:ring-primary1/50"
+                                                                                    : "border-gray-200 bg-gray-50"
+                                                                                } rounded-lg focus:border-primary1`}
+                                                                            disabled={!isEditing}
+                                                                        />
+
                                                                 ) : (
-                                                                    <input
-                                                                        disabled={!canEdit}
+                                                                    <DynamicTextarea
+                                                                        isEditing={isEditing}
+                                                                        disabled={!isEditing}
                                                                         type={campo.type}
                                                                         value={row.values[campo.name] || ""}
                                                                         onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
                                                                         placeholder={campo.placeholder}
-                                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
+                                                                        maxLength={campo.maxLength}
+                                                                        //className="w-full px-3 py-2  border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
                                                                     />
                                                                 )}
                                                             </td>
                                                         ))}
                                                         <td className="px-2 py-3">
-                                                            {isRowEmpty(row) && (
+                                                            {isEditing && isRowEmpty(row) && (
                                                                 <button
                                                                     onClick={() => removeRow(section.id, row.id)}
                                                                     className="text-gray-400 hover:text-red-500 transition-colors duration-200"
@@ -558,18 +707,27 @@ const CV = () => {
                                                 ))}
                                             </tbody>
                                         </table>
+                                        )}
                                     </div>
-                                    {data[section.id]?.length > 0 && (
-                                        <div className="mt-4 flex justify-end">
-                                            {canEdit && (
+                                    {isEditing && data[section.id]?.length > 0 && (
+                                        <div className="mt-4 flex justify-end gap-2">
                                                 <button
-                                                    onClick={() => sendData(section.id)}
-                                                    className="flex items-center gap-2 px-6 py-2 bg-primary1 text-white rounded-lg hover:bg-primary1/90 transition-colors duration-200"
+                                                onClick={() => {
+                                                    setIsEditing(false);
+                                                    setReload(r => !r); // Cambia reload para forzar recarga
+                                                }}
+
+                                                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
+                                            >
+                                                Cancelar
+                                            </button>
+                                                <button
+                                                    onClick={() => {sendData(section.id); setIsEditing(false); setReload(r => !r);}} // Desactivar edición al guardar
+                                                className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
                                                 >
                                                     <Save className="w-4 h-4" />
                                                     Guardar cambios
                                                 </button>
-                                            )}
                                         </div>
                                     )}
                                 </div>

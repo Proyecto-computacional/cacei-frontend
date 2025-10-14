@@ -58,7 +58,6 @@ export default function EvidenceTable() {
     const sections = [...new Set(evidences.map(item => item.section_name))].filter(Boolean);
     const standards = [...new Set(evidences.map(item => item.standard_name))].filter(Boolean);
     const users = [...new Set(evidences.map(item => item.evidence_owner_name))].filter(Boolean);
-    console.log(filters, evidences[0]);
     const handleSort = (column) => {
         const newOrder = sortBy === column && order === "asc" ? "desc" : "asc";
         setSortBy(column);
@@ -467,13 +466,6 @@ export default function EvidenceTable() {
                                                     s.status_description === "APROBADA" ||
                                                     s.status_description === "NO APROBADA"
                                                 );
-
-                                                // Debug logging
-                                                console.log(`Statuses for ${rol}:`, roleStatuses.map((s, idx) => ({
-                                                    status: s.status_description,
-                                                    date: s.status_date,
-                                                    timestamp: new Date(s.status_date).getTime()
-                                                })));
 
                                                 // Get the most recent status
                                                 const statusObj = roleStatuses[0];

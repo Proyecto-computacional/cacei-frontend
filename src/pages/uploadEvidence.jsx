@@ -29,7 +29,7 @@ const UploadEvidence = () => {
   const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   const navigate = useNavigate();
-
+  
   // Obtener información del usuario
   useEffect(() => {
     const fetchUser = async () => {
@@ -62,31 +62,53 @@ const UploadEvidence = () => {
             });
           }
 
+          // Decide si se bloquea o no
+          const normalize = (s) => (s ?? '').toString().trim().toUpperCase();
+          const lockIf = (statusDesc) => {
+            const st = normalize(statusDesc);
+            return st === "APROBADA" || st === "APROBADO" || st === "PENDIENTE";
+          }
+          const notApproved = (statusDesc) => {
+            const st = normalize(statusDesc);
+            return st === "NO APROBADA" || st === "NO APROBADO";
+          }
+          
           if (response.data.evidence.status && response.data.evidence.status.length > 0) {
             const firstStatus = response.data.evidence.status[0];
             const adminStatus = response.data.evidence.status.find(
-              (s) => s.user.user_role === "ADMINISTRADOR"
+              (s) => normalize(s.user?.user_role) === "ADMINISTRADOR"
             );
+
+            const adminDesc = adminStatus ? normalize(adminStatus.status_description) : null;
+            const firstDesc = firstStatus ? normalize(firstStatus.status_description) : null;
+
+            // DEBUG
+            /*
+            console.log('UploadEvidence statuses:', {
+              firstStatus: firstStatus?.status_description,
+              adminStatus: adminStatus ? adminStatus.status_description : null,
+              adminRole: adminStatus?.user?.user_role,
+              userRpe: user?.user_rpe,
+              evidenceOwner: response.data.evidence.user_rpe
+            });
+            */
 
             // Bloquea la evidencia si ha sido aprobada o está pendiente
             if (adminStatus) {
-              if (adminStatus.status_description === "APROBADA" || adminStatus.status_description === "PENDIENTE") {
+              if (lockIf(adminDesc)) {
                 setIsLocked(true);
-              } else if (adminStatus.status_description === "NO APROBADA") {
-                // Solo permite la edición si el usuario es el propietario de la evidencia
-                const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
-                setIsLocked(shouldLock);
+              } else if (notApproved(adminDesc)) {
+                setIsLocked(user?.user_rpe !== response.data.evidence.user_rpe);
+              } else {
+                setIsLocked(false);
               }
             } else {
-              if (firstStatus.status_description === "NO APROBADA") {
-                // Solo permite la edición si el usuario es el propietario de la evidencia
-                const shouldLock = user?.user_rpe !== response.data.evidence.user_rpe;
-                setIsLocked(shouldLock);
-              } else if (
-                firstStatus.status_description === "APROBADA" ||
-                firstStatus.status_description === "PENDIENTE"
-              ) {
+              if (lockIf(firstDesc)) {
                 setIsLocked(true);
+              } else if(notApproved(firstDesc)) {
+                setIsLocked(user?.user_rpe !== response.data.evidence.user_rpe);
+              } else {
+                setIsLocked(false);
               }
             }
           } else {
@@ -103,6 +125,12 @@ const UploadEvidence = () => {
         });
     }
   }, [evidence_id, user]);
+
+  /*
+  useEffect(() => {
+    console.log('isLocked changed ->', isLocked);
+  }, [isLocked]);
+  */
 
   // ¿Revisa si el usuario tiene asignaciones?
   useEffect(() => {
@@ -150,6 +178,7 @@ const UploadEvidence = () => {
       const ext = file.name.split('.').pop().toLowerCase();
       const sizeOk = file.size <= maxFileSize;
       const typeOk = allowedExtensions.includes(ext);
+      
 
 
       if (!typeOk) {
@@ -373,12 +402,15 @@ const UploadEvidence = () => {
   const getEstadoClass = (estado) => {
     switch (estado) {
       case "NO CARGADA":
+      case "NO CARGADO":
         return "bg-gray-100 text-gray-600";
       case "PENDIENTE":
         return "bg-yellow-50 text-yellow-600";
       case "NO APROBADA":
+      case "NO APROBADO":
         return "bg-red-50 text-red-600";
       case "APROBADA":
+      case "APROBADO":
         return "bg-green-50 text-green-600";
       default:
         return "bg-gray-100 text-gray-600";
@@ -476,10 +508,6 @@ const UploadEvidence = () => {
                       }`}>{item.criterio}</p>
                       <span className={`px-2 py-0.5 rounded-full text-sm font-medium whitespace-nowrap ${getEstadoClass(item.estado)}`}>
                         {item.estado}
-                        {/*DEBUGGING*/}
-                        <script>
-                          console.log("item.estado:", item.estado);
-                        </script>
                       </span>
                       
                     </div>
@@ -579,8 +607,9 @@ const UploadEvidence = () => {
                 <p className="text-black text-lg font-semibold">Justificación</p>
                 {/* Editor integrado de CKEditor (en EditorCacei.jsx) */}
                 <EditorCacei setJustification={setJustification} value={justification} readOnly={user?.user_rpe !== evidence.user_rpe || isLocked} />
-                {user?.user_rpe === evidence.user_rpe && (
+                {user?.user_rpe === evidence.user_rpe && !isLocked && (
                   <div className="mt-4 flex">
+                    {/* Botón para seleccionar archivos */}
                     <label className="w-9/10 p-2 border rounded bg-gray-100 text-gray-600 cursor-pointer flex justify-center items-center">
                       Ingresa el archivo aquí
                       <input
@@ -595,7 +624,7 @@ const UploadEvidence = () => {
                     <div className="w-1/10"><FileQuestion size={50} onClick={() => { setShowCriteriaGuide(true) }} /></div>
                   </div>
                 )}
-                {/* Para subir archivos */}
+                {/* Contenedor para archivos */}
                 {files && files.map((file) => (
                   <div className="mt-4 flex items-center justify-between gap-2 p-2 border rounded bg-gray-100 text-gray-600">
                     <span className="text-2xl">{getIcon(file.name)}</span>
@@ -651,10 +680,6 @@ const UploadEvidence = () => {
                         <p className="text-sm font-medium text-gray-600 mb-1">Estado de la revisión</p>
                         <p className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium ${getEstadoClass(item.status_description)}`}>
                           {item.status_description}
-                          {/*DEBUGGING*/}
-                          <script>
-                          console.log("item.status_description:", item.status_description);
-                          </script>
                         </p>
                         
                       </div>
