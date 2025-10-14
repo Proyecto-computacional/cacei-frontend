@@ -384,9 +384,9 @@ export function SubHeading() {
                                 <span className="group-hover:hidden">{userRole}</span>
                             </div>
                         </div>
-                        <button className="flex items-center justify-center bg-[#004A98] text-white shadow w-55 h-7 cursor-pointer">
+                        
                             <Logout></Logout>
-                        </button>
+                        
                     </div>
                 </div>
             </div>

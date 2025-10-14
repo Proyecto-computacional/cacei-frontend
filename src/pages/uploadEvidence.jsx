@@ -150,7 +150,6 @@ const UploadEvidence = () => {
       const ext = file.name.split('.').pop().toLowerCase();
       const sizeOk = file.size <= maxFileSize;
       const typeOk = allowedExtensions.includes(ext);
-      const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
 
       if (!typeOk) {
