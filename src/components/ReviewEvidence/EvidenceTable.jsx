@@ -27,21 +27,6 @@ export default function EvidenceTable() {
     const [loading, setLoading] = useState(true);
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await api.get('/api/user');
-                setUser(response.data);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUser();
-    }, []);
-
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [currentComment, setCurrentComment] = useState("");
 
@@ -64,6 +49,22 @@ export default function EvidenceTable() {
         setOrder(newOrder);
     };
 
+    // # Revisa al usuario
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await api.get('/api/user');
+                setUser(response.data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    // # Procesa el envío de la retroalimentación de una evidencia
     const sendFeedback = async (feedbackText) => {
         try {
             const url = statusFeedback ? 'api/RevisionEvidencias/aprobar' : 'api/RevisionEvidencias/desaprobar';
@@ -128,7 +129,7 @@ export default function EvidenceTable() {
     };
 
 
-
+    // # Llama y declara variables relacionadas con la retroalimentación
     const handleFeedback = (id, userRpe, status, evidence) => {
         setOpenFeedback(true);
         setIdEvidenceFeedback(id);
@@ -136,10 +137,10 @@ export default function EvidenceTable() {
         setStatusFeedback(status);
     }
 
+    // # ¿Gestiona los archivos de una evidencia?
     useEffect(() => {
         let url = `api/ReviewEvidence?`;
         api.get(url).then(({ data }) => {
-            // Process file URLs to ensure they have the correct base URL
             const processedEvidences = data.evidencias.map(evidence => ({
                 ...evidence,
                 files: evidence.files.map(file => ({
@@ -151,6 +152,7 @@ export default function EvidenceTable() {
         });
     }, [refresh]);
 
+    // # Maneja los filtros declarados en la tabla de evidencias
     useEffect(() => {
         let result = evidences;
 
@@ -196,15 +198,10 @@ export default function EvidenceTable() {
     };
 
 
-
-
-
-
-
+    // # Revisa si el usuario puede revisar, en base a su rol
     const canReview = (statuses) => {
         if (!user) return false;
 
-        // Get the most recent status for each role
         const getMostRecentStatus = (role) => {
             return statuses
                 .filter(s => s.user_role?.toUpperCase() === role)
@@ -220,6 +217,7 @@ export default function EvidenceTable() {
                 })[0];
         };
 
+        // Comportamiento distinto para el administrador
         if (user.user_role === "ADMINISTRADOR") {
             const adminStatus = getMostRecentStatus("ADMINISTRADOR");
             return !adminStatus || adminStatus.status_description !== "APROBADA" || adminStatus.user_rpe !== user.user_rpe;
@@ -242,7 +240,7 @@ export default function EvidenceTable() {
         // Mostrar modal para CUALQUIER estado
         setCurrentComment({
             text: statusObj?.feedback || "Sin comentarios",
-            status: statusObj?.status_description || "Sin estado", // Añade esto
+            status: statusObj?.status_description || "Sin estado",
             user: statusObj?.user_name,
             date: statusObj?.status_date
         });
@@ -261,6 +259,7 @@ export default function EvidenceTable() {
         setShowJustificationModal(false);
     };
 
+    // ## HTML ---------------------------------------------------------------------------------------------------------------------------------------------------
     return (
         <>
             <div className="container mx-auto p-5 ">
@@ -485,18 +484,21 @@ export default function EvidenceTable() {
                                                 );
                                             })}
 
+                                            {/* Botónes de revisión */}
                                             <td className="py-4 px-6">
                                                 {canReview(item.statuses) ? (
                                                     <div className="flex gap-3">
                                                         <button
                                                             onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true)}
-                                                            className="p-2 rounded-full hover:bg-green-50 transition-colors duration-200"
+                                                            className="p-2 rounded-2xl bg-green-200 hover:bg-green-400 transition-colors duration-200 
+                                                            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
                                                         >
                                                             <Check color="green" size={24} strokeWidth={2} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}
-                                                            className="p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
+                                                            className="p-2 rounded-2xl bg-red-200 hover:bg-red-400 transition-colors duration-200
+                                                            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
                                                         >
                                                             <X color="red" size={24} strokeWidth={2} />
                                                         </button>
