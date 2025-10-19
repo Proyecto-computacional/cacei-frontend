@@ -4,6 +4,7 @@ import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ModalAlert from "../components/ModalAlert";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
     const [nombre, setNombre] = useState("");
@@ -85,7 +86,7 @@ function CrearCategoriaForm({ onCancel, onSaved, frame_id }) {
   function ModificarCategoriaForm({ category, onCancel, onSaved }) {
     const [nombre, setNombre] = useState(category.category_name);
     const [isLoading, setIsLoading] = useState(false);
-     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
   
     const handleSave = async () => {
       if (!nombre.trim()) {
@@ -376,7 +377,7 @@ function CrearSeccionForm({ onCancel, onSaved, categories, defaultCategoryId }) 
     const [isLoading, setIsLoading] = useState(false);
     const [standardId, setStandardId] = useState(null);
     const [hasUnfinishedProcesses, setHasUnfinishedProcesses] = useState(false);
-     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
     // Cargar datos del criterio si existe
     useEffect(() => {
         const fetchData = async () => {
@@ -925,14 +926,14 @@ function CrearCriterioForm({ onCancel, onSaved, sections, categories, defaultCat
   }
 
 export default function EstructuraMarco() {
-  const { id } = useParams();
-  const location = useLocation();
-  const marco = location.state?.marco;
-
-  const [categorias, setCategorias] = useState([]);
-  const [secciones, setSecciones] = useState([]);
-  const [criterios, setCriterios] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+    const { frameID } = useParams();
+    const location = useLocation();
+    const marco = location.state?.marco;
+  
+    const [categorias, setCategorias] = useState([]);
+    const [secciones, setSecciones] = useState([]);
+    const [criterios, setCriterios] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [showCreateCategoria, setShowCreateCategoria] = useState(false);
     const [showCreateSeccion, setShowCreateSeccion] = useState(false);
@@ -943,35 +944,41 @@ export default function EstructuraMarco() {
     const [editingCategoryId, setEditingCategoryId] = useState(null);
     const [editingSectionId, setEditingSectionId] = useState(null);
     const [editingCriterioId, setEditingCriterioId] = useState(null);
-     const [modalAlertMessage, setModalAlertMessage] = useState(null);
+    const [modalAlertMessage, setModalAlertMessage] = useState(null);
   
     useEffect(() => {
       fetchCategorias();
-    }, [id]);
+    }, [frameID]);
   
     const fetchCategorias = async () => {
       setIsLoading(true);
       try {
-        // Fetch categories
-        const res = await api.post(`/api/categories`, { frame_id: marco.frame_id });
-        const categoriesData = res.data;
-        setCategorias(categoriesData);
-        
-        // Fetch sections for all categories
-        const sectionsPromises = categoriesData.map(cat => 
-          api.post(`/api/sections`, { category_id: cat.category_id })
+        //Cargar marco de referencia
+        const response = await  api.get(`/api/frames-of-references/${frameID}`);
+        const frame = response.data.frame;
+
+        //Concatenar todas las categorias
+        const categories = frame.categories.map(({ sections, ...rest }) => rest);
+        setCategorias(categories);
+
+        //concatenar todas las secciones
+        const allSections = frame.categories.flatMap(cat =>
+          cat.sections.map(({ standards, ...rest }) => ({
+            ...rest,
+            category_id: cat.category_id,
+            category_name: cat.category_name
+          }))
         );
-        const sectionsResults = await Promise.all(sectionsPromises);
-        const allSections = sectionsResults.flatMap(res => res.data);
         setSecciones(allSections);
 
-        // Fetch criteria for all sections
-        const criteriaPromises = allSections.map(sec => 
-          api.post(`/api/standards`, { section_id: sec.section_id })
-        );
-        const criteriaResults = await Promise.all(criteriaPromises);
-        const allCriteria = criteriaResults.flatMap(res => res.data);
-        setCriterios(allCriteria);
+        const allStandards = frame.categories.flatMap(category =>
+        category.sections.flatMap(section =>
+          section.standards.map(standard => ({
+            ...standard,
+          }))
+        )
+      );
+        setCriterios(allStandards);
       } catch (err) {
         console.error("Error fetching data:", err);
         setModalAlertMessage("Error al cargar los datos: " + (err.response?.data?.message || "Error desconocido"));
@@ -980,11 +987,229 @@ export default function EstructuraMarco() {
       }
     };
 
-  const handleOpenCreateCategoria = () => {
-    setShowCreateCategoria(true);
-    setShowCreateSeccion(false);
-    setShowCreateCriterio(false);
-  };
+   const swapArray = (arr, i, j) => {
+      // Cambia los indices de los elementos
+      const copy = [...arr];
+      const tmp = copy[i];
+      copy[i] = copy[j];
+      copy[j] = tmp;
+      return copy;
+    };
+
+    const reorderWithinParent = (items, parentKey, parentId, index, direction) => {
+      // Obtiene los indices de solo los elementos con el mismo padre (ej. categorías del marco 1)
+      const indices = items
+        .map((it, idx) => ({ idx, parent: it[parentKey] }))
+        .filter(x => x.parent === parentId)
+        .map(x => x.idx);
+
+      // Toma la posición del objeto a mover
+      const positionInGroup = indices.indexOf(index);
+      if (positionInGroup === -1) return null;
+
+      // Mueve el objeto dependiendo de la dirección
+      const swapWithPos = direction === 'up' ? positionInGroup - 1 : positionInGroup + 1;
+      if (swapWithPos < 0 || swapWithPos >= indices.length) return null;
+
+      // Devuelve el nuevo orden de los dos elementos del mismo padre
+      const j = indices[swapWithPos];
+      const newItems = swapArray(items, index, j);
+      return { newItems, newIndexA: indices[positionInGroup], newIndexB: j, groupIndices: indices };
+    };
+
+    // CATEGORÍAS
+    // Ruta a Backend para persistir orden
+    const persistOrderCategories = async (ordered_ids) => {
+      await api.put("/api/categories/order", { ordered_ids: ordered_ids }, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+      });
+    };
+
+    const handleMoveCategoryUp = async (category_id) => {
+      // Guarda estado previo en caso de errores
+      const prev = [...categorias];
+
+      // Encuentra índice de la categoría a mover y revisa si está en el inicio (o fin)
+      const idx = prev.findIndex(c => c.category_id === category_id);
+      if (idx <= 0) return;
+
+      // Reordena dentro del mismo marco (padre)
+      const frame_id = prev[idx].frame_id;
+      const result = reorderWithinParent(prev, 'frame_id', frame_id, idx, 'up')
+      if (!result) return;
+
+      // Actualiza el estado local para UX
+      const new_categories = result.newItems.map((c, i) => ({ ...c, indice: i + 1 }));
+      setCategorias(new_categories);
+
+      // Prepara IDs ordenados para persistir y mandar a backend
+      const ordered_ids = new_categories
+        .filter(c => c.frame_id === frame_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(c => c.category_id);
+
+      // Intenta mandar el nuevo orden
+      try {
+        await persistOrderCategories(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        // Regresa al estado previo
+        setCategorias(prev => swapArray(prev, idx - 1, idx).map((c, i) => ({...c, indice: i+1})));
+        setModalAlertMessage("Error al mover categoría.");
+      }
+    };
+
+    const handleMoveCategoryDown = async (category_id) => {
+      const prev = [...categorias];
+      const idx = categorias.findIndex(c => c.category_id === category_id);
+      if (idx === -1 || idx >= categorias.length - 1) return; 
+
+      const frame_id = prev[idx].frame_id;
+      const result = reorderWithinParent(prev, 'frame_id', frame_id, idx, 'down')
+      if (!result) return;
+
+      const new_categories = result.newItems.map((c, i) => ({ ...c, indice: i + 1 }));
+      setCategorias(new_categories);
+
+      const ordered_ids = new_categories
+        .filter(c => c.frame_id === frame_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(c => c.category_id);
+
+      try {
+        await persistOrderCategories(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        setCategorias(prev => swapArray(prev, idx + 1, idx).map((c, i) => ({...c, indice: i+1})));
+        setModalAlertMessage("Error al mover categoría.");
+      }
+    };
+
+    // Indicadores
+    const persistOrderSections = async (ordered_ids) => {
+      await api.put("/api/sections/order", { ordered_ids: ordered_ids }, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+      });
+    };
+
+    const handleMoveSectionUp = async (section_id) => {
+      const prev = [...secciones];
+      const idx = secciones.findIndex(s => s.section_id === section_id);
+      if (idx <= 0) return;
+
+      const category_id = prev[idx].category_id;
+      const result = reorderWithinParent(prev, 'category_id', category_id, idx, 'up')
+      if (!result) return;
+
+      const new_sections = result.newItems.map((s, i) => ({ ...s, indice: i + 1 }));
+      setSecciones(new_sections);
+
+      const ordered_ids = new_sections
+        .filter(s => s.category_id === category_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(s => s.section_id);
+
+      try {
+        await persistOrderSections(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        setSecciones(prev => swapArray(prev, idx - 1, idx).map((s, i) => ({...s, indice: i+1})));
+        setModalAlertMessage("Error al mover indicador.");
+      }
+    };
+
+    const handleMoveSectionDown = async (section_id) => {
+      const prev = [...secciones];
+      const idx = secciones.findIndex(s => s.section_id === section_id);
+      if (idx === -1 || idx >= secciones.length - 1) return; 
+
+      const category_id = prev[idx].category_id;
+      const result = reorderWithinParent(prev, 'category_id', category_id, idx, 'down')
+      if (!result) return;
+
+      const new_sections = result.newItems.map((s, i) => ({ ...s, indice: i + 1 }));
+      setSecciones(new_sections);
+
+      const ordered_ids = new_sections
+        .filter(s => s.category_id === category_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(s => s.section_id);
+
+      try {
+        await persistOrderSections(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        setSecciones(prev => swapArray(prev, idx + 1, idx).map((s, i) => ({...s, indice: i+1})));
+        setModalAlertMessage("Error al mover indicador.");
+      }
+    };
+
+    // Criterios
+    const persistOrderStandards = async (ordered_ids) => {
+      await api.put("/api/standards/order", { ordered_ids: ordered_ids }, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+      });
+    };
+
+    const handleMoveStandardUp = async (standard_id) => {
+      const prev = [...criterios];
+      const idx = criterios.findIndex(cr => cr.standard_id === standard_id);
+      if (idx <= 0) return;
+
+      const section_id = prev[idx].section_id;
+      const result = reorderWithinParent(prev, 'section_id', section_id, idx, 'up')
+      if (!result) return;
+
+
+      const new_standards = result.newItems.map((cr, i) => ({ ...cr, indice: i + 1 }));
+      setCriterios(new_standards);
+
+      const ordered_ids = new_standards
+        .filter(cr => cr.standard_id === standard_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(cr => cr.standard_id);
+
+      try {
+        await persistOrderStandards(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        setCriterios(prev => swapArray(prev, idx - 1, idx).map((cr, i) => ({...cr, indice: i+1})));
+        setModalAlertMessage("Error al mover criterio.");
+      }
+    };
+
+    const handleMoveStandardDown = async (standard_id) => {
+      const prev = [...criterios];
+      const idx = criterios.findIndex(cr => cr.standard_id === standard_id);
+      if (idx === -1 || idx >= criterios.length - 1) return; 
+
+      const section_id = prev[idx].section_id;
+      const result = reorderWithinParent(prev, 'section_id', section_id, idx, 'down')
+      if (!result) return;
+
+      const new_standards = result.newItems.map((cr, i) => ({ ...cr, indice: i + 1 }));
+      setCriterios(new_standards);
+
+      const ordered_ids = new_standards
+        .filter(cr => cr.standard_id === standard_id)
+        .sort((a, b) => a.indice - b.indice)
+        .map(cr => cr.standard_id);
+
+      try {
+        await persistOrderStandards(ordered_ids);
+      } catch (err) {
+        console.error("Fallo en persistir orden:", err);
+        setCriterios(prev => swapArray(prev, idx + 1, idx).map((cr, i) => ({...cr, indice: i+1})));
+        setModalAlertMessage("Error al mover indicador.");
+      }
+    };
+
+    // # Maneja apertura de formularios #
+    const handleOpenCreateCategoria = () => {
+        setShowCreateCategoria(true);
+        setShowCreateSeccion(false);
+        setShowCreateCriterio(false);
+    };
 
     const handleOpenCreateSeccion = (categoryId = null) => {
         setShowCreateCategoria(false);
@@ -1126,12 +1351,29 @@ export default function EstructuraMarco() {
                       return acc + (sectionCriteria.length || 1);
                     }, 0);
 
+                    const indexInListCat = categorias.findIndex(c => c.category_id === cat.category_id);
+                    const isFirstCat = indexInListCat <= 0;
+                    const isLastCat = indexInListCat === categorias.length - 1;
+
                     if (categorySections.length === 0) {
                       return (
                         <tr key={cat.category_id} className="border-b hover:bg-gray-50">
                           <td className="px-6 py-4 text-sm text-gray-600 border-r">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center">
+                                {/*Cuadro de elemento categoría*/}
+                                <div className="flex flex-col mr-3">
+                                  <button onClick={() => handleMoveCategoryUp(cat.category_id)}
+                                    disabled={isFirstCat}
+                                    className={`p-1 rounded ${isFirstCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                    <ArrowUp className="h-4 w-4" />
+                                  </button>
+                                  <button onClick={() => handleMoveCategoryDown(cat.category_id)}
+                                    disabled={isLastCat}
+                                    className={`p-1 rounded ${isLastCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                    <ArrowDown className="h-4 w-4" />
+                                  </button>
+                                </div>
                                 <span className="font-medium">{cat.indice}. {cat.category_name}</span>
                                 <button 
                                   className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
@@ -1159,7 +1401,9 @@ export default function EstructuraMarco() {
 
                     return categorySections.map((sec, secIndex) => {
                       const sectionCriteria = criterios.filter(cri => cri.section_id === sec.section_id);
-
+                      const indexInListSec = categorySections.findIndex(s => s.section_id === sec.section_id);
+                      const isFirstSec = indexInListSec <= 0;
+                      const isLastSec = indexInListSec === categorySections.length - 1;
                       if (sectionCriteria.length === 0) {
                         return (
                           <tr key={sec.section_id} className="border-b hover:bg-gray-50">
@@ -1170,6 +1414,19 @@ export default function EstructuraMarco() {
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center">
+                                    {/*Cuadro de elemento categoría*/}
+                                    <div className="flex flex-col mr-3">
+                                      <button onClick={() => handleMoveCategoryUp(cat.category_id)}
+                                        disabled={isFirstCat}
+                                        className={`p-1 rounded ${isFirstCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowUp className="h-4 w-4" />
+                                      </button>
+                                      <button onClick={() => handleMoveCategoryDown(cat.category_id)}
+                                        disabled={isLastCat}
+                                        className={`p-1 rounded ${isLastCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowDown className="h-4 w-4" />
+                                      </button>
+                                    </div>
                                     <span className="font-medium">{cat.indice}. {cat.category_name}</span>
                                     <button 
                                       className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
@@ -1193,6 +1450,19 @@ export default function EstructuraMarco() {
                             <td className="px-6 py-2 text-sm text-gray-600 border-r">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-1 flex-wrap">
+                                   {/*Cuadro de elemento sección*/}
+                                    <div className="flex flex-col mr-3">
+                                      <button onClick={() => handleMoveSectionUp(sec.section_id)}
+                                        disabled={isFirstSec}
+                                        className={`p-1 rounded ${isFirstSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowUp className="h-4 w-4" />
+                                      </button>
+                                      <button onClick={() => handleMoveSectionDown(sec.section_id)}
+                                        disabled={isLastSec}
+                                        className={`p-1 rounded ${isLastSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowDown className="h-4 w-4" />
+                                      </button>
+                                    </div>
                                   <span className="font-medium w-6/8">{cat.indice}.{sec.indice}. {sec.section_name}</span>
                                   <button 
                                     className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
@@ -1218,7 +1488,13 @@ export default function EstructuraMarco() {
                         );
                       }
 
-                      return sectionCriteria.map((cri, criIndex) => (
+                      return sectionCriteria.map((cri, criIndex) => {
+
+                        const indexInListCri = sectionCriteria.findIndex(cr => cr.standard_id === cri.standard_id);
+                        const isFirstCri = indexInListCri <= 0;
+                        const isLastCri = indexInListCri === sectionCriteria.length - 1;
+
+                        return (
                         <tr key={cri.standard_id} className="border-b hover:bg-gray-50">
                           {secIndex === 0 && criIndex === 0 && (
                             <td
@@ -1227,6 +1503,19 @@ export default function EstructuraMarco() {
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center">
+                                  {/*Cuadro de elemento categoría*/}
+                                    <div className="flex flex-col mr-3">
+                                      <button onClick={() => handleMoveCategoryUp(cat.category_id)}
+                                        disabled={isFirstCat}
+                                        className={`p-1 rounded ${isFirstCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowUp className="h-4 w-4" />
+                                      </button>
+                                      <button onClick={() => handleMoveCategoryDown(cat.category_id)}
+                                        disabled={isLastCat}
+                                        className={`p-1 rounded ${isLastCat ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowDown className="h-4 w-4" />
+                                      </button>
+                                    </div>
                                   <span className="font-medium">{cat.indice}. {cat.category_name}</span>
                                   <button 
                                     className="ml-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
@@ -1253,6 +1542,19 @@ export default function EstructuraMarco() {
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 flex-wrap">
+                                  {/*Cuadro de elemento sección*/}
+                                    <div className="flex flex-col mr-3">
+                                      <button onClick={() => handleMoveSectionUp(sec.section_id)}
+                                        disabled={isFirstSec}
+                                        className={`p-1 rounded ${isFirstSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowUp className="h-4 w-4" />
+                                      </button>
+                                      <button onClick={() => handleMoveSectionDown(sec.section_id)}
+                                        disabled={isLastSec}
+                                        className={`p-1 rounded ${isLastSec ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowDown className="h-4 w-4" />
+                                      </button>
+                                    </div>
                                   <span className="font-medium">{cat.indice}.{sec.indice}. {sec.section_name}</span>
                                   {sec.is_standard && (
                                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
@@ -1280,6 +1582,19 @@ export default function EstructuraMarco() {
                           <td className="px-6 py-2.5 text-sm text-gray-600 border-r">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2 flex-wrap">
+                                {/*Cuadro de elemento criterio*/}
+                                    <div className="flex flex-col mr-3">
+                                      <button onClick={() => handleMoveStandardUp(cri.standard_id)}
+                                        disabled={isFirstCri}
+                                        className={`p-1 rounded ${isFirstCri ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowUp className="h-4 w-4" />
+                                      </button>
+                                      <button onClick={() => handleMoveStandardDown(cri.standard_id)}
+                                        disabled={isLastCri}
+                                        className={`p-1 rounded ${isLastCri ? 'text-gray-300' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}>
+                                        <ArrowDown className="h-4 w-4" />
+                                      </button>
+                                    </div>
                                 <span className="font-medium">{cat.indice}.{sec.indice}.{cri.indice}. {cri.standard_name}</span>
                                 {cri.is_transversal && (
                                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
@@ -1296,7 +1611,7 @@ export default function EstructuraMarco() {
                             </div>
                           </td>
                         </tr>
-                      ));
+                      )});
                     });
                   })
                 )}
