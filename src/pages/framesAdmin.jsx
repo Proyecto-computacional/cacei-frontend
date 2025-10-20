@@ -38,6 +38,7 @@ function CrearMarcoForm({ onCancel, onSaved }) {
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Crear Marco</h2>
         <input
           type="text"
+          maxLength={60}
           className="border border-gray-300 p-3 w-full mb-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
           placeholder="Nombre del marco"
           value={nombre}
@@ -105,6 +106,7 @@ function ModificarMarcoForm({ frame, onCancel, onSaved }) {
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Modificar Marco</h2>
         <input
           type="text"
+          maxLength={60}
           className="border border-gray-300 p-3 w-full mb-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
@@ -264,7 +266,61 @@ export default function FrameOfReferenceView() {
                       }`}
                     >
                       <td className="px-6 py-4 text-sm text-gray-600">{frame.frame_id}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{frame.frame_name}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+  {selectedFrame?.frame_id === frame.frame_id ? (
+    <div className="flex items-center gap-2 w-full">
+      <input
+        type="text"
+        maxLength={60}
+        autoFocus
+        className="border-2 border-blue-400 rounded-lg px-3 py-1.5 w-full focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-800 transition-all duration-150"
+        value={selectedFrame.frame_name}
+        onChange={(e) =>
+          setSelectedFrame({ ...selectedFrame, frame_name: e.target.value })
+        }
+      />
+      <button
+        onClick={async () => {
+          try {
+            await api.put("/api/frames-of-reference-update", {
+              frame_id: selectedFrame.frame_id,
+              frame_name: selectedFrame.frame_name,
+            });
+            setSelectedFrame(null);
+            setRefreshTrigger((prev) => prev + 1);
+            setModalAlertMessage("✅ Nombre actualizado con éxito");
+          } catch (err) {
+            console.error(err);
+            setModalAlertMessage("Error al actualizar el nombre del marco");
+          }
+        }}
+        className="text-green-600 hover:text-green-800 p-1 rounded-md hover:bg-green-50 transition"
+        title="Guardar cambios"
+      >
+        <Check className="w-5 h-5" />
+      </button>
+      <button
+        onClick={() => setSelectedFrame(null)}
+        className="text-gray-500 hover:text-gray-700 p-1 rounded-md hover:bg-gray-100 transition"
+        title="Cancelar"
+      >
+        <X className="w-5 h-5" />
+      </button>
+    </div>
+  ) : (
+    <div className="flex items-center justify-between">
+      <span className="truncate">{frame.frame_name}</span>
+      <button
+        onClick={() => setSelectedFrame(frame)}
+        className="text-yellow-600 hover:text-yellow-800 flex items-center gap-1 text-sm px-2 py-1 rounded-md hover:bg-yellow-50 transition"
+      >
+        <Edit2 className="w-4 h-4" />
+        Editar
+      </button>
+    </div>
+  )}
+</td>
+
                       <td className="px-6 py-4 text-sm">
                         <button
                           onClick={() => handleRowClick(frame)}
