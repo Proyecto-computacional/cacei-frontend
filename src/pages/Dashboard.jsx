@@ -308,7 +308,7 @@ const Dashboard = () => {
             {processInfo.name}
           </h1>
           <h2 className="text-[24px] font-bold text-gray-800 pt-2">
-              Marco de referencia: {processInfo.frameName}
+            {processInfo.frameName}
           </h2>
           <div className="mt-2">
             <p className="text-gray-500"> Consulte la información relevante del proceso, y acceda a las secciones relacionadas </p>
