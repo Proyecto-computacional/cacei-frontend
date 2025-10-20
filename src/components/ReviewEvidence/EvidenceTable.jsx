@@ -5,6 +5,7 @@ import Feedback from "./Feedback";
 import HeaderSort from "./headerSort";
 import CommentViewer from "./CommentViewer";
 import JustificationViewer from "./JustificationViewer";
+import FilesViewer from "./FilesViewer";
 import api from "../../services/api";
 import LoadingSpinner from "../LoadingSpinner";
 import ModalAlert from "../ModalAlert";
@@ -23,7 +24,9 @@ export default function EvidenceTable() {
     const [user, setUser] = useState(null);
     const [refresh, setRefresh] = useState(false);
     const [showJustificationModal, setShowJustificationModal] = useState(false);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [showFilesModal, setShowFilesModal] = useState(false);
+    const [selectedJustificaction, setSelectedJustification] = useState(null);
+    const [selectedFiles, setSelectedFiles] = useState(null);
     const [loading, setLoading] = useState(true);
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
@@ -303,13 +306,23 @@ export default function EvidenceTable() {
     };
 
     const handleJustificationClick = (justification) => {
-        setSelectedFile({
+        setSelectedJustification({
             text: justification || "Sin justificación"
         });
         setShowJustificationModal(true);
     }
     const handleJustificationClose = () => {
         setShowJustificationModal(false);
+    };
+
+    const handleFilesClick = (files) => {
+        setSelectedFiles({
+            files: files || "Sin archivos"
+        });
+        setShowFilesModal(true);
+    }
+    const handleFilesClose = () => {
+        setShowFilesModal(false);
     };
 
     // ## HTML ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -465,21 +478,15 @@ export default function EvidenceTable() {
                                             </td>
                                             
                                             {/* Lista de archivos */}
-                                            <td className="py-4 px-6">
+                                            <td className="py-4 px-6 ext-sm text-gray-900">
                                                 {item.files.length > 0 ? (
-                                                    item.files.map((file, index) => (
-                                                        <div key={index} className="mb-1">
-                                                            <a
-                                                                href={file.file_url}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-primary1 hover:text-primary1/80 hover:underline text-sm flex items-center"
-                                                            >
-                                                                <FileText size={16} className="mr-2" />
-                                                                {file.file_name}
-                                                            </a>
-                                                        </div>
-                                                    ))
+                                                    <button
+                                                        onClick={() => handleFilesClick(item.files)}
+                                                        className="text-blue-500 hover:underline"
+                                                    >
+                                                        Ver archivos
+                                                    </button>
+                                                    
                                                 ) : (
                                                     <span className="text-sm text-gray-500 italic">Sin archivo</span>
                                                 )}
@@ -578,6 +585,8 @@ export default function EvidenceTable() {
                     </div>
                 )}
             </div>
+
+            {/* Modales */}
             {showCommentModal && (
                 <CommentViewer
                     comment={currentComment.text}
@@ -595,8 +604,14 @@ export default function EvidenceTable() {
             )}
             {showJustificationModal && (
                 <JustificationViewer
-                    file={selectedFile}
+                    justification={selectedJustificaction}
                     onClose={handleJustificationClose}
+                />
+            )}
+            {showFilesModal && (
+                <FilesViewer
+                    files={selectedFiles}
+                    onClose={handleFilesClose}
                 />
             )}
             <ModalAlert
