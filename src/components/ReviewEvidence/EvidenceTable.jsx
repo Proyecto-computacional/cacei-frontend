@@ -478,7 +478,7 @@ export default function EvidenceTable() {
                                             </td>
                                             
                                             {/* Lista de archivos */}
-                                            <td className="py-4 px-6 ext-sm text-gray-900">
+                                            <td className="py-4 px-6 text-sm text-gray-900">
                                                 {item.files.length > 0 ? (
                                                     <button
                                                         onClick={() => handleFilesClick(item.files)}
