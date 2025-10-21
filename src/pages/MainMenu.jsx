@@ -21,7 +21,6 @@ const MainMenu = () => {
   const [finishedStatus, setFinishedStatus] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const [selectedArea, setSelectedArea] = useState("-1");
   const [filteredProcesses, setFilteredProcesses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [areas, setAreas] = useState([]);
@@ -218,14 +217,8 @@ const MainMenu = () => {
     window.location.reload();
   };
 
-  // # Funciones para búsqueda de procesos
   const handleSearch = () => {
       let filtered = processes;
-
-      // Filtro por área
-      if (selectedArea !== "-1") {
-          filtered = filtered.filter(proc => proc.area_name === selectedArea);
-      }
 
       // Filtro por término de búsqueda
       const trimmedSearch = searchTerm.trim().toLowerCase();
@@ -242,7 +235,7 @@ const MainMenu = () => {
 
   useEffect(() => {
       handleSearch();
-  }, [selectedArea, searchTerm]);
+  }, [searchTerm]);
 
   // # HTML --------------------------------------------------------------------------------------------------------------------------
   return (
