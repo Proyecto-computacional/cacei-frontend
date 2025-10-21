@@ -19,6 +19,7 @@ const MainMenu = () => {
   const [loading, setLoading] = useState(true);
 
   // Obtener rol de usuario
+  // # Obtener rol de usuario
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
@@ -32,7 +33,7 @@ const MainMenu = () => {
     fetchUserRole();
   }, []);
 
-  // Función optimizada para cargar estadísticas en paralelo
+  // # Función optimizada para cargar estadísticas en paralelo
   const fetchProcessesData = useCallback(async (processes, role, rpe) => {
     try {
       // Preparar todas las promesas para ejecución en paralelo
@@ -85,9 +86,11 @@ const MainMenu = () => {
       console.error("Error en fetchProcessesData:", error);
       return { percentagesMap: {}, finishedStatusMap: {} };
     }
+
+    
   }, []);
 
-  // Cargar datos principales
+  // # Cargar datos principales
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -150,7 +153,7 @@ const MainMenu = () => {
     }
   }, [userRole, userRpe, navigate, fetchProcessesData]);
 
-  // Resto del código permanece igual...
+  // # Guarda datos del proceso, y los usa para cargar la página del proceso
   const handleCardClick = (processId, frameName, careerName, frameId, finished) => {
     localStorage.setItem("frameName", frameName);
     localStorage.setItem("careerName", careerName);
@@ -175,6 +178,7 @@ const MainMenu = () => {
       <div className="min-h-screen p-10 pl-18" style={{ background: "linear-gradient(180deg, #e1e5eb 0%, #FFF 50%)" }}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
+            {/* Titulo y descripción */}
             <div>
               <h1 className="text-[34px] font-semibold text-gray-800 font-['Open_Sans']">
                 Menú Principal
@@ -183,10 +187,11 @@ const MainMenu = () => {
                 Seleccione un proceso de acreditación para comenzar.
               </p>
             </div>
+            {/* Crear proceso para el admin */}
             {userRole === "ADMINISTRADOR" && (
               <button
                 onClick={handleCreateProcess}
-                className="bg-[#00b2e3] text-white px-4 py-2 rounded-lg hover:bg-[#003d7a] transition-colors duration-300 flex items-center gap-2 shadow-sm hover:shadow-md text-sm"
+                className="bg-primary1 text-white px-4 py-2 rounded-lg hover:bg-primary2 transition-colors duration-300 flex items-center gap-2 shadow-sm hover:shadow-md text-sm"
               >
                 <Plus className="h-4 w-4" />
                 Crear Nuevo Proceso
@@ -217,6 +222,7 @@ const MainMenu = () => {
                     onClick={() => handleCardClick(card.process_id, card.frame_name, card.career_name, card.frame_id, finishedStatus[card.process_id])}
                   />
                 </div>
+
               ))}
             </div>
           ) : (
@@ -233,6 +239,7 @@ const MainMenu = () => {
       </div>
       <AppFooter />
 
+      {/* Modales */}
       <CreateProcessModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
