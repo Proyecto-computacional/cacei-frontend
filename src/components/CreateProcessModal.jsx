@@ -18,7 +18,9 @@ const MAJORS = [
   { career_id: "13", career_name: "Ingeniería Metalúrgica y de Materiales" }
 ];
 
+// # Proceso del modal
 const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
+  // Información a enviar a Back
   const [formData, setFormData] = useState({
     career_id: "",
     frame_id: "",
@@ -31,6 +33,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
   const [frames, setFrames] = useState([]);
   const [error, setError] = useState("");
 
+  // # Busca los marcos de referencia disponibles
   useEffect(() => {
     const fetchFrames = async () => {
       try {
@@ -47,12 +50,13 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
     }
   }, [isOpen]);
 
+  // # Realiza la creación del proceso
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    // Validate dates
+    // Valida fechas (que tengan sentido con la de hoy)
     const startDate = new Date(formData.start_date);
     const endDate = new Date(formData.end_date);
     const dueDate = new Date(formData.due_date);
@@ -69,10 +73,11 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
       return;
     }
 
+    // Hace petición a Back
     try {
       const response = await api.post("/api/accreditation-processes", {
         ...formData,
-        frame_id: formData.frame_id || null // Convert empty string to null
+        frame_id: formData.frame_id || null
       });
       
       if (response.status === 201) {
@@ -82,7 +87,6 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
     } catch (error) {
       console.error("Error creating process:", error);
       if (error.response?.data?.errors) {
-        // Handle validation errors from Laravel
         const errorMessages = Object.values(error.response.data.errors).flat();
         setError(errorMessages.join(", "));
       } else {
@@ -92,6 +96,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
       setLoading(false);
     }
   };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -103,10 +108,12 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
 
   if (!isOpen) return null;
 
+  // # HTML -------------------------------------------------------------------------------------------------------------------------
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
       <div className="bg-white rounded-xl p-6 w-full max-w-md relative z-[99999]">
         <div className="flex justify-between items-center mb-4">
+          {/* Titulo del modal */}
           <h2 className="text-xl font-semibold text-gray-800">Crear Nuevo Proceso</h2>
           <button
             onClick={onClose}
@@ -122,7 +129,9 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
           </div>
         )}
 
+        {/* Formato a subir (con opciones) */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Carreras disponibles */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Carrera *
@@ -143,6 +152,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
             </select>
           </div>
 
+          {/* Marcos disponibles */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Marco de Referencia
@@ -162,6 +172,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
             </select>
           </div>
 
+          {/* Nombre del proceso a escribir */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nombre del Proceso *
@@ -177,6 +188,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
             />
           </div>
 
+          {/* Fecha inicio */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Fecha de Inicio *
@@ -191,6 +203,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
             />
           </div>
 
+          {/* Fecha fin */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Fecha de Fin *
@@ -206,6 +219,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
             />
           </div>
 
+          {/* Fecha limite */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Fecha Límite *
@@ -222,6 +236,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
             />
           </div>
 
+          {/* Confirmación */}
           <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"

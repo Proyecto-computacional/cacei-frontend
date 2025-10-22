@@ -2,44 +2,40 @@ import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import api from "../services/api";
 
-const DeleteProcessModal = ({ isOpen, onClose, onSuccess }) => {
-  const [formData, setFormData] = useState({
-    career_id: "",
-    frame_id: "",
-    process_name: "",
-    start_date: "",
-    end_date: "",
-    due_date: ""
-  });
+// # Proceso del modal
+const DeleteProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
   const [loading, setLoading] = useState(false);
-  const [frames, setFrames] = useState([]);
   const [error, setError] = useState("");
+  const [processWritten, setProcessWritten] = useState("");
 
-  useEffect(() => {
-    const fetchFrames = async () => {
-      try {
-        const framesRes = await api.get('/api/frames-of-references');
-        setFrames(framesRes.data);
-      } catch (error) {
-        console.error('Error fetching frames:', error);
-        setError('Error al cargar los marcos de referencia');
-      }
-    };
-
-    if (isOpen) {
-      fetchFrames();
-    }
-  }, [isOpen]);
-
-  const handleSubmit = async (e) => {
+  // # Realiza la creación del proceso
+  const handleConfirmDelete = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    // Validate dates
-    const startDate = new Date(formData.start_date);
-    const endDate = new Date(formData.end_date);
-    const dueDate = new Date(formData.due_date);
+    useEffect(() => {
+      if (!isOpen) {
+        setLoading(false);
+        setError(null);
+      }
+    }, [isOpen]);
+
+    if (!isOpen) return null;
+
+    // Valida nombre
+    let filtered = processes;
+
+    // Filtro por término de búsqueda
+    if (trimmedSearch !== "") {
+        filtered = filtered.filter(proc =>
+            proc.area_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
+            proc.career?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
+            proc.frame_name?.toLowerCase().includes(trimmedSearch.toLowerCase())
+        );
+    }
+
+    setFilteredProcesses(filtered);
 
     if (endDate <= startDate) {
       setError("La fecha de fin debe ser posterior a la fecha de inicio");
@@ -53,10 +49,11 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess }) => {
       return;
     }
 
+    // Hace petición a Back
     try {
       const response = await api.post("/api/accreditation-processes", {
         ...formData,
-        frame_id: formData.frame_id || null // Convert empty string to null
+        frame_id: formData.frame_id || null
       });
       
       if (response.status === 201) {
@@ -66,7 +63,6 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess }) => {
     } catch (error) {
       console.error("Error creating process:", error);
       if (error.response?.data?.errors) {
-        // Handle validation errors from Laravel
         const errorMessages = Object.values(error.response.data.errors).flat();
         setError(errorMessages.join(", "));
       } else {
@@ -76,6 +72,7 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess }) => {
       setLoading(false);
     }
   };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -87,11 +84,13 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess }) => {
 
   if (!isOpen) return null;
 
+  // # HTML -------------------------------------------------------------------------------------------------------------------------
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
       <div className="bg-white rounded-xl p-6 w-full max-w-md relative z-[99999]">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Crear Nuevo Proceso</h2>
+          {/* Titulo del modal */}
+          <h2 className="text-xl font-semibold text-gray-800">Eliminar Proceso</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -100,129 +99,55 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess }) => {
           </button>
         </div>
 
+        {
+          console.log(process)
+        }
+
+        <p className="text-sm text-gray-700 mb-4">
+          Está a punto de eliminar este proceso:
+        </p>
+
+        {/* Muestra información del proceso (segura si process es null) */}
+        <div className="mb-4 text-sm text-gray-600">
+          <div><strong>{process?.process_name ?? "-"}</strong></div>
+          <div><strong>Marco:</strong> {process?.frame_name ?? "-"}</div>
+          <div><strong>Carrera:</strong> {process?.career_name ?? "-"}</div>
+          <div><strong>Periodo:</strong> {process?.start_date ?? "-"} → {process?.end_date ?? "-"}</div>
+        </div>
+
+        <input
+          type="text"
+          name="process_name"
+          placeholder="Escriba el nombre del proceso para continuar"
+          maxLength={150}
+          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
+          required
+        />
+
+
         {error && (
           <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Carrera *
-            </label>
-            <select
-              name="career_id"
-              value={formData.career_id}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
-            >
-              <option value="">Seleccionar carrera</option>
-              {MAJORS.map(major => (
-                <option key={major.career_id} value={major.career_id}>
-                  {major.career_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Marco de Referencia
-            </label>
-            <select
-              name="frame_id"
-              value={formData.frame_id}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
-            >
-              <option value="">Seleccionar marco de referencia</option>
-              {frames.map(frame => (
-                <option key={frame.frame_id} value={frame.frame_id}>
-                  {frame.frame_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre del Proceso *
-            </label>
-            <input
-              type="text"
-              name="process_name"
-              value={formData.process_name}
-              onChange={handleChange}
-              maxLength={150}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha de Inicio *
-            </label>
-            <input
-              type="date"
-              name="start_date"
-              value={formData.start_date}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha de Fin *
-            </label>
-            <input
-              type="date"
-              name="end_date"
-              value={formData.end_date}
-              onChange={handleChange}
-              min={formData.start_date}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha Límite *
-            </label>
-            <input
-              type="date"
-              name="due_date"
-              value={formData.due_date}
-              onChange={handleChange}
-              min={formData.start_date}
-              max={formData.end_date}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
-              required
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-[#00b2e3] text-white px-4 py-2 rounded-lg hover:bg-[#0096c3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Creando..." : "Crear Proceso"}
-            </button>
-          </div>
-        </form>
+        {/* Confirmación */}
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleConfirmDelete}
+            disabled={loading}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-950 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Eliminando..." : "Eliminar proceso"}
+          </button>
+        </div>
       </div>
     </div>
   );

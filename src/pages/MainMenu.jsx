@@ -23,7 +23,7 @@ const MainMenu = () => {
 
   const [filteredProcesses, setFilteredProcesses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [areas, setAreas] = useState([]);
+  const [selectedProcess, setSelectedProcess] = useState(null);
 
   // # Obtener rol de usuario
   useEffect(() => {
@@ -45,10 +45,6 @@ const MainMenu = () => {
       // Preparar todas las promesas para ejecución en paralelo
       const promises = processes.map(async (proc) => {
         try {
-          console.log('rpe:', rpe);
-          console.log('proc variable:', proc);            // si renombraste como proc (ver abajo)
-          console.log('frame_name:', proc?.frame_name);
-          console.log('career_name:', proc?.career_name);
           let estPromise;
           let processPromise;
 
@@ -209,7 +205,9 @@ const MainMenu = () => {
     setIsCreateModalOpen(true);
   };
 
-  const handleDeleteProcess = () => {
+  const handleDeleteProcess = (proc) => {
+    console.log(proc);
+    setSelectedProcess(proc);
     setIsDeleteModalOpen(true);
   };
 
@@ -226,7 +224,8 @@ const MainMenu = () => {
           filtered = filtered.filter(proc =>
               proc.area_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
               proc.career?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
-              proc.frame_name?.toLowerCase().includes(trimmedSearch.toLowerCase())
+              proc.frame_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
+              proc.process_name?.toLowerCase().includes(trimmedSearch.toLowerCase())
           );
       }
 
@@ -295,7 +294,8 @@ const MainMenu = () => {
                   className="transform transition-all duration-300 hover:scale-105"
                 >
                   <Card
-                    title={proc.frame_name}
+                    title={proc.process_name}
+                    frame={proc.frame_name}
                     area={proc.area_name}
                     career={proc.career_name}
                     percentage={`${percentages[proc.process_id] ?? 0}%`}
@@ -309,7 +309,7 @@ const MainMenu = () => {
                   {userRole === "ADMINISTRADOR" && (
                   <div className="mt-2 flex justify-end">
                     <button
-                      onClick={() => handleDeleteProcess(proc.process_id)}
+                      onClick={() => handleDeleteProcess(proc)}
                       className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition-colors duration-300 flex items-center gap-2 shadow-sm hover:shadow-md text-sm"
                     >
                       <X className="h-4 w-4" />
@@ -344,8 +344,13 @@ const MainMenu = () => {
       />
       <DeleteProcessModal
         isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onSuccess={handleProcessAlterated}
+        onClose={() => { setIsDeleteModalOpen(false); setSelectedProcess(null); }}
+        onSuccess={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedProcess(null);
+          handleProcessAlterated(); 
+        }}
+        process={selectedProcess} 
       />
     </>
   );
