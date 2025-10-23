@@ -165,7 +165,8 @@ const MainMenu = () => {
 
         const data = response.data;
         setProcesses(data);
-        setFilteredProcesses(data)
+
+        setFilteredProcesses(processes.filter(isNotDeleted));
 
         // Si no hay procesos, terminar aquí
         if (data.length === 0) {
@@ -215,26 +216,36 @@ const MainMenu = () => {
     window.location.reload();
   };
 
+  // Filtra los procesos "eliminados"
+  const isNotDeleted = (proc) => {
+    if (!proc) return false;
+    if (typeof proc.deleted === 'boolean') return !proc.deleted;
+    return true;
+  };
+
   const handleSearch = () => {
-      let filtered = processes;
+    console.log("IM TRIGGERING")
+    let filtered = processes.filter(isNotDeleted);
 
       // Filtro por término de búsqueda
       const trimmedSearch = searchTerm.trim().toLowerCase();
       if (trimmedSearch !== "") {
           filtered = filtered.filter(proc =>
-              proc.area_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
-              proc.career?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
-              proc.frame_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
-              proc.process_name?.toLowerCase().includes(trimmedSearch.toLowerCase())
+            proc.area_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
+            proc.career?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
+            proc.frame_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
+            proc.process_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) 
           );
       }
+
+      console.log(filtered)
 
       setFilteredProcesses(filtered);
   };
 
   useEffect(() => {
       handleSearch();
-  }, [searchTerm]);
+  }, [searchTerm, processes]);
 
   // # HTML --------------------------------------------------------------------------------------------------------------------------
   return (

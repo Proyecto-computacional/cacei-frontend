@@ -8,52 +8,27 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
   const [error, setError] = useState("");
   const [processWritten, setProcessWritten] = useState("");
 
-  // # Realiza la creación del proceso
-  const handleConfirmDelete = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    setProcessWritten("");
+    setError(null)
+  }, [process, isOpen]);
+
+  if (!isOpen) return null;
+
+  // Variables para manejar eliminación
+  const requiredName = process?.process_name.toString();
+  const canConfirm = requiredName && processWritten.trim() === requiredName.trim();
+
+  // # Realiza la eliminación del proceso
+  const handleConfirmDelete = async () => {
+    if (!process) return;
     setLoading(true);
-    setError("");
-
-    useEffect(() => {
-      if (!isOpen) {
-        setLoading(false);
-        setError(null);
-      }
-    }, [isOpen]);
-
-    if (!isOpen) return null;
-
-    // Valida nombre
-    let filtered = processes;
-
-    // Filtro por término de búsqueda
-    if (trimmedSearch !== "") {
-        filtered = filtered.filter(proc =>
-            proc.area_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
-            proc.career?.toLowerCase().includes(trimmedSearch.toLowerCase()) ||
-            proc.frame_name?.toLowerCase().includes(trimmedSearch.toLowerCase())
-        );
-    }
-
-    setFilteredProcesses(filtered);
-
-    if (endDate <= startDate) {
-      setError("La fecha de fin debe ser posterior a la fecha de inicio");
-      setLoading(false);
-      return;
-    }
-
-    if (dueDate < startDate || dueDate > endDate) {
-      setError("La fecha límite debe estar entre la fecha de inicio y la fecha de fin");
-      setLoading(false);
-      return;
-    }
+    setError(null);
 
     // Hace petición a Back
     try {
-      const response = await api.post("/api/accreditation-processes", {
-        ...formData,
-        frame_id: formData.frame_id || null
+      const response = await api.post("/api/accreditation-processes/delete", {
+        process_id: process.process_id
       });
       
       if (response.status === 201) {
@@ -61,12 +36,12 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
         onClose();
       }
     } catch (error) {
-      console.error("Error creating process:", error);
+      console.error("Error al eliminar el proceso:", error);
       if (error.response?.data?.errors) {
         const errorMessages = Object.values(error.response.data.errors).flat();
         setError(errorMessages.join(", "));
       } else {
-        setError(error.response?.data?.message || "Error al crear el proceso. Por favor, intente nuevamente.");
+        setError(error.response?.data?.message || "Error al eliminar el proceso. Por favor, intente nuevamente.");
       }
     } finally {
       setLoading(false);
@@ -76,13 +51,11 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setProcessWritten(prev => ({
       ...prev,
       [name]: value
     }));
   };
-
-  if (!isOpen) return null;
 
   // # HTML -------------------------------------------------------------------------------------------------------------------------
   return (
@@ -99,10 +72,6 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
           </button>
         </div>
 
-        {
-          console.log(process)
-        }
-
         <p className="text-sm text-gray-700 mb-4">
           Está a punto de eliminar este proceso:
         </p>
@@ -115,14 +84,21 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
           <div><strong>Periodo:</strong> {process?.start_date ?? "-"} → {process?.end_date ?? "-"}</div>
         </div>
 
-        <input
-          type="text"
-          name="process_name"
-          placeholder="Escriba el nombre del proceso para continuar"
-          maxLength={150}
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
-          required
-        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Escriba el nombre del proceso para continuar (con mayusculas y acentos)
+          </label>
+          <input
+            type="text"
+            name="process_name"
+            value={processWritten}
+            onChange={(e) => setProcessWritten(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
+            disabled={!requiredName || loading}
+          />
+        </div>
+
+        
 
 
         {error && (
@@ -135,8 +111,9 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
         <div className="flex justify-end gap-3 mt-6">
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => {onClose?.(); setProcessWritten("");}}
             className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            disabled={loading}
           >
             Cancelar
           </button>
