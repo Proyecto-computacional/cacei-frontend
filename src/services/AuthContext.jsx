@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
         await api.post("/api/auth/renew");
         setShowWarning(false);
       } catch(e) {
-        console.log("catch rewnew");
         handleExpire();
       }
   }
@@ -38,7 +37,6 @@ export const AuthProvider = ({ children }) => {
 
     const handleExpire = () => {
       //setShowWarning(false);
-      console.log("handle expire");
       setModalAlertMessage("La sesión caduco. Se tiene que volver a iniciar sesión.")
   };
 
