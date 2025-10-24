@@ -99,7 +99,7 @@ const PersonalConfig = () => {
                 <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
                   <Hash className="w-5 h-5 text-primary1 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold text-gray-600 text-sm">Número de profesor</p>
+                    <p className="font-semibold text-gray-600 text-sm">RPE</p>
                     <p className="text-gray-800">{cvData.professor_number || "No especificado"}</p>
                   </div>
                 </div>
