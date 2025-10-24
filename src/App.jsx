@@ -13,10 +13,12 @@ import FrameOfReferenceView from "./pages/framesAdmin";
 import EstructuraMarco from "./pages/frameStructure";
 import EvidencesCompilation from "./pages/EvidencesCompilation";
 import CVsOfProcess from "./pages/CVsOfProcess";
+import { AuthProvider } from "./services/AuthContext";
 
 function App() {
   return (
-    <Router>
+  <Router>
+    <AuthProvider>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/mainmenu" element={
@@ -96,7 +98,8 @@ function App() {
           </ProtectedRoute>
         } />
       </Routes>
-    </Router>
+    </AuthProvider>
+  </Router>
   );
 }
 
