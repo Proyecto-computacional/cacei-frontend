@@ -17,7 +17,6 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
 
   // Variables para manejar eliminación
   const requiredName = process?.process_name.toString();
-  const canConfirm = requiredName && processWritten.trim() === requiredName.trim();
 
   // # Realiza la eliminación del proceso
   const handleConfirmDelete = async () => {
@@ -25,9 +24,15 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
     setLoading(true);
     setError(null);
 
+    if (processWritten != requiredName) {
+      setError("Debe escribir el nombre del proceso de manera identica");
+      setLoading(false);
+      return;
+    }
+
     // Hace petición a Back
     try {
-      const response = await api.post("/api/accreditation-processes/delete", {
+      const response = await api.delete(`/api/accreditation-processes/${process.process_id}/delete`, {
         process_id: process.process_id
       });
       

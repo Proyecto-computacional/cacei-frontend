@@ -3,9 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api"
 import { AppHeader, AppFooter, SubHeading } from "../common";
 import Card from "../components/Card";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Calendar } from "lucide-react";
 import CreateProcessModal from "../components/CreateProcessModal";
 import DeleteProcessModal from "../components/DeleteProcessModal";
+import ModifyProcessModal from "../components/ModifyProcessModal";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { Search } from "lucide-react";
 
@@ -17,6 +18,7 @@ const MainMenu = () => {
   const userRpe = localStorage.getItem('rpe');
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [finishedStatus, setFinishedStatus] = useState({});
   const [loading, setLoading] = useState(true);
@@ -207,9 +209,13 @@ const MainMenu = () => {
   };
 
   const handleDeleteProcess = (proc) => {
-    console.log(proc);
     setSelectedProcess(proc);
     setIsDeleteModalOpen(true);
+  };
+
+  const handleModifyProcess = (proc) => {
+    setSelectedProcess(proc);
+    setIsModifyModalOpen(true);
   };
 
   const handleProcessAlterated = () => {
@@ -318,13 +324,20 @@ const MainMenu = () => {
                   />
 
                   {userRole === "ADMINISTRADOR" && (
-                  <div className="mt-2 flex justify-end">
+                  <div className="mt-2 flex justify-end space-x-2">
                     <button
                       onClick={() => handleDeleteProcess(proc)}
                       className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition-colors duration-300 flex items-center gap-2 shadow-sm hover:shadow-md text-sm"
                     >
                       <X className="h-4 w-4" />
                       Eliminar proceso
+                    </button>
+                    <button
+                      onClick={() => handleModifyProcess(proc)}
+                      className="bg-secondary1 text-white px-4 py-2 rounded-lg hover:bg-secondary2 transition-colors duration-300 flex items-center gap-2 shadow-sm hover:shadow-md text-sm"
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Cambiar fechas
                     </button>
                   </div>
                   )}
@@ -358,6 +371,16 @@ const MainMenu = () => {
         onClose={() => { setIsDeleteModalOpen(false); setSelectedProcess(null); }}
         onSuccess={() => {
           setIsDeleteModalOpen(false);
+          setSelectedProcess(null);
+          handleProcessAlterated(); 
+        }}
+        process={selectedProcess} 
+      />
+      <ModifyProcessModal
+        isOpen={isModifyModalOpen}
+        onClose={() => { setIsModifyModalOpen(false); setSelectedProcess(null); }}
+        onSuccess={() => {
+          setIsModifyModalOpen(false);
           setSelectedProcess(null);
           handleProcessAlterated(); 
         }}
