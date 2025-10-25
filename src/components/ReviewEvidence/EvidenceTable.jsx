@@ -5,6 +5,7 @@ import Feedback from "./Feedback";
 import HeaderSort from "./headerSort";
 import CommentViewer from "./CommentViewer";
 import JustificationViewer from "./JustificationViewer";
+import FilesViewer from "./FilesViewer";
 import api from "../../services/api";
 import LoadingSpinner from "../LoadingSpinner";
 import ModalAlert from "../ModalAlert";
@@ -23,24 +24,11 @@ export default function EvidenceTable() {
     const [user, setUser] = useState(null);
     const [refresh, setRefresh] = useState(false);
     const [showJustificationModal, setShowJustificationModal] = useState(false);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [showFilesModal, setShowFilesModal] = useState(false);
+    const [selectedJustificaction, setSelectedJustification] = useState(null);
+    const [selectedFiles, setSelectedFiles] = useState(null);
     const [loading, setLoading] = useState(true);
     const [modalAlertMessage, setModalAlertMessage] = useState(null);
-
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await api.get('/api/user');
-                setUser(response.data);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUser();
-    }, []);
 
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [currentComment, setCurrentComment] = useState("");
@@ -58,12 +46,69 @@ export default function EvidenceTable() {
     const sections = [...new Set(evidences.map(item => item.section_name))].filter(Boolean);
     const standards = [...new Set(evidences.map(item => item.standard_name))].filter(Boolean);
     const users = [...new Set(evidences.map(item => item.evidence_owner_name))].filter(Boolean);
+
+    // # Maneja el orden de las columnas
+    // Ayuda a interpretar el orden
+    const getValue = (item, column) => {
+        if (!item) return null;
+
+        if (column === 'file_id') {
+            return (item.files && item.files.length) ? item.files.length : 0;
+        }
+
+        if (column.toLowerCase() === 'justificacion' || column === 'Justificacion') {
+            return item.justification ?? '';
+        }
+
+        return item[column] ?? item[column.replace('.', '_')];
+    };
+
+    // Compara valores a ordenar
+    const compareValues = (aRaw, bRaw, order = 'asc') => {
+        const a = aRaw ?? '';
+        const b = bRaw ?? '';
+
+        // Números
+        if (!isNaN(Number(a)) && !isNaN(Number(b))) {
+            return (Number(a) - Number(b)) * (order === 'asc' ? 1 : -1);
+        }
+
+        // Fechas
+        const dateA = Date.parse(a);
+        const dateB = Date.parse(b);
+        if (!isNaN(dateA) && !isNaN(dateB)) {
+            return (dateA - dateB) * (order === 'asc' ? 1 : -1);
+        }
+
+        // Strings
+        const sa = String(a).toLowerCase();
+        const sb = String(b).toLowerCase();
+        return sa.localeCompare(sb) * (order === 'asc' ? 1 : -1);
+    };
+    
+    // Inicia el proceso de ordenamiento
     const handleSort = (column) => {
         const newOrder = sortBy === column && order === "asc" ? "desc" : "asc";
         setSortBy(column);
         setOrder(newOrder);
     };
 
+    // # Revisa al usuario
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await api.get('/api/user');
+                setUser(response.data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    // # Procesa el envío de la retroalimentación de una evidencia
     const sendFeedback = async (feedbackText) => {
         try {
             const url = statusFeedback ? 'api/RevisionEvidencias/aprobar' : 'api/RevisionEvidencias/desaprobar';
@@ -128,7 +173,7 @@ export default function EvidenceTable() {
     };
 
 
-
+    // # Llama y declara variables relacionadas con la retroalimentación
     const handleFeedback = (id, userRpe, status, evidence) => {
         setOpenFeedback(true);
         setIdEvidenceFeedback(id);
@@ -136,10 +181,10 @@ export default function EvidenceTable() {
         setStatusFeedback(status);
     }
 
+    // # ¿Gestiona los archivos de una evidencia?
     useEffect(() => {
         let url = `api/ReviewEvidence?`;
         api.get(url).then(({ data }) => {
-            // Process file URLs to ensure they have the correct base URL
             const processedEvidences = data.evidencias.map(evidence => ({
                 ...evidence,
                 files: evidence.files.map(file => ({
@@ -151,6 +196,7 @@ export default function EvidenceTable() {
         });
     }, [refresh]);
 
+    // # Maneja los filtros declarados en la tabla de evidencias
     useEffect(() => {
         let result = evidences;
 
@@ -174,8 +220,20 @@ export default function EvidenceTable() {
             result = result.filter(item => item.evidence_owner_name === filters.user);
         }
 
-        setFilteredEvidences(result);
-    }, [filters, evidences]);
+        // Proceso de ordenamiento, si aplica
+        if (!sortBy){
+            setFilteredEvidences(result);
+            return;
+        }
+
+        const sorted = result.sort((x, y) => {
+            const a = getValue(x, sortBy);
+            const b = getValue(y, sortBy);
+            return compareValues(a, b, order || 'asc');
+        })
+
+        setFilteredEvidences(sorted)
+    }, [filters, evidences, sortBy, order]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -196,15 +254,10 @@ export default function EvidenceTable() {
     };
 
 
-
-
-
-
-
+    // # Revisa si el usuario puede revisar, en base a su rol
     const canReview = (statuses) => {
         if (!user) return false;
 
-        // Get the most recent status for each role
         const getMostRecentStatus = (role) => {
             return statuses
                 .filter(s => s.user_role?.toUpperCase() === role)
@@ -220,6 +273,7 @@ export default function EvidenceTable() {
                 })[0];
         };
 
+        // Comportamiento distinto para el administrador
         if (user.user_role === "ADMINISTRADOR") {
             const adminStatus = getMostRecentStatus("ADMINISTRADOR");
             return !adminStatus || adminStatus.status_description !== "APROBADA" || adminStatus.user_rpe !== user.user_rpe;
@@ -242,7 +296,7 @@ export default function EvidenceTable() {
         // Mostrar modal para CUALQUIER estado
         setCurrentComment({
             text: statusObj?.feedback || "Sin comentarios",
-            status: statusObj?.status_description || "Sin estado", // Añade esto
+            status: statusObj?.status_description || "Sin estado",
             user: statusObj?.user_name,
             date: statusObj?.status_date
         });
@@ -252,7 +306,7 @@ export default function EvidenceTable() {
     };
 
     const handleJustificationClick = (justification) => {
-        setSelectedFile({
+        setSelectedJustification({
             text: justification || "Sin justificación"
         });
         setShowJustificationModal(true);
@@ -261,6 +315,17 @@ export default function EvidenceTable() {
         setShowJustificationModal(false);
     };
 
+    const handleFilesClick = (files) => {
+        setSelectedFiles({
+            files: files || "Sin archivos"
+        });
+        setShowFilesModal(true);
+    }
+    const handleFilesClose = () => {
+        setShowFilesModal(false);
+    };
+
+    // ## HTML ---------------------------------------------------------------------------------------------------------------------------------------------------
     return (
         <>
             <div className="container mx-auto p-5 ">
@@ -369,10 +434,11 @@ export default function EvidenceTable() {
                     <div className="bg-white rounded-xl shadow-md overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
+                                {/* Encabezado (y ordenado) de columnas */}
                                 <thead className="bg-primary1">
                                     <tr>
-                                        <HeaderSort column="evidence_owner.user_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
-                                        <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                        <HeaderSort column="evidence_owner_name" text={"Nombre de usuario"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
+                                        <HeaderSort column="process_name" text={"Proceso de acreditación"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white " />
                                         <HeaderSort column="category_name" text={"Categoría"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="section_name" text={"Indicador"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[10%] py-4 px-6 text-left text-sm font-semibold text-white" />
                                         <HeaderSort column="standard_name" text={"Criterio"} handleSort={handleSort} sortBy={sortBy} order={order} className="w-[15%] py-4 px-6 text-left text-sm font-semibold text-white" />
@@ -393,6 +459,7 @@ export default function EvidenceTable() {
 
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
+                                    {/* Elementos (ya filtrados), "item" es todo el registro*/}
                                     {filteredEvidences.length > 0 ? filteredEvidences.map((item) => (
                                         <tr key={`${item.evidence_id}-${item.statuses[0]?.status_date}`} className="hover:bg-gray-50 transition-colors duration-200">
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.evidence_owner_name}</td>
@@ -400,7 +467,7 @@ export default function EvidenceTable() {
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.category_name}</td>
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.section_name}</td>
                                             <td className="py-4 px-6 text-sm text-gray-900">
-                                                <div className="flex flex-col items-center justify-center gap-1">  {/* Centrado vertical y horizontal */}
+                                                <div className="flex flex-col items-center justify-center gap-1">  {/* Marca si es transversal */}
                                                     <span>{item.standard_name}</span>
                                                     {item.is_transversal && (
                                                         <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-fit">
@@ -409,26 +476,22 @@ export default function EvidenceTable() {
                                                     )}
                                                 </div>
                                             </td>
-
-                                            <td className="py-4 px-6">
+                                            
+                                            {/* Lista de archivos */}
+                                            <td className="py-4 px-6 text-sm text-gray-900">
                                                 {item.files.length > 0 ? (
-                                                    item.files.map((file, index) => (
-                                                        <div key={index} className="mb-1">
-                                                            <a
-                                                                href={file.file_url}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-primary1 hover:text-primary1/80 hover:underline text-sm flex items-center"
-                                                            >
-                                                                <FileText size={16} className="mr-2" />
-                                                                {file.file_name}
-                                                            </a>
-                                                        </div>
-                                                    ))
+                                                    <button
+                                                        onClick={() => handleFilesClick(item.files)}
+                                                        className="text-blue-500 hover:underline"
+                                                    >
+                                                        Ver archivos
+                                                    </button>
+                                                    
                                                 ) : (
                                                     <span className="text-sm text-gray-500 italic">Sin archivo</span>
                                                 )}
                                             </td>
+                                            {/* Abre modal de justificación*/}
                                             <td className="py-4 px-6 text-sm text-gray-900">
                                                 {item.justification ? (
                                                     <button
@@ -441,33 +504,32 @@ export default function EvidenceTable() {
                                                     <span className="text-sm text-gray-500 italic">Sin justificación</span>
                                                 )}
                                             </td>
+                                            {/* Estatus de cada uno de los roles revisores*/}
                                             {["ADMINISTRADOR", "JEFE DE AREA", "COORDINADOR DE CARRERA"].map((rol) => {
-                                                // Get all statuses for this role, sorted by date and preserving original order
+                                                // Obtiene todos los estados del rol, y ordena por fecha
                                                 const roleStatuses = item.statuses
                                                     .filter(s => s.user_role?.toUpperCase() === rol)
                                                     .sort((a, b) => {
-                                                        // First try to sort by date
                                                         const dateA = new Date(a.status_date).getTime();
                                                         const dateB = new Date(b.status_date).getTime();
 
-                                                        // If dates are the same, use the original array order
+                                                        // Si la fecha es la misma, usa el mismo orden
                                                         if (dateA === dateB) {
-                                                            // Find the original indices in the full statuses array
                                                             const indexA = item.statuses.findIndex(s => s === a);
                                                             const indexB = item.statuses.findIndex(s => s === b);
-                                                            return indexB - indexA; // Later in array = more recent
+                                                            return indexB - indexA;
                                                         }
 
                                                         return dateB - dateA;
                                                     });
 
-                                                // Count only final statuses (APROBADA or NO APROBADA)
+                                                // ¿No se usa?
                                                 const finalStatuses = roleStatuses.filter(s =>
                                                     s.status_description === "APROBADA" ||
                                                     s.status_description === "NO APROBADA"
                                                 );
 
-                                                // Get the most recent status
+                                                // Devuelve el estado y su color
                                                 const statusObj = roleStatuses[0];
                                                 const status = statusObj ? statusObj.status_description : "PENDIENTE";
                                                 const color = status === "APROBADA" ? "text-green-600 bg-green-50"
@@ -485,18 +547,21 @@ export default function EvidenceTable() {
                                                 );
                                             })}
 
+                                            {/* Botónes de revisión */}
                                             <td className="py-4 px-6">
                                                 {canReview(item.statuses) ? (
                                                     <div className="flex gap-3">
                                                         <button
                                                             onClick={() => handleFeedback(item.evidence_id, item.user_rpe, true)}
-                                                            className="p-2 rounded-full hover:bg-green-50 transition-colors duration-200"
+                                                            className="p-2 rounded-2xl bg-green-200 hover:bg-green-400 transition-colors duration-200 
+                                                            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
                                                         >
                                                             <Check color="green" size={24} strokeWidth={2} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleFeedback(item.evidence_id, item.user_rpe, false)}
-                                                            className="p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
+                                                            className="p-2 rounded-2xl bg-red-200 hover:bg-red-400 transition-colors duration-200
+                                                            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
                                                         >
                                                             <X color="red" size={24} strokeWidth={2} />
                                                         </button>
@@ -520,6 +585,8 @@ export default function EvidenceTable() {
                     </div>
                 )}
             </div>
+
+            {/* Modales */}
             {showCommentModal && (
                 <CommentViewer
                     comment={currentComment.text}
@@ -537,8 +604,14 @@ export default function EvidenceTable() {
             )}
             {showJustificationModal && (
                 <JustificationViewer
-                    file={selectedFile}
+                    justification={selectedJustificaction}
                     onClose={handleJustificationClose}
+                />
+            )}
+            {showFilesModal && (
+                <FilesViewer
+                    files={selectedFiles}
+                    onClose={handleFilesClose}
                 />
             )}
             <ModalAlert
