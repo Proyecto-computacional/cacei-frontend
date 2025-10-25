@@ -395,7 +395,7 @@ const CV = () => {
             campos: [
                 { name: "grado", type: "select", options: ["Licenciatura", "Especialidad", "Maestría", "Doctorado"], label: "Grado" },
                 { name: "titulo", type: "text", label: "Nombre del título", placeholder: "Título (Incluir especialidad)", maxLength: 100},
-                { name: "institución", type: "text", label: "Nombre de la institución", placeholder: "Nombre de la institución", maxLength: 30 },
+                { name: "institución", type: "text", label: "Nombre de la institución", placeholder: "Nombre de la institución", maxLength: 70 },
                 { name: "año", type: "number", label: "Año de obtención", placeholder: "AAAA", maxLength: 4 , min: 1900, max: new Date().getFullYear()},
                 { name: "cedula", type: "text", label: "Cédula profesional", placeholder: "Cédula profesional", maxLength: 10 },
             ],
@@ -416,7 +416,7 @@ const CV = () => {
             sectionName: "Actualización Disciplinar",
             description: "Ingrese el nombre de los cursos, diplomados o módulos de capacitación en su disciplina realizados en los últimos cinco años. Para cada uno ingrese institución, país donde los realizó y horas de duración.",
             campos: [
-                { name: "tipodeactualizacion", type: "text", label: "Tipo de actualización", placeholder: "Nombre de la actualización", maxLength: 50 },
+                { name: "tipodeactualizacion", type: "text", label: "Tipo de actualización", placeholder: "Nombre de la actualización", maxLength: 100 },
                 { name: "institucion", type: "text", label: "Institución y país", placeholder: "Nombre de la institución y del país" , maxLength: 50 },
                 { name: "añoobtencion", type: "number", label: "Año de obtención", placeholder: "AAAA", maxLength: 4 , min: 1900, max: new Date().getFullYear()},
                 { name: "horas", type: "number", label: "Horas", placeholder: "Horas hechas", min: 0, max: 100, step: 1, maxLength: 3 },
@@ -428,7 +428,7 @@ const CV = () => {
             description: "Ingrese la relación de actividades de gestión académica realizada. Se consideran en esta actividad: puestos directivos, de coordinación o supervisión académica o técnica. Agregar lugar donde se desempeñó y el período de la vigencia (el período no se limita a los últimos años).",
             campos: [
                 { name: "puesto", type: "text", label: "Actividad o puesto", placeholder: "Actividad o puesto desempeñado", maxLength: 100 },
-                { name: "institucion", type: "textarea", label: "Institución", placeholder: "Nombre de la institución" , maxLength: 50},
+                { name: "institucion", type: "textarea", label: "Institución", placeholder: "Nombre de la institución" , maxLength: 70},
                 { name: "fechaInicio", type: "text", label: "Fecha de inicio", placeholder: "MM/AAAA" , maxLength: 7},
                 { name: "fechaFin", type: "text", label: "Fecha de finalización", placeholder: "MM/AAAA", maxLength: 7 },
             ],
@@ -456,7 +456,7 @@ const CV = () => {
             sectionName: "Experiencia en diseño ingenieril",
             description: "Experiencia en diseño ingenieril: se refiere a actividades de diseño de ingeniería desarrolladas, dentro o fuera de la institución, en las que se evidencia que se participó en actividades de diseño. Especificar organismo donde se realizó la actividad de diseño, periodo en años y nivel de experiencia (responsable, asistente, analista, auxiliar, etc.).",
             campos: [
-                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo", maxLength: 30 },
+                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo", maxLength: 70 },
                 { name: "periodo", type: "number", label: "Período (años)", placeholder: "Número de años", min: 0, max: 99, step: 1, maxLength: 2 },
                 { name: "nivel", type: "text", label: "Nivel de experiencia", placeholder: "Responsable, asistente, analista, auxiliar, etc.", maxLength: 20 },
             ],
@@ -474,7 +474,7 @@ const CV = () => {
             sectionName: "Participación en organismos profesionales",
             description: "Membresía vigente en colegios, cámaras, asociaciones científicas o algún otro tipo de organismo profesional. Señale el nombre del organismo, tiempo de membresía y el nivel de participación (miembro, socio, directivo, integrante o coordinador de algún equipo o comisión, etc.).",
             campos: [
-                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo", maxLength: 30 },
+                { name: "organismo", type: "text", label: "Organismo", placeholder: "Nombre del organismo", maxLength: 70 },
                 { name: "periodo", type: "number", label: "Periodo (años)", placeholder: "Número de años" , min: 0, max: 99, step: 1, maxLength: 2 },
                 { name: "nivel", type: "number", label: "Nivel de participación", placeholder: "Nivel del 1 al 5", min: 1, max: 5, step: 1, maxLength: 1 },
             ],
@@ -492,7 +492,7 @@ const CV = () => {
             sectionName: "Aportaciones a la Mejora del PE",
             description: "Describir, en máximo 200 palabras, la participación del profesor en actividades relevantes del PE, tales como: diseño el PE, diseño de asignatura(s) del PE, análisis de indicadores del PE, participación en cuerpos colegiados del PE, participación en grupos de mejora continua del PE, en actividades extracurriculares relacionadas con el PE, etc.",
             campos: [
-                { name: "descripcion", type: "textarea", label: "Descripción", placeholder: "Ej: Desarrollo de un nuevo modelo de enseñanza híbrida (max 500 caracteres)", maxLength: 2000},
+                { name: "descripcion", type: "textarea", label: "Descripción", placeholder: "Ej: Desarrollo de un nuevo modelo de enseñanza híbrida (max 500 caracteres)", maxLength: 500},
             ],
             singleField: true
         },
@@ -707,6 +707,10 @@ const CV = () => {
                                                                         onChange={(e) => updateRow(section.id, row.id, campo.name, e.target.value)}
                                                                         placeholder={campo.placeholder}
                                                                         maxLength={campo.maxLength}
+                                                                        style={{
+                                                                                    minHeight: [5, 8, 10].includes(section.id) ? "8rem" : "1rem", // ← más alto para esas secciones
+                                                                                    lineHeight: "1.5rem",
+                                                                                }}
                                                                         //className="w-full px-3 py-2  border-gray-300 rounded-lg focus:ring-2 focus:ring-primary1/50 focus:border-primary1"
                                                                     />
                                                                 )}
