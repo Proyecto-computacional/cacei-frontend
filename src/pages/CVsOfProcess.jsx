@@ -57,7 +57,7 @@ useEffect(() => {
             <div className="flex items-center gap-4 mb-6">
               <div>
                 <h1 className="text-4xl font-bold text-gray-800 font-['Open_Sans'] tracking-tight mb-3">
-                  Curríulums de Profesores
+                  Currículums de Profesores
                 </h1>
                 <p className="text-lg text-gray-700 leading-relaxed">
                 Consulte los currículums vitae de los profesores vinculados al programa académico del proceso.
