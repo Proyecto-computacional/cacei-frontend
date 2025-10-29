@@ -133,7 +133,7 @@ export function SubHeading() {
     const location = useLocation();
     const [userRole, setUserRole] = useState("");
     const [userName, setUserName] = useState("");
-    const pathnames = location.pathname.split("/").filter((x) => x);
+    const pathnames = location.pathname.split("/").filter((x) => x && isNaN(x));
     const { evidence_id } = useParams();
     const containerRef = useRef(null);
 
@@ -153,6 +153,7 @@ export function SubHeading() {
     };
 
     const [processName, setProcessName] = useState("");
+    const [areaName, setAreaName] = useState("");
     const [evidenceName, setEvidenceName] = useState("");
     const processId = localStorage.getItem('currentProcessId');
 
@@ -189,6 +190,7 @@ export function SubHeading() {
                 if (processId) {
                     const response = await api.get(`/api/processes/${processId}`);
                     setProcessName(response.data.process_name);
+                    setAreaName(response.data.area_name || "");
                 }
             } catch (error) {
                 console.error("Error al obtener el nombre del proceso:", error);
@@ -248,6 +250,8 @@ export function SubHeading() {
     const isBreadcrumbLoading = isProcessPage
         ? !processName || (pathnames.includes('uploadEvidence') && evidence_id && !evidenceName)
         : false;
+
+
 
     return (
         <div className="bg-white border-b border-gray-200">
@@ -362,7 +366,19 @@ export function SubHeading() {
                                                         </React.Fragment>
                                                     );
                                                 }
+                                                if (value === 'CVsOfProcess') {
+                                                    return (
+                                                        <React.Fragment key={index}>
+                                                            <span className="mx-2 text-gray-400 text-lg">/</span>
+                                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                                                {areaName ? `CVs de ${areaName}` : 'CVs de Profesores'}
+                                                            </span>
+                                                        </React.Fragment>
+                                                    );
+                                                }
+
                                                 if (value === 'framesStructure') {
+                                                    const marco = location.state?.marco;
                                                     return (
                                                         <React.Fragment key={index}>
                                                             <span className="mx-2 text-gray-400 text-lg">/</span>
@@ -374,7 +390,7 @@ export function SubHeading() {
                                                             </span>
                                                             <span className="mx-2 text-gray-400 text-lg">/</span>
                                                             <span className="text-[#00B2E3] text-lg font-medium">
-                                                                {breadcrumbMap['framesStructure']}
+                                                                {marco?.frame_name || breadcrumbMap['framesStructure']}
                                                             </span>
                                                         </React.Fragment>
                                                     );
