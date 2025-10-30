@@ -15,7 +15,7 @@ export function AppHeader() {
     const navigate = useNavigate();
     const location = useLocation();
     const isLoginPage = location.pathname === '/';
-    
+
 
     useEffect(() => { // ¿Qué tanto ha "scrolleado" en la página?
         const handleScroll = () => {
@@ -133,7 +133,7 @@ export function SubHeading() {
     const location = useLocation();
     const [userRole, setUserRole] = useState("");
     const [userName, setUserName] = useState("");
-    const pathnames = location.pathname.split("/").filter((x) => x);
+    const pathnames = location.pathname.split("/").filter((x) => x && isNaN(x));
     const { evidence_id } = useParams();
     const containerRef = useRef(null);
 
@@ -147,11 +147,15 @@ export function SubHeading() {
         evidenceManagement: "Asignación de tareas",
         notifications: "Notificaciones",
         dash: "Dashboard",
-        EvidencesCompilation: "Compilación de Evidencias"
+        EvidencesCompilation: "Compilación de Evidencias",
+        CVsOfProcess: "CVs de Profesores",
+        framesStructure: "Estructura del Marco"
     };
 
     const [processName, setProcessName] = useState("");
+    const [areaName, setAreaName] = useState("");
     const [evidenceName, setEvidenceName] = useState("");
+    const processId = localStorage.getItem('currentProcessId');
 
     // Obtiene la información del usuario
     useEffect(() => {
@@ -183,41 +187,39 @@ export function SubHeading() {
     useEffect(() => {
         const fetchProcessName = async () => {
             try {
-                const processId = localStorage.getItem('currentProcessId');
                 if (processId) {
                     const response = await api.get(`/api/processes/${processId}`);
                     setProcessName(response.data.process_name);
+                    setAreaName(response.data.area_name || "");
                 }
             } catch (error) {
                 console.error("Error al obtener el nombre del proceso:", error);
             }
         };
 
-        if (pathnames.includes('uploadEvidence') || pathnames.includes('evidenceManagement')) {
+        if (pathnames.includes('uploadEvidence') || pathnames.includes('evidenceManagement') || pathnames.includes('dash') ||
+            pathnames.includes('CVsOfProcess')) {
             fetchProcessName();
         }
     }, [pathnames]);
 
 
-    // BUG: Es posible que el error en "uploadEvidence/id" sea por esto, busca el nombre de la evidencia, pero no hay tal atributo
     useEffect(() => {
         const fetchEvidenceName = async () => {
             try {
                 if (evidence_id) {
                     const response = await api.get(`/api/evidences/${evidence_id}`);
-                    setEvidenceName(response.data.evidence_name);
-                   
+                    const evidence = response.data.evidence;
+                    setEvidenceName(evidence?.standard?.standard_name || "Sin nombre");
                 }
             } catch (error) {
-                console.error("Error al obtener el nombre de la evidencia:", error);
+                console.error("Error al obtener el nombre del criterio:", error);
             }
-            
         };
 
-        if (evidence_id) {
-            fetchEvidenceName();
-        }
+        if (evidence_id) fetchEvidenceName();
     }, [evidence_id]);
+
 
     // Maneja la tabla de notificaciones desplegable
     useEffect(() => {
@@ -239,6 +241,18 @@ export function SubHeading() {
         setViewNotifications((v) => !v);
     };
 
+    // Determinar si estamos en una página de proceso
+    const isProcessPage = pathnames.some(p =>
+        ['dash', 'uploadEvidence', 'evidenceManagement', 'CVsOfProcess'].includes(p)
+    );
+
+    // Estado de carga general del breadcrumb
+    const isBreadcrumbLoading = isProcessPage
+        ? !processName || (pathnames.includes('uploadEvidence') && evidence_id && !evidenceName)
+        : false;
+
+
+
     return (
         <div className="bg-white border-b border-gray-200">
             <div className="container mx-auto px-4 py-3">
@@ -247,115 +261,151 @@ export function SubHeading() {
                         <div className="relative">
                             {(() => {
                                 const role = userRole;
-                                return (role === "Administrador" || 
-                                       role === "Jefe de area" || 
-                                       role === "Coordinador de carrera" ||
-                                       role === "Directivo") && (
-                                    <>
-                                        <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black hover:text-[#004A98] transition-colors duration-200">
-                                            <Menu />
-                                        </button>
-                                        {open && (
-                                            <div className="absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                                                <ul className="py-1">
-                                                    {role === "Administrador" && (
-                                                        <>
-                                                            <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
-                                                                onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
-                                                                <Users className="w-4 h-4 mr-3" />
-                                                                <span>Administración de usuarios</span>
-                                                            </li>
-                                                            <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
-                                                                onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
-                                                                <FileText className="w-4 h-4 mr-3" />
-                                                                <span>Gestión de formato</span>
-                                                            </li>
-                                                            <div className="border-t border-gray-200 my-1"></div>
-                                                        </>
-                                                    )}
-                                                    <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
-                                                        onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
-                                                        <Eye className="w-4 h-4 mr-3" />
-                                                        <span>Revisión de evidencias</span>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        )}
-                                    </>
-                                );
+                                return (role === "Administrador" ||
+                                    role === "Jefe de area" ||
+                                    role === "Coordinador de carrera" ||
+                                    role === "Directivo") && (
+                                        <>
+                                            <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black hover:text-[#004A98] transition-colors duration-200">
+                                                <Menu />
+                                            </button>
+                                            {open && (
+                                                <div className="absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                                                    <ul className="py-1">
+                                                        {role === "Administrador" && (
+                                                            <>
+                                                                <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
+                                                                    onClick={() => { navigate("/usersAdmin"); setOpen(false); }}>
+                                                                    <Users className="w-4 h-4 mr-3" />
+                                                                    <span>Administración de usuarios</span>
+                                                                </li>
+                                                                <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
+                                                                    onClick={() => { navigate("/framesAdmin"); setOpen(false); }}>
+                                                                    <FileText className="w-4 h-4 mr-3" />
+                                                                    <span>Gestión de formato</span>
+                                                                </li>
+                                                                <div className="border-t border-gray-200 my-1"></div>
+                                                            </>
+                                                        )}
+                                                        <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
+                                                            onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
+                                                            <Eye className="w-4 h-4 mr-3" />
+                                                            <span>Revisión de evidencias</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </>
+                                    );
                             })()}
                         </div>
 
-                        <div className={`flex items-center ${userRole === "Administrador" || 
-                            userRole === "Jefe de area" || 
+                        <div className={`flex items-center ${userRole === "Administrador" ||
+                            userRole === "Jefe de area" ||
                             userRole === "Coordinador" || userRole === "Directivo" ? 'ml-12' : 'ml-0'}`}>
-                            {pathnames.includes('mainmenu') ? (
-                                <span className="text-[#00B2E3] text-lg font-medium pl-10">Inicio</span>
-                            ) : pathnames.includes('dash') ? (
-                                <>
-                                    <span 
-                                        className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
-                                        onClick={() => navigate('/mainmenu')}
-                                    >
-                                        Inicio
-                                    </span>
-                                    <span className="mx-2 text-gray-400 text-lg">/</span>
-                                    <span className="text-[#00B2E3] text-lg font-medium">
-                                        Dashboard
-                                    </span>
-                                    {processName && (
-                                        <>
-                                            <span className="mx-2 text-gray-400 text-lg">/</span>
-                                            <span className="text-[#00B2E3] text-lg font-medium">
-                                                {processName}
-                                            </span>
-                                        </>
-                                    )}
-                                </>
+
+
+                            {isBreadcrumbLoading ? (
+                                <span className="text-[#00B2E3] text-lg font-medium pl-10">Cargando...</span>
                             ) : (
                                 <>
-                                    <span 
-                                        className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer" 
-                                        onClick={() => navigate('/mainmenu')}
-                                    >
-                                        Inicio
-                                    </span>
-                                    {pathnames.map((value, index) => {
-                                        if (value === 'uploadEvidence' || value === 'evidenceManagement') {
-                                            return (
-                                                <React.Fragment key={index}>
+                                    {pathnames.includes('mainmenu') ? (
+                                        <span className="text-[#00B2E3] text-lg font-medium pl-10">Inicio</span>
+                                    ) : pathnames.includes('dash') ? (
+                                        <>
+                                            <span
+                                                className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
+                                                onClick={() => navigate('/mainmenu')}
+                                            >
+                                                Inicio
+                                            </span>
+                                            <span className="mx-2 text-gray-400 text-lg">/</span>
+                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                                {processName || "Cargando..."}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span
+                                                className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
+                                                onClick={() => navigate('/mainmenu')}
+                                            >
+                                                Inicio
+                                            </span>
+
+                                            {isProcessPage && processId && (pathnames.includes('dash') || pathnames.includes('uploadEvidence') || pathnames.includes('evidenceManagement') || pathnames.includes('CVsOfProcess')) && (
+                                                <>
                                                     <span className="mx-2 text-gray-400 text-lg">/</span>
-                                                    <span className="text-[#00B2E3] text-lg font-medium">
-                                                        {breadcrumbMap[value]}
+
+                                                    <span
+                                                        className="text-[#00B2E3] text-lg font-medium cursor-pointer hover:text-[#0088b3]"
+                                                        onClick={() => navigate(`/dash/${processId}`)}
+                                                    >
+                                                        {processName}
                                                     </span>
-                                                    {processName && (
-                                                        <>
+                                                </>
+                                            )}
+
+                                            {pathnames.map((value, index) => {
+                                                if (value === 'uploadEvidence' || value === 'evidenceManagement') {
+                                                    return (
+                                                        <React.Fragment key={index}>
                                                             <span className="mx-2 text-gray-400 text-lg">/</span>
                                                             <span className="text-[#00B2E3] text-lg font-medium">
-                                                                {processName}
+                                                                {breadcrumbMap[value]}
                                                             </span>
-                                                        </>
-                                                    )}
-                                                    {evidenceName && (
-                                                        <>
+
+                                                            {evidenceName && (
+                                                                <>
+                                                                    <span className="mx-2 text-gray-400 text-lg">/</span>
+                                                                    <span className="text-[#00B2E3] text-lg font-medium">
+                                                                        {evidenceName}
+                                                                    </span>
+                                                                </>
+                                                            )}
+                                                        </React.Fragment>
+                                                    );
+                                                }
+                                                if (value === 'CVsOfProcess') {
+                                                    return (
+                                                        <React.Fragment key={index}>
                                                             <span className="mx-2 text-gray-400 text-lg">/</span>
                                                             <span className="text-[#00B2E3] text-lg font-medium">
-                                                                {evidenceName}
+                                                                {areaName ? `CVs de ${areaName}` : 'CVs de Profesores'}
                                                             </span>
-                                                        </>
-                                                    )}
-                                                </React.Fragment>
-                                            );
-                                        }
-                                        return (
-                                            <React.Fragment key={index}>
-                                                <span className="mx-2 text-gray-400 text-lg">/</span>
-                                                <span className="text-[#00B2E3] text-lg font-medium">
-                                                    {breadcrumbMap[value] || value}
-                                                </span>
-                                            </React.Fragment>
-                                        );
-                                    })}
+                                                        </React.Fragment>
+                                                    );
+                                                }
+
+                                                if (value === 'framesStructure') {
+                                                    const marco = location.state?.marco;
+                                                    return (
+                                                        <React.Fragment key={index}>
+                                                            <span className="mx-2 text-gray-400 text-lg">/</span>
+                                                            <span
+                                                                className="text-[#00B2E3] text-lg font-medium cursor-pointer hover:text-[#0088b3]"
+                                                                onClick={() => navigate('/framesAdmin')}
+                                                            >
+                                                                {breadcrumbMap['framesAdmin']}
+                                                            </span>
+                                                            <span className="mx-2 text-gray-400 text-lg">/</span>
+                                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                                                {marco?.frame_name || breadcrumbMap['framesStructure']}
+                                                            </span>
+                                                        </React.Fragment>
+                                                    );
+                                                }
+                                                return (
+                                                    <React.Fragment key={index}>
+                                                        <span className="mx-2 text-gray-400 text-lg">/</span>
+                                                        <span className="text-[#00B2E3] text-lg font-medium">
+                                                            {breadcrumbMap[value] || value}
+                                                        </span>
+                                                    </React.Fragment>
+                                                );
+                                            })}
+                                        </>
+                                    )}
                                 </>
                             )}
                         </div>
@@ -385,8 +435,8 @@ export function SubHeading() {
                                 <span className="group-hover:hidden">{userRole}</span>
                             </div>
                         </div>
-                            <Logout></Logout>
-                       
+                        <Logout></Logout>
+
                     </div>
                 </div>
             </div>
