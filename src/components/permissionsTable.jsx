@@ -14,7 +14,6 @@ const PermissionsTable = () => {
     { id: 3, name: 'Visualizar Archivos', key: 'Descargar archivos' },
     { id: 1, name: 'Subir Archivos', key: 'Subir archivos' },
     { id: 2, name: 'Actualizar Archivos', key: 'Actualizar archivos' },
-    { id: 4, name: 'Eliminar archivos', key: 'Eliminar archivos'}
   ];
 
   useEffect( () => {
