@@ -25,7 +25,7 @@ const DeleteProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
     setError(null);
 
     if (processWritten != requiredName) {
-      setError("Debe escribir el nombre del proceso de manera identica");
+      setError("El nombre del proceso no coincide.");
       setLoading(false);
       return;
     }

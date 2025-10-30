@@ -248,7 +248,7 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
             <button
               type="submit"
               disabled={loading}
-              className="bg-[#00b2e3] text-white px-4 py-2 rounded-lg hover:bg-[#0096c3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-primary1 text-white px-4 py-2 rounded-lg hover:bg-[#0096c3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Creando..." : "Crear Proceso"}
             </button>

@@ -48,14 +48,14 @@ const Card = ({ title, frame, career, area, percentage, finished, startDate, end
             <Calendar className="w-4 h-4" />
             <div className="flex items-center gap-1 text-sm">
               <span className="font-medium">Inicio:</span>
-              <span>{formatDate(startDate)}</span>
+              <span>{(startDate)}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             <div className="flex items-center gap-1 text-sm">
               <span className="font-medium">Fin:</span>
-              <span>{formatDate(endDate)}</span>
+              <span>{(endDate)}</span>
             </div>
           </div>
         </div>
