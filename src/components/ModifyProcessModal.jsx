@@ -2,56 +2,49 @@ import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import api from "../services/api";
 
-const MAJORS = [
-  { career_id: "1", career_name: "Ingeniería Agroindustrial" },
-  { career_id: "2", career_name: "Ingeniería Ambiental" },
-  { career_id: "3", career_name: "Ingeniería Civil" },
-  { career_id: "4", career_name: "Ingeniería en Computación" },
-  { career_id: "5", career_name: "Ingeniería en Electricidad y Automatización" },
-  { career_id: "6", career_name: "Ingeniería en Geología" },
-  { career_id: "7", career_name: "Ingeniería en Sistemas Inteligentes" },
-  { career_id: "8", career_name: "Ingeniería en Topografía y Construcción" },
-  { career_id: "9", career_name: "Ingeniería Mecánica" },
-  { career_id: "10", career_name: "Ingeniería Mecánica Administrativa" },
-  { career_id: "11", career_name: "Ingeniería Mecánica Eléctrica" },
-  { career_id: "12", career_name: "Ingeniería Mecatrónica" },
-  { career_id: "13", career_name: "Ingeniería Metalúrgica y de Materiales" }
-];
-
 // # Proceso del modal
-const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
+const ModifyProcessModal = ({ isOpen, onClose, onSuccess, process }) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   // Información a enviar a Back
   const [formData, setFormData] = useState({
-    career_id: "",
-    frame_id: "",
+    process_id: "",
     process_name: "",
     start_date: "",
     end_date: "",
     due_date: ""
   });
-  const [loading, setLoading] = useState(false);
-  const [frames, setFrames] = useState([]);
-  const [error, setError] = useState("");
 
-  // # Busca los marcos de referencia disponibles
+  // Pone la info original en los campos
   useEffect(() => {
-    const fetchFrames = async () => {
-      try {
-        const framesRes = await api.get('/api/frames-of-references');
-        setFrames(framesRes.data);
-      } catch (error) {
-        console.error('Error fetching frames:', error);
-        setError('Error al cargar los marcos de referencia');
-      }
-    };
-
-    if (isOpen) {
-      fetchFrames();
+    if (process && isOpen) {
+      setFormData({
+        process_id: process.process_id,
+        process_name: process.process_name ?? "",
+        start_date: process.start_date ?? "",
+        end_date: process.end_date ?? "",
+        due_date: process.due_date ?? ""
+      });
     }
-  }, [isOpen]);
 
-  // # Realiza la creación del proceso
+    if (!isOpen) {
+      setFormData({
+        process_name: "",
+        start_date: "",
+        end_date: "",
+        due_date: ""
+      });
+    }
+  }, [process, isOpen]);
+
+
+  if (!isOpen) return null;
+
+
+  // # Realiza la modificación del proceso
   const handleSubmit = async (e) => {
+    if (!process) return;
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -75,22 +68,21 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
 
     // Hace petición a Back
     try {
-      const response = await api.post("/api/accreditation-processes", {
-        ...formData,
-        frame_id: formData.frame_id || null
+      const response = await api.put(`/api/accreditation-processes/${process.process_id}/modify`, {
+        ...formData
       });
       
-      if (response.status === 201) {
+      if (response.status === 200) {
         onSuccess();
         onClose();
       }
     } catch (error) {
-      console.error("Error creating process:", error);
+      console.error("Error al modificar el proceso:", error);
       if (error.response?.data?.errors) {
         const errorMessages = Object.values(error.response.data.errors).flat();
         setError(errorMessages.join(", "));
       } else {
-        setError(error.response?.data?.message || "Error al crear el proceso. Por favor, intente nuevamente.");
+        setError(error.response?.data?.message || "Error al modificar el proceso. Por favor, intente nuevamente.");
       }
     } finally {
       setLoading(false);
@@ -106,15 +98,13 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
     }));
   };
 
-  if (!isOpen) return null;
-
   // # HTML -------------------------------------------------------------------------------------------------------------------------
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
       <div className="bg-white rounded-xl p-6 w-full max-w-md relative z-[99999]">
         <div className="flex justify-between items-center mb-4">
           {/* Titulo del modal */}
-          <h2 className="text-xl font-semibold text-gray-800">Crear Nuevo Proceso</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Modificar Proceso</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -123,54 +113,12 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
           </button>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
+        <p className="text-sm text-gray-700 mb-4">
+          Ingrese nuevo nombre y fechas para el proceso:
+        </p>
 
         {/* Formato a subir (con opciones) */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Carreras disponibles */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Carrera *
-            </label>
-            <select
-              name="career_id"
-              value={formData.career_id}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
-            >
-              <option value="">Seleccionar carrera</option>
-              {MAJORS.map(major => (
-                <option key={major.career_id} value={major.career_id}>
-                  {major.career_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Marcos disponibles */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Marco de Referencia
-            </label>
-            <select
-              name="frame_id"
-              value={formData.frame_id}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00b2e3] focus:border-[#00b2e3] transition-all"
-            >
-              <option value="">Seleccionar marco de referencia</option>
-              {frames.map(frame => (
-                <option key={frame.frame_id} value={frame.frame_id}>
-                  {frame.frame_name}
-                </option>
-              ))}
-            </select>
-          </div>
 
           {/* Nombre del proceso a escribir */}
           <div>
@@ -248,15 +196,23 @@ const CreateProcessModal = ({ isOpen, onClose, onSuccess }) => {
             <button
               type="submit"
               disabled={loading}
-              className="bg-primary1 text-white px-4 py-2 rounded-lg hover:bg-[#0096c3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-[#00b2e3] text-white px-4 py-2 rounded-lg hover:bg-[#0096c3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Creando..." : "Crear Proceso"}
+              {loading ? "Modificando..." : "Modificar Proceso"}
             </button>
           </div>
         </form>
+
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+
       </div>
     </div>
   );
 };
 
-export default CreateProcessModal; 
+export default ModifyProcessModal; 
