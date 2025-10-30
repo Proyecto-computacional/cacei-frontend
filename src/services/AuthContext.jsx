@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-
+  
   const extendSession = async () => {
       try {
         await api.post("/api/auth/renew");
@@ -62,11 +62,11 @@ export const AuthProvider = ({ children }) => {
                           <h3 className="text-white font-medium text-base">Alerta</h3>
                         </div>
                       </div>
-
+                      
                       {/* Contenido */}
                       <div className="px-6 py-6">
                         <p className="text-gray-700 text-base leading-relaxed mb-6">Tú sesión está por expirar. ¿Deseas renovarla?</p>
-
+                        
                         {/* Botón alineado a la derecha */}
                         <div className="flex justify-end gap-3">
                           <button
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
                 }}
             />
         </>
-
+        
       )}
     </AuthContext.Provider>
   );
