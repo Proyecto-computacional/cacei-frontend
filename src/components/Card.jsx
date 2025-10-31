@@ -1,7 +1,7 @@
 import React from "react";
 import { ChevronRight, CheckCircle, Calendar, Clock } from "lucide-react";
 
-const Card = ({ title, career, area, percentage, finished, startDate, endDate, dueDate, onClick }) => {
+const Card = ({ title, frame, career, area, percentage, finished, startDate, endDate, dueDate, onClick }) => {
   const formatDate = (dateString) => {
     if (!dateString) return 'No definida';
     const date = new Date(dateString);
@@ -31,13 +31,15 @@ const Card = ({ title, career, area, percentage, finished, startDate, endDate, d
       </div>
       
       <div className="space-y-3">
+        <div className="text-sm flex items-center gap-2 text-gray-500">
+          <span>{frame}</span>
+        </div>
+
         <div className="flex items-center gap-2 text-gray-600">
-          <span className="font-medium">Área:</span>
           <span>{area}</span>
         </div>
         
         <div className="flex items-center gap-2 text-gray-600">
-          <span className="font-medium">Carrera:</span>
           <span>{career}</span>
         </div>
 
@@ -46,14 +48,14 @@ const Card = ({ title, career, area, percentage, finished, startDate, endDate, d
             <Calendar className="w-4 h-4" />
             <div className="flex items-center gap-1 text-sm">
               <span className="font-medium">Inicio:</span>
-              <span>{formatDate(startDate)}</span>
+              <span>{(startDate)}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             <div className="flex items-center gap-1 text-sm">
               <span className="font-medium">Fin:</span>
-              <span>{formatDate(endDate)}</span>
+              <span>{(endDate)}</span>
             </div>
           </div>
         </div>

@@ -49,12 +49,16 @@ export default function UsersTable() {
             })
         ]);
 
-            setAllUsers(responseUsers.data.usuarios);
-            console.log(responseUsers);
+            // Ordenar usuarios alfabéticamente por nombre
+            const sortedUsers = responseUsers.data.usuarios.sort((a, b) => {
+                const nameA = (a.user_name || '').toLowerCase();
+                const nameB = (b.user_name || '').toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+
+            setAllUsers(sortedUsers);
             setAreas(responseAreas.data);
-        
-            setFilteredUsers(responseUsers.data.usuarios);
-            //setNextPage(responseUsers.data.usuarios.next_page_url);
+            setFilteredUsers(sortedUsers);
         } catch (error) {
             if (error.response) {
                 if (error.response.status === 403 ) {
