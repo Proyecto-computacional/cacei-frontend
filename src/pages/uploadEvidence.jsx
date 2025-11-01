@@ -511,6 +511,14 @@ const UploadEvidence = () => {
                       </span>
                       
                     </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={`font-medium text-sm flex-1 truncate ${
+                        evidence_id === item.evidence_id.toString()
+                          ? 'text-primary3'
+                          : 'text-gray-400'
+                      }`}>{item.proceso}</p>
+                      
+                    </div>
                   </Link>
                 ))}
               </div>
