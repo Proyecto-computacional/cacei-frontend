@@ -284,7 +284,9 @@ export function SubHeading() {
                                                                 <div className="border-t border-gray-200 my-1"></div>
                                                             </>
                                                         )}
-                                                        {(role === "Jefe de area" ||
+                                                        {(
+                                                            role === "Administrador" ||
+                                                            role === "Jefe de area" ||
                                                         role === "Coordinador de carrera" ||
                                                         role === "Directivo" )&& (
                                                             <>

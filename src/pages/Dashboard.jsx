@@ -5,6 +5,7 @@ import DashboardWidgets from "../components/DashboardWidgets";
 import { useNavigate } from 'react-router-dom';
 import api from "../services/api";
 import { Link } from "lucide-react";
+import ModalAlert from "../components/ModalAlert";
 
 const ProgressBar = ({ approved, rejected, pending, notUploaded }) => {
   // Calculate total for percentage normalization (excluding notUploaded)
@@ -122,6 +123,7 @@ const Dashboard = () => {
   });
   const [isFinished, setIsFinished] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [modalAlertMessage, setModalAlertMessage] = useState(null);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -254,9 +256,19 @@ const Dashboard = () => {
       setIsFinished(!isFinished);
       setShowConfirmation(false);
     } catch (error) {
-      console.error("Error toggling process status:", error);
+      console.error("Error cambiando el estado del proceso:", error);
     }
   };
+
+  const handleBackup = async () => {
+    try {
+      await api.get('/api/backup');
+      setShowConfirmation(false);
+      setModalAlertMessage('Respaldo generado de manera exitosa')
+    } catch (error){
+      setModalAlertMessage("Error al crear el respaldo de archivos", error);
+    }
+  }
 
   if (loading) {
     return (
@@ -455,6 +467,35 @@ const Dashboard = () => {
               </div>
             </div>
 
+            <div className="mt-12 mb-6">
+              <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#004A98]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                </svg>
+                Generar respaldo
+              </h3>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-lg p-6 w-96">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-[#004A98] p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">Generación de respaldo</h3>
+                </div>
+                <p className="text-gray-600 mb-4 text-sm">
+                  Genera un respaldo de todas las evidencias aprobadas.
+                </p>
+                <button 
+                  onClick={handleBackup}
+                  className="w-full bg-[#004A98] text-white py-2.5 px-4 rounded-lg text-base font-semibold hover:bg-[#003d7a] transition-colors duration-300 flex items-center justify-center gap-2"
+                >
+                  Generar respaldo
+                </button>
+              </div>
+
             {showConfirmation && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-xl p-6 w-96">
@@ -490,6 +531,11 @@ const Dashboard = () => {
         <div className="mb-12"></div>
       </div>
       <AppFooter />
+      <ModalAlert
+                      isOpen={modalAlertMessage !== null}
+                      message={modalAlertMessage}
+                      onClose={() => setModalAlertMessage(null)}
+                  />
     </>
   );
 };
