@@ -66,11 +66,11 @@ const UploadEvidence = () => {
           const normalize = (s) => (s ?? '').toString().trim().toUpperCase();
           const lockIf = (statusDesc) => {
             const st = normalize(statusDesc);
-            return st === "APROBADA" || st === "APROBADO" || st === "PENDIENTE";
+            return st === "APROBADA" || st === "APROBADO";
           }
           const notApproved = (statusDesc) => {
             const st = normalize(statusDesc);
-            return st === "NO APROBADA" || st === "NO APROBADO";
+            return st === "NO APROBADA" || st === "NO APROBADO" || st === "PENDIENTE";
           }
           
           if (response.data.evidence.status && response.data.evidence.status.length > 0) {
