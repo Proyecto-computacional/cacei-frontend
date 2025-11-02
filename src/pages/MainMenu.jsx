@@ -7,6 +7,8 @@ import { Plus, X, Calendar } from "lucide-react";
 import CreateProcessModal from "../components/CreateProcessModal";
 import DeleteProcessModal from "../components/DeleteProcessModal";
 import ModifyProcessModal from "../components/ModifyProcessModal";
+import ModalAlert from "../components/ModalAlert";
+
 import LoadingSpinner from "../components/LoadingSpinner";
 import { Search } from "lucide-react";
 
@@ -231,6 +233,13 @@ const MainMenu = () => {
 
   const handleSearch = () => {
     console.log("IM TRIGGERING")
+
+    // Verificar que processes exista y sea un array
+    if (!processes || !Array.isArray(processes)) {
+        setFilteredProcesses([]);
+        return;
+    }
+
     let filtered = processes.filter(isNotDeleted);
 
       // Filtro por término de búsqueda

@@ -5,7 +5,7 @@ import headerImg from './assets/headerImage.png';
 import { useNavigate, useParams } from "react-router-dom";
 import Logout from "./components/logout";
 import NotificationsTable from "./components/NotificationTable";
-import { Mail, Bell, User, Menu, Users, FileText, Eye } from "lucide-react";
+import { Mail, Bell, User, Menu, Users, FileText, Eye, Upload } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import api from "./services/api";
 
@@ -261,10 +261,7 @@ export function SubHeading() {
                         <div className="relative">
                             {(() => {
                                 const role = userRole;
-                                return (role === "Administrador" ||
-                                    role === "Jefe de area" ||
-                                    role === "Coordinador de carrera" ||
-                                    role === "Directivo") && (
+                                return(
                                         <>
                                             <button onClick={() => setOpen(!open)} className="w-6 h-6 text-black hover:text-[#004A98] transition-colors duration-200">
                                                 <Menu />
@@ -287,10 +284,21 @@ export function SubHeading() {
                                                                 <div className="border-t border-gray-200 my-1"></div>
                                                             </>
                                                         )}
+                                                        {(role === "Jefe de area" ||
+                                                        role === "Coordinador de carrera" ||
+                                                        role === "Directivo" )&& (
+                                                            <>
+                                                                <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
+                                                                    onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
+                                                                    <Eye className="w-4 h-4 mr-3" />
+                                                                    <span>Revisión de evidencias</span>
+                                                                </li>
+                                                            </>
+                                                        )}
                                                         <li className="px-4 py-2.5 hover:bg-[#004A98] hover:text-white transition-colors duration-200 cursor-pointer flex items-center"
-                                                            onClick={() => { navigate("/ReviewEvidence"); setOpen(false); }} >
-                                                            <Eye className="w-4 h-4 mr-3" />
-                                                            <span>Revisión de evidencias</span>
+                                                            onClick={() => { navigate("/uploadEvidence"); setOpen(false); }} >
+                                                            <Upload className="w-4 h-4 mr-3" />
+                                                            <span>Subir evidencias</span>
                                                         </li>
                                                     </ul>
                                                 </div>
