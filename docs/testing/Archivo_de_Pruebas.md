@@ -1,3 +1,28 @@
+Instalaciones para testings
+cd  # A la carpeta donde tengas instalado el frontend
+
+Instalar testing library:
+npm install --save-dev jest @testing-library/react @testing-library/jest-dom @testing-library/user-event
+
+Instalar Cypress (E2E):
+npm install --save-dev cypress
+
+Configuración MÍNIMA de package.json:
+{
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
+  }
+}
+
+Comandos Seguros para Verificar
+SIN riesgo de que fallen pruebas:
+# Solo muestra ayuda de los comandos
+npx jest --help
+npx cypress --help
+
 Login E2E Tests
 Objetivo
 Valida:
