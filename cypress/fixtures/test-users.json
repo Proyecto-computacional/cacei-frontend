@@ -1,0 +1,12 @@
+{
+  "professor": {
+    "rpe": "3045",
+    "password": "Cacei#FI@2025",
+    "name": "Profesor Test"
+  },
+  "coordinator": {
+    "rpe": "10314",
+    "password": "Cacei#FI@2025", 
+    "name": "Coordinador Software"
+  }
+}
