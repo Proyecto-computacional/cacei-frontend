@@ -160,3 +160,55 @@ Cypress.Commands.add('ensureAuthenticated', (userRpe, password) => {
     expect(win.localStorage.getItem('token')).to.be.a('string').and.not.be.empty
   })
 })
+
+Cypress.Commands.add('navigateToReviewEvidence', () => {
+  cy.visit('/reviewEvidence', { timeout: 15000 })
+  cy.url().should('include', '/reviewEvidence')
+  cy.contains('Revisión de evidencias').should('be.visible')
+})
+
+Cypress.Commands.add('filterEvidences', (filters = {}) => {
+  if (filters.process) {
+    cy.get('select[name="process"]').select(filters.process)
+  }
+  if (filters.category) {
+    cy.get('select[name="category"]').select(filters.category)
+  }
+  if (filters.section) {
+    cy.get('select[name="section"]').select(filters.section)
+  }
+  // Esperar a que se apliquen los filtros
+  cy.wait(1000)
+})
+
+Cypress.Commands.add('approveEvidence', (feedback = 'Aprobado en prueba E2E') => {
+  cy.get('button').contains('✓').first().click({ force: true })
+  cy.get('textarea').type(feedback)
+  cy.contains('Enviar').click({ force: true })
+  cy.contains('Sí, aprobar').click({ force: true })
+})
+
+Cypress.Commands.add('rejectEvidence', (feedback = 'Rechazado en prueba E2E') => {
+  cy.get('button').contains('✕').first().click({ force: true })
+  cy.get('textarea').type(feedback)
+  cy.contains('Enviar').click({ force: true })
+  cy.contains('Sí, rechazar').click({ force: true })
+})
+
+Cypress.Commands.add('waitForReviewPage', () => {
+  cy.contains('Revisión de evidencias', { timeout: 10000 }).should('be.visible')
+  cy.get('table', { timeout: 10000 }).should('exist')
+})
+
+Cypress.Commands.add('findReviewableEvidence', () => {
+  return cy.get('tbody tr').then(($rows) => {
+    return $rows.toArray().find(row => {
+      const buttons = row.querySelectorAll('button')
+      return Array.from(buttons).some(btn => 
+        !btn.disabled && 
+        (btn.innerHTML.includes('✓') || btn.innerHTML.includes('×') || 
+         btn.querySelector('svg'))
+      )
+    })
+  })
+})

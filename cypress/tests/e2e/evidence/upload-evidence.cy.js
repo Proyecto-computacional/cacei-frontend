@@ -1,4 +1,3 @@
-// cypress/e2e/evidence/upload-evidence-robust.cy.js
 describe('Evidence Upload Flow - Robust', () => {
   beforeEach(() => {
     cy.logout()
