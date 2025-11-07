@@ -1,0 +1,14 @@
+{
+  "assignment": {
+    "evidence_id": 100,
+    "criterio": "Estándar Normal",
+    "proceso": "Proceso 2024",
+    "estado": "NO CARGADA"
+  },
+  "file": {
+    "name": "test-evidence.zip",
+    "type": "application/zip",
+    "size": 1024
+  },
+  "justification": "Esta es una justificación de prueba para la evidencia E2E"
+}
