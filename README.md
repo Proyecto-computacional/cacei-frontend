@@ -1,6 +1,14 @@
 # Frontend
 
-Este es el frontend del proyecto, construido con React, Vite, TailwindCSS y JavaScript.
+Este es el frontend del proyecto, construido con **React**, **Vite**, **TailwindCSS** y **JavaScript**.
+
+## Requisitos
+
+Asegúrate de tener instalados los siguientes requisitos antes de continuar:
+
+-   [Node.js 18+](https://nodejs.org/)
+-   [npm](viene junto a Node.js)
+-   [Navegador moderno](ej. Chrome)
 
 ## Instalación y Configuración
 
@@ -30,3 +38,9 @@ npm run dev
 ```
 
 Esto iniciará el servidor de desarrollo en: `http://localhost:5173/`.
+
+Para correr el entorno de producción, usa:
+
+```env
+npm run build
+```
