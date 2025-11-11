@@ -82,17 +82,6 @@ const UploadEvidence = () => {
             const adminDesc = adminStatus ? normalize(adminStatus.status_description) : null;
             const firstDesc = firstStatus ? normalize(firstStatus.status_description) : null;
 
-            // DEBUG
-            /*
-            console.log('UploadEvidence statuses:', {
-              firstStatus: firstStatus?.status_description,
-              adminStatus: adminStatus ? adminStatus.status_description : null,
-              adminRole: adminStatus?.user?.user_role,
-              userRpe: user?.user_rpe,
-              evidenceOwner: response.data.evidence.user_rpe
-            });
-            */
-
             // Bloquea la evidencia si ha sido aprobada o está pendiente
             if (adminStatus) {
               if (lockIf(adminDesc)) {
@@ -125,12 +114,6 @@ const UploadEvidence = () => {
         });
     }
   }, [evidence_id, user]);
-
-  /*
-  useEffect(() => {
-    console.log('isLocked changed ->', isLocked);
-  }, [isLocked]);
-  */
 
   // ¿Revisa si el usuario tiene asignaciones?
   useEffect(() => {
@@ -311,15 +294,6 @@ const UploadEvidence = () => {
                 size: file.size
               }))
             }
-          });
-
-          // Mostrar el contenido completo del error en la consola
-          console.log('UploadEvidence - Contenido completo del error:', {
-            response: error.response,
-            request: error.request,
-            config: error.config,
-            data: error.response?.data,
-            errors: error.response?.data?.errors
           });
 
           // Mostrar mensaje de error más específico

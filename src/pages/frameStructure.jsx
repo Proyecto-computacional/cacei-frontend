@@ -438,7 +438,6 @@ import { ArrowUp, ArrowDown } from "lucide-react";
         };
         fetchData();
     }, [seccion.section_id, seccion.is_standard, frame_id]);
-    console.log(standardId);
   
     // Maneja el guardado
     const handleSave = async () => {
