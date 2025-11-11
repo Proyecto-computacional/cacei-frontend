@@ -233,7 +233,6 @@ const MainMenu = () => {
   };
 
   const handleSearch = () => {
-    console.log("IM TRIGGERING")
 
     // Verificar que processes exista y sea un array
     if (!processes || !Array.isArray(processes)) {
@@ -253,8 +252,6 @@ const MainMenu = () => {
             proc.process_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) 
           );
       }
-
-      console.log(filtered)
 
       setFilteredProcesses(filtered);
   };
