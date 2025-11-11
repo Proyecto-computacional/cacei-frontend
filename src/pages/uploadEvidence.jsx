@@ -306,7 +306,14 @@ const UploadEvidence = () => {
         }
         }
       }
-
+      if(firstRevisor == ''){
+        await api.post(`/api/RevisionEvidencias/aprobar`, {
+          user_rpe: evidence.user_rpe,
+          revisor_rpe: evidence.user_rpe,
+          evidence_id: evidence.evidence_id,
+          feedback: 'Evidencia subida por el administrador'
+        })
+      }
       for (const revisor of firstRevisor) {
         await api.post(`/api/RevisionEvidencias/pendiente`, {
           user_rpe: evidence.user_rpe,

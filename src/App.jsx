@@ -5,7 +5,7 @@ import PersonalConfig from "./pages/PersonalConfig";
 import Dashboard from "./pages/Dashboard";
 import Notification from "./pages/Notifications";
 import UsersAdmin from "./pages/UsersAdmin";
-import ReviewEvidence from "./pages/ReviewEvidence";
+import ReviewEvidence from "./pages/reviewEvidence";
 import UploadEvidence from "./pages/uploadEvidence";
 import EvidenceManagement from "./pages/evidenceManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
