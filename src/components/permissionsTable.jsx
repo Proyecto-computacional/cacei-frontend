@@ -57,7 +57,7 @@ const PermissionsTable = () => {
     try {
       setLoadingStates(prev => ({ ...prev, [loadingKey]: true }));
 
-      const response = api.put(`http://127.0.0.1:8000/api/roles/${roleId}/permissions/${permissionId}`,
+      const response = api.put(`/api/roles/${roleId}/permissions/${permissionId}`,
         {is_enabled: Boolean(!currentState)},
         {
           headers: {
