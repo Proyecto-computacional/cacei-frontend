@@ -228,13 +228,13 @@ const EvidenceManagement = () => {
                     filteredRevisers.map((reviser, index) => (
                       <tr key={index} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {reviser.category_name}
+                          {reviser.category_index}. {reviser.category_name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {reviser.section_name}
+                          {reviser.category_index}.{reviser.section_index}. {reviser.section_name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {reviser.standard_name}
+                          {reviser.category_index}.{reviser.section_index}.{reviser.standard_index}. {reviser.standard_name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {reviser.user_name}

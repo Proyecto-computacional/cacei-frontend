@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import './app.css';
 import headerLogo from './assets/headerLogo.png';
-import headerImg from './assets/headerImage.png';
+import SICADLogo from './assets/SICAD.png';
 import { useNavigate, useParams } from "react-router-dom";
 import Logout from "./components/logout";
 import NotificationsTable from "./components/NotificationTable";
@@ -45,9 +45,12 @@ export function AppHeader() {
                             <p className={`textoUASLP ${isScrolled ? 'd-block' : 'd-none'}`}>
                                 <a href="https://www.uaslp.mx">UASLP</a>
                             </p>
-
                             <div className={`divisorUASLP-ENTIDAD me-2 ms-2 ${isScrolled ? 'd-none' : 'd-block'}`}></div>
+
                             <div className={`divisorUASLP-ENTIDADScroll ${isScrolled ? 'd-block' : 'd-none'} me-2 ms-3`}></div>
+                            <a>
+                                <img src={SICADLogo} className={`img-fluid ${isScrolled ? 'd-none' : 'd-block'} logoSICAD`} alt="SICAD Logo"/>
+                            </a>
                         </div>
 
                         {/* Para cuando ya está logeado */}
