@@ -316,28 +316,28 @@ export function SubHeading() {
 
 
                             {isBreadcrumbLoading ? (
-                                <span className="text-[#00B2E3] text-lg font-medium pl-10">Cargando...</span>
+                                <span className="text-[#004A98] text-lg font-medium pl-10">Cargando...</span>
                             ) : (
                                 <>
                                     {pathnames.includes('mainmenu') ? (
-                                        <span className="text-[#00B2E3] text-lg font-medium pl-10">Inicio</span>
+                                        <span className="text-[#004A98] text-lg font-medium pl-10">Inicio</span>
                                     ) : pathnames.includes('dash') ? (
                                         <>
                                             <span
-                                                className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
+                                                className="text-[#004A98] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
                                                 onClick={() => navigate('/mainmenu')}
                                             >
                                                 Inicio
                                             </span>
                                             <span className="mx-2 text-gray-400 text-lg">/</span>
-                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                            <span className="text-[#004A98] text-lg font-medium">
                                                 {processName || "Cargando..."}
                                             </span>
                                         </>
                                     ) : (
                                         <>
                                             <span
-                                                className="text-[#00B2E3] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
+                                                className="text-[#004A98] text-lg font-medium hover:text-[#0088b3] transition-colors duration-200 cursor-pointer"
                                                 onClick={() => navigate('/mainmenu')}
                                             >
                                                 Inicio
@@ -348,7 +348,7 @@ export function SubHeading() {
                                                     <span className="mx-2 text-gray-400 text-lg">/</span>
 
                                                     <span
-                                                        className="text-[#00B2E3] text-lg font-medium cursor-pointer hover:text-[#0088b3]"
+                                                        className="text-[#004A98] text-lg font-medium cursor-pointer hover:text-[#0088b3]"
                                                         onClick={() => navigate(`/dash/${processId}`)}
                                                     >
                                                         {processName}
@@ -361,14 +361,14 @@ export function SubHeading() {
                                                     return (
                                                         <React.Fragment key={index}>
                                                             <span className="mx-2 text-gray-400 text-lg">/</span>
-                                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                                            <span className="text-[#004A98] text-lg font-medium">
                                                                 {breadcrumbMap[value]}
                                                             </span>
 
                                                             {evidenceName && (
                                                                 <>
                                                                     <span className="mx-2 text-gray-400 text-lg">/</span>
-                                                                    <span className="text-[#00B2E3] text-lg font-medium">
+                                                                    <span className="text-[#004A98] text-lg font-medium">
                                                                         {evidenceName}
                                                                     </span>
                                                                 </>
@@ -380,7 +380,7 @@ export function SubHeading() {
                                                     return (
                                                         <React.Fragment key={index}>
                                                             <span className="mx-2 text-gray-400 text-lg">/</span>
-                                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                                            <span className="text-[#004A98] text-lg font-medium">
                                                                 {areaName ? `CVs de ${areaName}` : 'CVs de Profesores'}
                                                             </span>
                                                         </React.Fragment>
@@ -393,13 +393,13 @@ export function SubHeading() {
                                                         <React.Fragment key={index}>
                                                             <span className="mx-2 text-gray-400 text-lg">/</span>
                                                             <span
-                                                                className="text-[#00B2E3] text-lg font-medium cursor-pointer hover:text-[#0088b3]"
+                                                                className="text-[#004A98] text-lg font-medium cursor-pointer hover:text-[#0088b3]"
                                                                 onClick={() => navigate('/framesAdmin')}
                                                             >
                                                                 {breadcrumbMap['framesAdmin']}
                                                             </span>
                                                             <span className="mx-2 text-gray-400 text-lg">/</span>
-                                                            <span className="text-[#00B2E3] text-lg font-medium">
+                                                            <span className="text-[#004A98] text-lg font-medium">
                                                                 {marco?.frame_name || breadcrumbMap['framesStructure']}
                                                             </span>
                                                         </React.Fragment>
@@ -408,7 +408,7 @@ export function SubHeading() {
                                                 return (
                                                     <React.Fragment key={index}>
                                                         <span className="mx-2 text-gray-400 text-lg">/</span>
-                                                        <span className="text-[#00B2E3] text-lg font-medium">
+                                                        <span className="text-[#004A98] text-lg font-medium">
                                                             {breadcrumbMap[value] || value}
                                                         </span>
                                                     </React.Fragment>
