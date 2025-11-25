@@ -23,6 +23,7 @@ const MainMenu = () => {
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [finishedStatus, setFinishedStatus] = useState({});
+  const [modalAlertMessage, setModalAlertMessage] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const [filteredProcesses, setFilteredProcesses] = useState([]);
@@ -232,7 +233,6 @@ const MainMenu = () => {
   };
 
   const handleSearch = () => {
-    console.log("IM TRIGGERING")
 
     // Verificar que processes exista y sea un array
     if (!processes || !Array.isArray(processes)) {
@@ -252,8 +252,6 @@ const MainMenu = () => {
             proc.process_name?.toLowerCase().includes(trimmedSearch.toLowerCase()) 
           );
       }
-
-      console.log(filtered)
 
       setFilteredProcesses(filtered);
   };

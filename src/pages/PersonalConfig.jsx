@@ -19,11 +19,10 @@ const PersonalConfig = () => {
     setLoading(true);
     const fetchCV = async () => {
       try {
-
+        console.log("Fetching CV for RPE:", rpe);
         const response = await api.post("/api/cvs", { user_rpe: rpe });
         setCvData(response.data);
       } catch (err) {
-        console.error("Error fetching CV:", err);
         const msg = err.response?.data?.error || "Error inesperado al cargar el CV";
         setError(msg);
         setModalAlertMessage(msg);
