@@ -25,7 +25,7 @@ const MainMenu = () => {
   const [finishedStatus, setFinishedStatus] = useState({});
   const [modalAlertMessage, setModalAlertMessage] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [modalAlertMessage, setModalAlertMessage] = useState(null);
   const [filteredProcesses, setFilteredProcesses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProcess, setSelectedProcess] = useState(null);
@@ -91,44 +91,45 @@ const MainMenu = () => {
         percentagesMap[result.processId] = result.percentage;
         finishedStatusMap[result.processId] = result.finished;
       });
-
-      try {
-          setLoading(true);
-          const [responseAreas] = await Promise.all([
-          api.get("/api/areas", { // <-- Aquí tu segunda consulta
-              headers: {
-                  Authorization: `Bearer ${localStorage.getItem('token')}`,
-                  "Content-Type": "application/json",
-              },
-          })
-      ]);
-          setAreas(responseAreas.data);
-      
-      } catch (error) {
-          if (error.response) {
-              if (error.response.status === 403 ) {
-                  setModalAlertMessage("No tienes permisos para acceder a esta sección.");
-                  window.location.href = "/PersonalConfig";
-              } else if (error.response.status === 401) {
-                  setModalAlertMessage("Sesión expirada. Inicia sesión de nuevo.");
-                  window.location.href = "/";
-              } else {
-                  setModalAlertMessage("Error desconocido al obtener los usuarios.");
-              }
-          } else {
-              setModalAlertMessage("Error de conexión con el servidor.");
-          }
-          console.error("Error al obtener los usuarios:", error);
-      } finally {
-          setLoading(false);
-      }
+      if(role === 'ADMINISTRADOR'){
+        try {
+            setLoading(true);
+            const [responseAreas] = await Promise.all([
+            api.get("/api/areas", { // <-- Aquí tu segunda consulta
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    "Content-Type": "application/json",
+                },
+            })
+        ]);
+            setAreas(responseAreas.data);
+        
+        } catch (error) {
+            if (error.response) {
+                if (error.response.status === 403 ) {
+                    setModalAlertMessage("No tienes permisos para acceder a esta sección.");
+                    window.location.href = "/PersonalConfig";
+                } else if (error.response.status === 401) {
+                    setModalAlertMessage("Sesión expirada. Inicia sesión de nuevo.");
+                    window.location.href = "/";
+                } else {
+                    setModalAlertMessage("Error desconocido al obtener los usuarios.");
+                }
+            } else {
+                setModalAlertMessage("Error de conexión con el servidor.");
+            }
+            console.error("Error al obtener los usuarios:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
       return { percentagesMap, finishedStatusMap };
     } catch (error) {
       console.error("Error en fetchProcessesData:", error);
       return { percentagesMap: {}, finishedStatusMap: {} };
     }
-
+  
     
   }, []);
 

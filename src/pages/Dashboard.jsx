@@ -146,7 +146,6 @@ const Dashboard = () => {
           throw new Error("No process ID found");
         }
         const response = await api.get(`/api/processes/${processId}`);
-        console.log(response.data);
         setProcessInfo({
           frameName: response.data.frame_name || '',
           area: response.data.area_name || '',

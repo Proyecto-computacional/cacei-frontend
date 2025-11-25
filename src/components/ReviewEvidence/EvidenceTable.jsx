@@ -464,11 +464,11 @@ export default function EvidenceTable() {
                                         <tr key={`${item.evidence_id}-${item.statuses[0]?.status_date}`} className="hover:bg-gray-50 transition-colors duration-200">
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.evidence_owner_name}</td>
                                             <td className="py-4 px-6 text-sm text-gray-900">{item.process_name}</td>
-                                            <td className="py-4 px-6 text-sm text-gray-900">{item.category_name}</td>
-                                            <td className="py-4 px-6 text-sm text-gray-900">{item.section_name}</td>
+                                            <td className="py-4 px-6 text-sm text-gray-900">{item.category_index}. {item.category_name}</td>
+                                            <td className="py-4 px-6 text-sm text-gray-900">{item.category_index}.{item.section_index}. {item.section_name}</td>
                                             <td className="py-4 px-6 text-sm text-gray-900">
                                                 <div className="flex flex-col items-center justify-center gap-1">  {/* Marca si es transversal */}
-                                                    <span>{item.standard_name}</span>
+                                                    <span>{item.category_index}.{item.section_index}.{item.standard_index}. {item.standard_name}</span>
                                                     {item.is_transversal && (
                                                         <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-fit">
                                                             Transversal
